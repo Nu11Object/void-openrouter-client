@@ -8,10 +8,18 @@ plugins {
 
 dependencies {
     implementation(projects.shared)
+    implementation(projects.core.designsystem)
+
+    implementation(libs.koin.core)
+
+    implementation(libs.decompose.core)
+    implementation(libs.decompose.compose)
+
+    implementation(libs.compose.material3)
+    implementation(libs.compose.material3.adaptive)
 
     implementation(compose.desktop.currentOs)
     implementation(libs.kotlinx.coroutinesSwing)
-
     implementation(libs.compose.uiToolingPreview)
 }
 

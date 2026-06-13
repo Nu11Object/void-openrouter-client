@@ -1,0 +1,11 @@
+package com.nullo.voidapp.feature.auth.data.network.dto
+
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+
+@Serializable
+internal data class ExchangeCodeRequest(
+    @SerialName("code") val code: String,
+    @SerialName("code_verifier") val codeVerifier: String,
+    @SerialName("code_challenge_method") val codeChallengeMethod: String,
+)

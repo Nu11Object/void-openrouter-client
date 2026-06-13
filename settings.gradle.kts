@@ -37,3 +37,8 @@ include(":desktopApp")
 include(":shared")
 
 include(":core:network")
+include(":core:security")
+include(":core:utils")
+include(":core:designsystem")
+
+include(":feature:auth")
