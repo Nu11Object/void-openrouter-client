@@ -63,7 +63,22 @@ import com.nullo.voidapp.core.utils.compose.rememberDeviceConfiguration
 import com.nullo.voidapp.feature.auth.presentation.component.AuthComponent
 import com.nullo.voidapp.feature.auth.presentation.store.AuthStore
 import com.nullo.voidapp.feature.auth.presentation.store.AuthStore.State.Completion
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.getKoin
+import voidapp.feature.auth.generated.resources.Res
+import voidapp.feature.auth.generated.resources.cancel_sign_in
+import voidapp.feature.auth.generated.resources.desc_welcome_to_the_void
+import voidapp.feature.auth.generated.resources.key_auth_description
+import voidapp.feature.auth.generated.resources.oauth_description
+import voidapp.feature.auth.generated.resources.ok
+import voidapp.feature.auth.generated.resources.oops
+import voidapp.feature.auth.generated.resources.or
+import voidapp.feature.auth.generated.resources.paste_api_key
+import voidapp.feature.auth.generated.resources.sign_in_via_open_router
+import voidapp.feature.auth.generated.resources.submit_api_key
+import voidapp.feature.auth.generated.resources.to_the
+import voidapp.feature.auth.generated.resources.void
+import voidapp.feature.auth.generated.resources.welcome
 
 private val maxButtonAndTextFieldWidth = 350.dp
 
@@ -222,10 +237,10 @@ private fun AuthScreenContent(
 
     state.error?.let { errorMessage ->
         VoidAlertDialog(
-            title = "Oops",
+            title = stringResource(Res.string.oops),
             onDismissRequest = onDismissError,
             confirmButton = VoidDialogButton(
-                text = "Ok",
+                text = stringResource(Res.string.ok),
                 onClick = onDismissError
             ),
             message = errorMessage,
@@ -235,6 +250,7 @@ private fun AuthScreenContent(
 
 @Composable
 private fun WelcomeSection(modifier: Modifier = Modifier) {
+    val contentDescription = stringResource(Res.string.desc_welcome_to_the_void)
     Column(
         modifier = modifier
             .background(
@@ -243,18 +259,27 @@ private fun WelcomeSection(modifier: Modifier = Modifier) {
             )
             .padding(vertical = 24.dp)
             .clearAndSetSemantics {
-                contentDescription = "Welcome to the Void"
+                this.contentDescription = contentDescription
             },
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        Text(text = "Welcome", style = MaterialTheme.typography.displaySmall)
+        Text(
+            text = stringResource(Res.string.welcome),
+            style = MaterialTheme.typography.displaySmall
+        )
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(text = "to the", style = MaterialTheme.typography.titleMedium)
+            Text(
+                text = stringResource(Res.string.to_the),
+                style = MaterialTheme.typography.titleMedium
+            )
             Spacer(Modifier.width(8.dp))
             Image(imageVector = Icons.Logo, contentDescription = null)
             Spacer(Modifier.width(4.dp))
-            Text(text = "Void", style = MaterialTheme.typography.titleMedium)
+            Text(
+                text = stringResource(Res.string.void),
+                style = MaterialTheme.typography.titleMedium
+            )
         }
     }
 }
@@ -335,13 +360,19 @@ private fun SignInViaOpenRouterOption(
                 )
             }
             Text(
-                text = if (isOAuthInProgress) "Cancel Sign In" else "Sign in via OpenRouter",
+                text = stringResource(
+                    if (isOAuthInProgress) {
+                        Res.string.cancel_sign_in
+                    } else {
+                        Res.string.sign_in_via_open_router
+                    }
+                ),
                 modifier = Modifier.weight(1f),
                 textAlign = TextAlign.Center
             )
         }
         Text(
-            text = "The app will receive a temporary API key",
+            text = stringResource(Res.string.oauth_description),
             style = MaterialTheme.typography.bodySmall
         )
     }
@@ -360,7 +391,7 @@ private fun OrHorizontalDivider(modifier: Modifier = Modifier) {
             thickness = 2.dp,
         )
         Text(
-            text = "OR",
+            text = stringResource(Res.string.or),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.outline,
         )
@@ -393,7 +424,7 @@ private fun SignWithApiKeyOption(
             submitEnabled = !isLoading && apiKey.isNotBlank()
         )
         Text(
-            text = "The key will be encrypted and saved locally",
+            text = stringResource(Res.string.key_auth_description),
             style = MaterialTheme.typography.bodySmall
         )
     }
@@ -415,7 +446,7 @@ private fun ApiKeyField(
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
         placeholder = {
             Text(
-                text = "Paste API key",
+                text = stringResource(Res.string.paste_api_key),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
             )
@@ -429,7 +460,7 @@ private fun ApiKeyField(
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.ArrowForward,
-                    contentDescription = "Submit API key",
+                    contentDescription = stringResource(Res.string.submit_api_key),
                 )
             }
         }

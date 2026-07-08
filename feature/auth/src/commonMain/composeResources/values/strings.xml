@@ -1,0 +1,15 @@
+<resources>
+    <string name="oops">Oops</string>
+    <string name="ok">Ok</string>
+    <string name="desc_welcome_to_the_void">Welcome to the Void</string>
+    <string name="welcome">Welcome</string>
+    <string name="to_the">to the</string>
+    <string name="void">Void</string>
+    <string name="cancel_sign_in">Cancel Sign In</string>
+    <string name="sign_in_via_open_router">Sign in via OpenRouter</string>
+    <string name="oauth_description">The app will receive a temporary API key</string>
+    <string name="key_auth_description">The key will be encrypted and saved locally</string>
+    <string name="or">OR</string>
+    <string name="paste_api_key">Paste API key</string>
+    <string name="submit_api_key">Submit API key</string>
+</resources>
