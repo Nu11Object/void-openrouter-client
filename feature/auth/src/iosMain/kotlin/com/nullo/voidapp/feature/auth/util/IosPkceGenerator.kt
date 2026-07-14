@@ -1,7 +1,7 @@
-package com.nullo.voidapp.feature.auth.domain
+package com.nullo.voidapp.feature.auth.util
 
-import com.nullo.voidapp.feature.auth.domain.entity.PkceParams
-import com.nullo.voidapp.feature.auth.domain.util.PkceGenerator
+import com.nullo.voidapp.feature.auth.util.entity.PkceParams
+import com.nullo.voidapp.feature.auth.util.util.PkceGenerator
 import io.ktor.utils.io.charsets.Charsets
 import io.ktor.utils.io.core.toByteArray
 import kotlinx.cinterop.ExperimentalForeignApi

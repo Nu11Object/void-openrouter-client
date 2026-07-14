@@ -1,17 +1,18 @@
 package com.nullo.voidapp.feature.auth.presentation.store
 
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
+import com.nullo.voidapp.core.utils.resources.UiText
 import com.nullo.voidapp.feature.auth.FakeApiKeyStorage
 import com.nullo.voidapp.feature.auth.FakeAuthRepository
 import com.nullo.voidapp.feature.auth.FakeOAuthWebLauncher
 import com.nullo.voidapp.feature.auth.FakePkceGenerator
-import com.nullo.voidapp.feature.auth.domain.entity.InvalidApiKeyException
-import com.nullo.voidapp.feature.auth.domain.entity.OAuthCancelledException
-import com.nullo.voidapp.feature.auth.domain.entity.OAuthException
-import com.nullo.voidapp.feature.auth.domain.usecase.ObserveAuthStateUseCase
-import com.nullo.voidapp.feature.auth.domain.usecase.SignInViaOpenRouterUseCase
-import com.nullo.voidapp.feature.auth.domain.usecase.SignInWithApiKeyUseCase
 import com.nullo.voidapp.feature.auth.presentation.store.AuthStore.State.Completion
+import com.nullo.voidapp.feature.auth.util.entity.InvalidApiKeyException
+import com.nullo.voidapp.feature.auth.util.entity.OAuthCancelledException
+import com.nullo.voidapp.feature.auth.util.entity.OAuthException
+import com.nullo.voidapp.feature.auth.util.usecase.ObserveAuthStateUseCase
+import com.nullo.voidapp.feature.auth.util.usecase.SignInViaOpenRouterUseCase
+import com.nullo.voidapp.feature.auth.util.usecase.SignInWithApiKeyUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -165,7 +166,7 @@ internal class AuthStoreTest {
 
     @Test
     fun `SignInViaOpenRouter shows error on failure`() = runTest(testDispatcher) {
-        val fakeRepo = FakeAuthRepository().apply { throwOnExchange = OAuthException("failed") }
+        val fakeRepo = FakeAuthRepository().apply { throwOnExchange = OAuthException(UiText.Empty) }
         val store = createStore(fakeRepo = fakeRepo)
 
         store.accept(AuthStore.Intent.SignInViaOpenRouter)

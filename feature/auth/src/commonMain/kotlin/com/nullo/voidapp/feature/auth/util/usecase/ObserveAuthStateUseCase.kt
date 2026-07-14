@@ -1,7 +1,7 @@
-package com.nullo.voidapp.feature.auth.domain.usecase
+package com.nullo.voidapp.feature.auth.util.usecase
 
 import com.nullo.voidapp.core.security.SecureStorageException
-import com.nullo.voidapp.feature.auth.domain.repository.AuthRepository
+import com.nullo.voidapp.feature.auth.util.repository.AuthRepository
 import kotlinx.coroutines.flow.Flow
 
 /**

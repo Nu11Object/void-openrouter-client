@@ -19,6 +19,7 @@ kotlin {
         namespace = "com.nullo.voidapp.feature.auth"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
         minSdk = libs.versions.android.minSdk.get().toInt()
+        androidResources.enable = true
 
         compilerOptions {
             jvmTarget = JvmTarget.JVM_11

@@ -1,4 +1,4 @@
-package com.nullo.voidapp.feature.auth.domain.entity
+package com.nullo.voidapp.feature.auth.util.entity
 
 internal data class PkceParams(
     val codeVerifier: String,

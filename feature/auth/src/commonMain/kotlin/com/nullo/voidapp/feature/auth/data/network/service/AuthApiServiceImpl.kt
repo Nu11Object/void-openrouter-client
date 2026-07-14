@@ -1,12 +1,14 @@
 package com.nullo.voidapp.feature.auth.data.network.service
 
 import com.nullo.voidapp.core.utils.kotlin.withBearerPrefix
+import com.nullo.voidapp.core.utils.resources.UiText
 import com.nullo.voidapp.feature.auth.data.network.AuthConfig
 import com.nullo.voidapp.feature.auth.data.network.dto.ExchangeCodeRequest
 import com.nullo.voidapp.feature.auth.data.network.dto.ExchangeCodeResponse
-import com.nullo.voidapp.feature.auth.domain.entity.InternalServerException
-import com.nullo.voidapp.feature.auth.domain.entity.InvalidApiKeyException
-import com.nullo.voidapp.feature.auth.domain.entity.OAuthException
+import com.nullo.voidapp.feature.auth.util.entity.ApiKeyException
+import com.nullo.voidapp.feature.auth.util.entity.InternalServerException
+import com.nullo.voidapp.feature.auth.util.entity.InvalidApiKeyException
+import com.nullo.voidapp.feature.auth.util.entity.OAuthException
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.expectSuccess
@@ -16,6 +18,10 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
+import voidapp.feature.auth.generated.resources.Res
+import voidapp.feature.auth.generated.resources.exception_code_exchange
+import voidapp.feature.auth.generated.resources.exception_validation_network
+import voidapp.feature.auth.generated.resources.exception_validation_unexpected
 import kotlin.coroutines.cancellation.CancellationException
 
 internal class AuthApiServiceImpl(
@@ -37,8 +43,7 @@ internal class AuthApiServiceImpl(
             throw e
         } catch (e: Exception) {
             throw OAuthException(
-                "The authorization code exchange failed. " +
-                        "Please try again or login with API key instead.",
+                uiText = UiText(Res.string.exception_code_exchange),
                 cause = e
             )
         }
@@ -54,10 +59,9 @@ internal class AuthApiServiceImpl(
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            throw Exception(
-                "An error occurred during API key validation. " +
-                        "Please check your internet connection and ensure the key is valid.",
-                e
+            throw ApiKeyException(
+                uiText = UiText(Res.string.exception_validation_network),
+                cause = e
             )
         }
 
@@ -65,7 +69,9 @@ internal class AuthApiServiceImpl(
             HttpStatusCode.OK -> return
             HttpStatusCode.Unauthorized -> throw InvalidApiKeyException()
             HttpStatusCode.InternalServerError -> throw InternalServerException()
-            else -> throw Exception("Api key validation failed with status: ${response.status}")
+            else -> throw ApiKeyException(
+                UiText(Res.string.exception_validation_unexpected),
+            )
         }
     }
 }

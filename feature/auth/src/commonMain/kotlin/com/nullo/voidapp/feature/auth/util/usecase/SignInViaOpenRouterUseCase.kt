@@ -1,13 +1,16 @@
-package com.nullo.voidapp.feature.auth.domain.usecase
+package com.nullo.voidapp.feature.auth.util.usecase
 
 import com.nullo.voidapp.core.security.SecureStorageException
+import com.nullo.voidapp.core.utils.resources.UiText
 import com.nullo.voidapp.feature.auth.data.network.buildOAuthUrl
 import com.nullo.voidapp.feature.auth.data.network.extractAuthCodeParam
-import com.nullo.voidapp.feature.auth.domain.entity.OAuthCancelledException
-import com.nullo.voidapp.feature.auth.domain.entity.OAuthException
-import com.nullo.voidapp.feature.auth.domain.repository.AuthRepository
-import com.nullo.voidapp.feature.auth.domain.util.OAuthWebLauncher
-import com.nullo.voidapp.feature.auth.domain.util.PkceGenerator
+import com.nullo.voidapp.feature.auth.util.entity.OAuthCancelledException
+import com.nullo.voidapp.feature.auth.util.entity.OAuthException
+import com.nullo.voidapp.feature.auth.util.repository.AuthRepository
+import com.nullo.voidapp.feature.auth.util.util.OAuthWebLauncher
+import com.nullo.voidapp.feature.auth.util.util.PkceGenerator
+import voidapp.feature.auth.generated.resources.Res
+import voidapp.feature.auth.generated.resources.exception_auth_code
 
 /**
  * Use case for authenticating the user via the OpenRouter OAuth web-based flow.
@@ -36,7 +39,7 @@ internal class SignInViaOpenRouterUseCase(
         val callbackResult = oAuthWebLauncher.launch(authUrl)
 
         val code = callbackResult.extractAuthCodeParam()
-            ?: throw OAuthException("OAuth result didn't contain an authorization code parameter")
+            ?: throw OAuthException(UiText(Res.string.exception_auth_code))
 
         val apiKey = authRepository.exchangeAuthCodeForApiKey(code, pkce.codeVerifier)
         authRepository.saveApiKey(apiKey)

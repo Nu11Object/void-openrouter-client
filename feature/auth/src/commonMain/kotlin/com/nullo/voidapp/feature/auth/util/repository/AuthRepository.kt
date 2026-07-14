@@ -1,9 +1,9 @@
-package com.nullo.voidapp.feature.auth.domain.repository
+package com.nullo.voidapp.feature.auth.util.repository
 
 import com.nullo.voidapp.core.security.SecureStorageException
-import com.nullo.voidapp.feature.auth.domain.entity.InternalServerException
-import com.nullo.voidapp.feature.auth.domain.entity.InvalidApiKeyException
-import com.nullo.voidapp.feature.auth.domain.entity.OAuthException
+import com.nullo.voidapp.feature.auth.util.entity.InternalServerException
+import com.nullo.voidapp.feature.auth.util.entity.InvalidApiKeyException
+import com.nullo.voidapp.feature.auth.util.entity.OAuthException
 import kotlinx.coroutines.flow.Flow
 
 /**

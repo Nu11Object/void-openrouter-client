@@ -1,10 +1,10 @@
-package com.nullo.voidapp.feature.auth.domain.usecase
+package com.nullo.voidapp.feature.auth.util.usecase
 
 import com.nullo.voidapp.core.security.SecureStorageException
 import com.nullo.voidapp.core.utils.kotlin.asCleanedApiKey
-import com.nullo.voidapp.feature.auth.domain.entity.InternalServerException
-import com.nullo.voidapp.feature.auth.domain.entity.InvalidApiKeyException
-import com.nullo.voidapp.feature.auth.domain.repository.AuthRepository
+import com.nullo.voidapp.feature.auth.util.entity.InternalServerException
+import com.nullo.voidapp.feature.auth.util.entity.InvalidApiKeyException
+import com.nullo.voidapp.feature.auth.util.repository.AuthRepository
 
 /**
  * Use case for manually authenticating with a direct OpenRouter API key.

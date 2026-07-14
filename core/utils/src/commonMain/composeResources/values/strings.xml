@@ -1,0 +1,5 @@
+<resources>
+    <string name="error_unknown">An unexpected error occurred.</string>
+    <string name="oops">Oops</string>
+    <string name="ok">Ok</string>
+</resources>

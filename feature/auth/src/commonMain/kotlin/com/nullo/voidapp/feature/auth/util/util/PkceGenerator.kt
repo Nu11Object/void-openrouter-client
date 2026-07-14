@@ -1,6 +1,6 @@
-package com.nullo.voidapp.feature.auth.domain.util
+package com.nullo.voidapp.feature.auth.util.util
 
-import com.nullo.voidapp.feature.auth.domain.entity.PkceParams
+import com.nullo.voidapp.feature.auth.util.entity.PkceParams
 
 /**
  * Generates secure PKCE parameters for OAuth authorization.

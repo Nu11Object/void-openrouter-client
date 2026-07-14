@@ -1,7 +1,7 @@
-package com.nullo.voidapp.feature.auth.domain.util
+package com.nullo.voidapp.feature.auth.util.util
 
-import com.nullo.voidapp.feature.auth.domain.entity.OAuthCancelledException
-import com.nullo.voidapp.feature.auth.domain.entity.OAuthException
+import com.nullo.voidapp.feature.auth.util.entity.OAuthCancelledException
+import com.nullo.voidapp.feature.auth.util.entity.OAuthException
 
 /**
  * OAuth web flow handler.

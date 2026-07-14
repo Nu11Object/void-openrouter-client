@@ -1,12 +1,12 @@
-package com.nullo.voidapp.feature.auth.domain
+package com.nullo.voidapp.feature.auth.util
 
-import com.nullo.voidapp.feature.auth.domain.entity.PkceParams
-import com.nullo.voidapp.feature.auth.domain.util.PkceGenerator
+import com.nullo.voidapp.feature.auth.util.entity.PkceParams
+import com.nullo.voidapp.feature.auth.util.util.PkceGenerator
 import java.security.MessageDigest
 import java.security.SecureRandom
 import java.util.Base64
 
-internal object JvmPkceGenerator : PkceGenerator {
+internal object AndroidPkceGenerator : PkceGenerator {
 
     private const val VERIFIER_BYTE_LENGTH = 64
 

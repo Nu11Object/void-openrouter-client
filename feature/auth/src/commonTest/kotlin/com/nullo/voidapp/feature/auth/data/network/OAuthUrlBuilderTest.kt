@@ -1,6 +1,6 @@
 package com.nullo.voidapp.feature.auth.data.network
 
-import com.nullo.voidapp.feature.auth.domain.entity.PkceParams
+import com.nullo.voidapp.feature.auth.util.entity.PkceParams
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull

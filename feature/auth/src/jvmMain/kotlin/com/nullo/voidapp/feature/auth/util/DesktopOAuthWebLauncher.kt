@@ -1,11 +1,16 @@
-package com.nullo.voidapp.feature.auth.domain
+package com.nullo.voidapp.feature.auth.util
 
+import com.nullo.voidapp.core.utils.resources.UiText
 import com.nullo.voidapp.feature.auth.data.network.AuthConfig
-import com.nullo.voidapp.feature.auth.domain.entity.OAuthCancelledException
-import com.nullo.voidapp.feature.auth.domain.entity.OAuthException
-import com.nullo.voidapp.feature.auth.domain.util.OAuthWebLauncher
+import com.nullo.voidapp.feature.auth.util.entity.OAuthCancelledException
+import com.nullo.voidapp.feature.auth.util.entity.OAuthException
+import com.nullo.voidapp.feature.auth.util.util.OAuthWebLauncher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import voidapp.feature.auth.generated.resources.Res
+import voidapp.feature.auth.generated.resources.exception_browser_cannot_open
+import voidapp.feature.auth.generated.resources.exception_browser_unsupported
+import voidapp.feature.auth.generated.resources.exception_empty_request
 import java.awt.Desktop
 import java.net.ServerSocket
 import java.net.SocketTimeoutException
@@ -40,7 +45,7 @@ internal class DesktopOAuthWebLauncher : OAuthWebLauncher {
                     val requestLine = conn.getInputStream()
                         .bufferedReader()
                         .readLine()
-                        ?: throw OAuthException("Browser sent empty request")
+                        ?: throw OAuthException(UiText(Res.string.exception_empty_request))
 
                     val path = requestLine
                         .removePrefix("GET ")
@@ -70,11 +75,19 @@ internal class DesktopOAuthWebLauncher : OAuthWebLauncher {
                 Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)
 
         if (!isSupported) {
-            throw OAuthException("System browser launch is not supported on this machine.")
+            throw OAuthException(UiText(Res.string.exception_browser_unsupported))
         }
 
         runCatching { Desktop.getDesktop().browse(URI(url)) }
-            .onFailure { throw OAuthException("Cannot open browser: ${it.message}", it) }
+            .onFailure {
+                throw OAuthException(
+                    uiText = UiText(
+                        Res.string.exception_browser_cannot_open,
+                        it.message.toString()
+                    ),
+                    cause = it
+                )
+            }
     }
 
     private fun findFreePort(): Int = ServerSocket(0).use { it.localPort }

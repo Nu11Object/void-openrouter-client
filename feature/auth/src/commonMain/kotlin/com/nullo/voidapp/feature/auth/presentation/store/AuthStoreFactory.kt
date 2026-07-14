@@ -5,15 +5,13 @@ import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineBootstrapper
 import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineExecutor
-import com.nullo.voidapp.core.security.SecureStorageException
-import com.nullo.voidapp.feature.auth.domain.entity.InternalServerException
-import com.nullo.voidapp.feature.auth.domain.entity.InvalidApiKeyException
-import com.nullo.voidapp.feature.auth.domain.entity.OAuthCancelledException
-import com.nullo.voidapp.feature.auth.domain.entity.OAuthException
-import com.nullo.voidapp.feature.auth.domain.usecase.ObserveAuthStateUseCase
-import com.nullo.voidapp.feature.auth.domain.usecase.SignInViaOpenRouterUseCase
-import com.nullo.voidapp.feature.auth.domain.usecase.SignInWithApiKeyUseCase
+import com.nullo.voidapp.core.utils.resources.UiText
+import com.nullo.voidapp.core.utils.resources.toUiText
 import com.nullo.voidapp.feature.auth.presentation.store.AuthStore.State.Completion
+import com.nullo.voidapp.feature.auth.util.entity.OAuthCancelledException
+import com.nullo.voidapp.feature.auth.util.usecase.ObserveAuthStateUseCase
+import com.nullo.voidapp.feature.auth.util.usecase.SignInViaOpenRouterUseCase
+import com.nullo.voidapp.feature.auth.util.usecase.SignInWithApiKeyUseCase
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.launchIn
@@ -46,7 +44,7 @@ internal class AuthStoreFactory(
 
         data object SubmittingApiKey : Message
 
-        data class ErrorOccurred(val message: String) : Message
+        data class ErrorOccurred(val uiText: UiText) : Message
 
         data object ErrorDismissed : Message
 
@@ -88,37 +86,7 @@ internal class AuthStoreFactory(
         private var apiKeyAuthJob: Job? = null
 
         private fun handleException(exception: Exception) {
-            when (exception) {
-                is OAuthException -> dispatch(
-                    Message.ErrorOccurred(
-                        exception.message ?: ("OAuth authentication failed." +
-                                " Please try again or login with API key instead.")
-                    )
-                )
-
-                is OAuthCancelledException -> dispatch(
-                    Message.OAuthCancelled
-                )
-
-                is SecureStorageException -> dispatch(
-                    Message.ErrorOccurred(
-                        "A problem occurred with platform secured storage: " +
-                                "\"${exception.message}\".  Please try again later."
-                    )
-                )
-
-                is InvalidApiKeyException -> dispatch(
-                    Message.ErrorOccurred(exception.message.toString())
-                )
-
-                is InternalServerException -> dispatch(
-                    Message.ErrorOccurred(exception.message.toString())
-                )
-
-                else -> dispatch(
-                    Message.ErrorOccurred(exception.message ?: "Unknown error occurred.")
-                )
-            }
+            dispatch(Message.ErrorOccurred(exception.toUiText()))
         }
 
         override fun executeAction(action: Action) {
@@ -145,6 +113,8 @@ internal class AuthStoreFactory(
                             signInViaOpenRouterUseCase()
                         } catch (e: CancellationException) {
                             throw e
+                        } catch (_: OAuthCancelledException) {
+                            dispatch(Message.OAuthCancelled)
                         } catch (e: Exception) {
                             handleException(e)
                         }
@@ -180,7 +150,7 @@ internal class AuthStoreFactory(
             return when (msg) {
                 is Message.ApiKeyChanged -> copy(apiKey = msg.input)
                 Message.ErrorDismissed -> copy(error = null, isLoading = false)
-                is Message.ErrorOccurred -> copy(error = msg.message, isLoading = false)
+                is Message.ErrorOccurred -> copy(error = msg.uiText, isLoading = false)
                 Message.LaunchingOAuthFlow -> copy(isLoading = true, isOAuthInProgress = true)
                 Message.OAuthCancelled -> copy(isLoading = false, isOAuthInProgress = false)
                 Message.SubmittingApiKey -> copy(isLoading = true)

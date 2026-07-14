@@ -65,13 +65,13 @@ import com.nullo.voidapp.feature.auth.presentation.store.AuthStore
 import com.nullo.voidapp.feature.auth.presentation.store.AuthStore.State.Completion
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.getKoin
+import voidapp.core.utils.generated.resources.ok
+import voidapp.core.utils.generated.resources.oops
 import voidapp.feature.auth.generated.resources.Res
 import voidapp.feature.auth.generated.resources.cancel_sign_in
 import voidapp.feature.auth.generated.resources.desc_welcome_to_the_void
 import voidapp.feature.auth.generated.resources.key_auth_description
 import voidapp.feature.auth.generated.resources.oauth_description
-import voidapp.feature.auth.generated.resources.ok
-import voidapp.feature.auth.generated.resources.oops
 import voidapp.feature.auth.generated.resources.or
 import voidapp.feature.auth.generated.resources.paste_api_key
 import voidapp.feature.auth.generated.resources.sign_in_via_open_router
@@ -79,6 +79,7 @@ import voidapp.feature.auth.generated.resources.submit_api_key
 import voidapp.feature.auth.generated.resources.to_the
 import voidapp.feature.auth.generated.resources.void
 import voidapp.feature.auth.generated.resources.welcome
+import voidapp.core.utils.generated.resources.Res as CoreRes
 
 private val maxButtonAndTextFieldWidth = 350.dp
 
@@ -237,13 +238,13 @@ private fun AuthScreenContent(
 
     state.error?.let { errorMessage ->
         VoidAlertDialog(
-            title = stringResource(Res.string.oops),
+            title = stringResource(CoreRes.string.oops),
             onDismissRequest = onDismissError,
             confirmButton = VoidDialogButton(
-                text = stringResource(Res.string.ok),
+                text = stringResource(CoreRes.string.ok),
                 onClick = onDismissError
             ),
-            message = errorMessage,
+            message = errorMessage.asString(),
         )
     }
 }

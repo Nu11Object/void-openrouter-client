@@ -1,4 +1,4 @@
-package com.nullo.voidapp.feature.auth.domain.usecase
+package com.nullo.voidapp.feature.auth.util.usecase
 
 import com.nullo.voidapp.feature.auth.FakeApiKeyStorage
 import com.nullo.voidapp.feature.auth.FakeAuthRepository

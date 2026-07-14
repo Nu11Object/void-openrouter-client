@@ -2,6 +2,7 @@ package com.nullo.voidapp.feature.auth.presentation.store
 
 import androidx.compose.runtime.Immutable
 import com.arkivanov.mvikotlin.core.store.Store
+import com.nullo.voidapp.core.utils.resources.UiText
 
 interface AuthStore : Store<AuthStore.Intent, AuthStore.State, Nothing> {
 
@@ -10,7 +11,7 @@ interface AuthStore : Store<AuthStore.Intent, AuthStore.State, Nothing> {
         val apiKey: String = "",
         val isLoading: Boolean = false,
         val isOAuthInProgress: Boolean = false,
-        val error: String? = null,
+        val error: UiText? = null,
         val completion: Completion? = null
     ) {
 

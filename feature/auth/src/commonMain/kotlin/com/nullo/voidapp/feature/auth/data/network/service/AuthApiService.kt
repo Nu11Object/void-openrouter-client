@@ -1,8 +1,8 @@
 package com.nullo.voidapp.feature.auth.data.network.service
 
-import com.nullo.voidapp.feature.auth.domain.entity.InternalServerException
-import com.nullo.voidapp.feature.auth.domain.entity.InvalidApiKeyException
-import com.nullo.voidapp.feature.auth.domain.entity.OAuthException
+import com.nullo.voidapp.feature.auth.util.entity.InternalServerException
+import com.nullo.voidapp.feature.auth.util.entity.InvalidApiKeyException
+import com.nullo.voidapp.feature.auth.util.entity.OAuthException
 
 internal interface AuthApiService {
 

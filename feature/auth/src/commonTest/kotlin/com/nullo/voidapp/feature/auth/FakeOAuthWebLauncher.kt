@@ -1,6 +1,6 @@
 package com.nullo.voidapp.feature.auth
 
-import com.nullo.voidapp.feature.auth.domain.util.OAuthWebLauncher
+import com.nullo.voidapp.feature.auth.util.util.OAuthWebLauncher
 import kotlinx.coroutines.awaitCancellation
 
 internal class FakeOAuthWebLauncher(

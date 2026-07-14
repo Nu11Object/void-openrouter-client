@@ -1,6 +1,4 @@
 <resources>
-    <string name="oops">Oops</string>
-    <string name="ok">Ok</string>
     <string name="desc_welcome_to_the_void">Welcome to the Void</string>
     <string name="welcome">Welcome</string>
     <string name="to_the">to the</string>
@@ -12,4 +10,20 @@
     <string name="or">OR</string>
     <string name="paste_api_key">Paste API key</string>
     <string name="submit_api_key">Submit API key</string>
+
+    <string name="exception_oauth_canceled">OAuth flow was canceled.</string>
+    <string name="exception_invalid_api_key">The provided API key is invalid or expired. Please check it and try again.</string>
+    <string name="exception_internal">An unexpected server error occurred on OpenRouter's side. Please try again.</string>
+    <string name="exception_validation_network">An error occurred during API key validation. Please check your internet connection and ensure the key is valid.</string>
+    <string name="exception_validation_unexpected">API key validation failed due to an unexpected server response. Please try again.</string>
+    <string name="exception_code_exchange">The authorization code exchange failed. Please try again or log in with an API key instead.</string>
+    <string name="exception_auth_launcher_not_ready">The authorization system is warming up. Please try again.</string>
+    <string name="exception_empty_request">Browser sent empty request. Please try again or log in with an API key instead.</string>
+    <string name="exception_browser_unsupported">System browser launch is not supported on this machine. Please try again or log in with an API key instead.</string>
+    <string name="exception_browser_cannot_open">Cannot open browser: %s. Please try again or log in with an API key instead.</string>
+    <string name="exception_auth_code">Authorization code was not found. Please try again or log in with an API key instead.</string>
+    <string name="exception_invalid_url">Failed to generate a valid authorization link. Please try again or log in with an API key instead.</string>
+    <string name="exception_system_error">An error occurred during the login process. Please try again or log in with an API key instead.</string>
+    <string name="exception_empty_response">Received an empty response from the login provider. Please try again or log in with an API key instead.</string>
+    <string name="exception_session_failed">The authorization window could not be opened. Please try again or log in with an API key instead.</string>
 </resources>

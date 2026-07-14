@@ -1,7 +1,7 @@
-package com.nullo.voidapp.feature.auth.domain.usecase
+package com.nullo.voidapp.feature.auth.util.usecase
 
 import com.nullo.voidapp.feature.auth.FakeAuthRepository
-import com.nullo.voidapp.feature.auth.domain.entity.InvalidApiKeyException
+import com.nullo.voidapp.feature.auth.util.entity.InvalidApiKeyException
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals

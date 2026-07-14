@@ -1,9 +1,10 @@
-package com.nullo.voidapp.feature.auth.domain
+package com.nullo.voidapp.feature.auth.util
 
+import com.nullo.voidapp.core.utils.resources.UiText
 import com.nullo.voidapp.feature.auth.data.network.AuthConfig
-import com.nullo.voidapp.feature.auth.domain.entity.OAuthCancelledException
-import com.nullo.voidapp.feature.auth.domain.entity.OAuthException
-import com.nullo.voidapp.feature.auth.domain.util.OAuthWebLauncher
+import com.nullo.voidapp.feature.auth.util.entity.OAuthCancelledException
+import com.nullo.voidapp.feature.auth.util.entity.OAuthException
+import com.nullo.voidapp.feature.auth.util.util.OAuthWebLauncher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
@@ -12,6 +13,11 @@ import platform.AuthenticationServices.ASWebAuthenticationPresentationContextPro
 import platform.AuthenticationServices.ASWebAuthenticationSession
 import platform.Foundation.NSURL
 import platform.darwin.NSObject
+import voidapp.feature.auth.generated.resources.Res
+import voidapp.feature.auth.generated.resources.exception_empty_response
+import voidapp.feature.auth.generated.resources.exception_invalid_url
+import voidapp.feature.auth.generated.resources.exception_session_failed
+import voidapp.feature.auth.generated.resources.exception_system_error
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
@@ -23,7 +29,7 @@ internal class IosOAuthWebLauncher : OAuthWebLauncher {
         suspendCancellableCoroutine { continuation ->
             val nsUrl = NSURL.URLWithString(authUrl) ?: run {
                 continuation.resumeWithException(
-                    OAuthException("Malformed auth URL: $authUrl")
+                    OAuthException(UiText(Res.string.exception_invalid_url))
                 )
                 return@suspendCancellableCoroutine
             }
@@ -39,7 +45,7 @@ internal class IosOAuthWebLauncher : OAuthWebLauncher {
                                 if (isCancelled) {
                                     OAuthCancelledException()
                                 } else {
-                                    OAuthException(error.localizedDescription)
+                                    OAuthException(UiText(Res.string.exception_system_error))
                                 }
                             )
                         }
@@ -49,7 +55,7 @@ internal class IosOAuthWebLauncher : OAuthWebLauncher {
                         )
 
                         else -> continuation.resumeWithException(
-                            OAuthException("No callback URL and no error returned")
+                            OAuthException(UiText(Res.string.exception_empty_response))
                         )
                     }
                 }
@@ -60,7 +66,7 @@ internal class IosOAuthWebLauncher : OAuthWebLauncher {
 
             if (!session.start()) {
                 continuation.resumeWithException(
-                    OAuthException("Failed to start ASWebAuthenticationSession")
+                    OAuthException(UiText(Res.string.exception_session_failed))
                 )
             }
 

@@ -1,9 +1,10 @@
-package com.nullo.voidapp.feature.auth.domain.usecase
+package com.nullo.voidapp.feature.auth.util.usecase
 
+import com.nullo.voidapp.core.utils.resources.UiText
 import com.nullo.voidapp.feature.auth.FakeAuthRepository
 import com.nullo.voidapp.feature.auth.FakeOAuthWebLauncher
 import com.nullo.voidapp.feature.auth.FakePkceGenerator
-import com.nullo.voidapp.feature.auth.domain.entity.OAuthException
+import com.nullo.voidapp.feature.auth.util.entity.OAuthException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -52,7 +53,7 @@ internal class SignInViaOpenRouterUseCaseTest {
     fun `invoke throws when web launcher fails`() = runTest {
         val fakeRepo = FakeAuthRepository()
         val launcher = FakeOAuthWebLauncher(
-            launchResult = Result.failure(OAuthException("Browser error"))
+            launchResult = Result.failure(OAuthException(UiText.Empty))
         )
         val useCase = SignInViaOpenRouterUseCase(fakeRepo, FakePkceGenerator(), launcher)
 
@@ -62,7 +63,7 @@ internal class SignInViaOpenRouterUseCaseTest {
     @Test
     fun `invoke throws when code exchange fails`() = runTest {
         val fakeRepo = FakeAuthRepository().apply {
-            throwOnExchange = OAuthException("Exchange failed")
+            throwOnExchange = OAuthException(UiText.Empty)
         }
         val useCase = SignInViaOpenRouterUseCase(
             fakeRepo, FakePkceGenerator(), FakeOAuthWebLauncher()
