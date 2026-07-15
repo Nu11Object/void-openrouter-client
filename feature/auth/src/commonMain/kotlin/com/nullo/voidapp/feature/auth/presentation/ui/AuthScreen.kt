@@ -1,6 +1,5 @@
 package com.nullo.voidapp.feature.auth.presentation.ui
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -33,6 +32,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.withTransform
@@ -53,8 +53,8 @@ import com.nullo.voidapp.core.designsystem.component.VoidAlertDialog
 import com.nullo.voidapp.core.designsystem.component.VoidDialogButton
 import com.nullo.voidapp.core.designsystem.component.VoidTextField
 import com.nullo.voidapp.core.designsystem.icon.Icons
-import com.nullo.voidapp.core.designsystem.icon.Logo
 import com.nullo.voidapp.core.designsystem.icon.automirrored.ArrowForward
+import com.nullo.voidapp.core.designsystem.icon.default.Logo
 import com.nullo.voidapp.core.designsystem.icon.default.ShieldLock
 import com.nullo.voidapp.core.designsystem.theme.VoidTheme
 import com.nullo.voidapp.core.security.ApiKeyStorage
@@ -254,8 +254,9 @@ private fun WelcomeSection(modifier: Modifier = Modifier) {
     val contentDescription = stringResource(Res.string.desc_welcome_to_the_void)
     Column(
         modifier = modifier
+            .ticketShadow()
             .background(
-                color = MaterialTheme.colorScheme.surfaceDim,
+                color = MaterialTheme.colorScheme.primary,
                 shape = RoundedCornerShape(32.dp),
             )
             .padding(vertical = 24.dp)
@@ -267,19 +268,26 @@ private fun WelcomeSection(modifier: Modifier = Modifier) {
     ) {
         Text(
             text = stringResource(Res.string.welcome),
-            style = MaterialTheme.typography.displaySmall
+            style = MaterialTheme.typography.displaySmall,
+            color = MaterialTheme.colorScheme.onPrimary
         )
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
                 text = stringResource(Res.string.to_the),
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onPrimary
             )
             Spacer(Modifier.width(8.dp))
-            Image(imageVector = Icons.Logo, contentDescription = null)
+            Icon(
+                imageVector = Icons.Default.Logo,
+                tint = MaterialTheme.colorScheme.onPrimary,
+                contentDescription = null,
+            )
             Spacer(Modifier.width(4.dp))
             Text(
                 text = stringResource(Res.string.void),
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onPrimary
             )
         }
     }
@@ -299,6 +307,7 @@ private fun AuthMethodSection(
 ) {
     Column(
         modifier = modifier
+            .ticketShadow()
             .background(
                 color = MaterialTheme.colorScheme.surface,
                 shape = RoundedCornerShape(32.dp),
@@ -467,6 +476,12 @@ private fun ApiKeyField(
         }
     )
 }
+
+private fun Modifier.ticketShadow(): Modifier = shadow(
+    elevation = 32.dp,
+    shape = RoundedCornerShape(32.dp),
+    clip = false,
+)
 
 private fun Modifier.glowOnExit(
     progress: () -> Float,
