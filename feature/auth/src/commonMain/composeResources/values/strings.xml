@@ -10,6 +10,8 @@
     <string name="or">OR</string>
     <string name="paste_api_key">Paste API key</string>
     <string name="submit_api_key">Submit API key</string>
+    <string name="oauth_success_title">Authorized!</string>
+    <string name="oauth_success_message">You can return to the app.</string>
 
     <string name="exception_oauth_canceled">OAuth flow was canceled.</string>
     <string name="exception_invalid_api_key">The provided API key is invalid or expired. Please check it and try again.</string>

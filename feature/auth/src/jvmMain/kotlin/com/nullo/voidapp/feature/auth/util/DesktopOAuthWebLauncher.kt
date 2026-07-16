@@ -7,10 +7,13 @@ import com.nullo.voidapp.feature.auth.util.entity.OAuthException
 import com.nullo.voidapp.feature.auth.util.util.OAuthWebLauncher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.jetbrains.compose.resources.getString
 import voidapp.feature.auth.generated.resources.Res
 import voidapp.feature.auth.generated.resources.exception_browser_cannot_open
 import voidapp.feature.auth.generated.resources.exception_browser_unsupported
 import voidapp.feature.auth.generated.resources.exception_empty_request
+import voidapp.feature.auth.generated.resources.oauth_success_message
+import voidapp.feature.auth.generated.resources.oauth_success_title
 import java.awt.Desktop
 import java.net.ServerSocket
 import java.net.SocketTimeoutException
@@ -51,7 +54,10 @@ internal class DesktopOAuthWebLauncher : OAuthWebLauncher {
                         .removePrefix("GET ")
                         .substringBefore(" HTTP")
 
-                    val html = buildSuccessHtml()
+                    val title = getString(Res.string.oauth_success_title)
+                    val message = getString(Res.string.oauth_success_message)
+                    val html = buildSuccessHtml(title, message)
+
                     val httpResponse = buildString {
                         append("HTTP/1.1 200 OK\r\n")
                         append("Content-Type: text/html; charset=utf-8\r\n")
@@ -92,26 +98,26 @@ internal class DesktopOAuthWebLauncher : OAuthWebLauncher {
 
     private fun findFreePort(): Int = ServerSocket(0).use { it.localPort }
 
-    private fun buildSuccessHtml() = """
+    private fun buildSuccessHtml(title: String, message: String) = """
         <!DOCTYPE html>
         <html lang="en">
         <head>
           <meta charset="UTF-8">
-          <title>Authorized</title>
+          <title>$title</title>
           <style>
-            body { font-family: system-ui, sans-serif; background: #13111A;
+            body { font-family: system-ui, sans-serif; background: #03080A;
                     display: flex; align-items: center; justify-content: center;
                     min-height: 100vh; margin: 0; }
-            .card { background: #1E1A2B; padding: 32px 48px; border-radius: 24px; 
+            .card { background: #0C1113; padding: 32px 48px; border-radius: 24px; 
                     text-align: center; }
-            h1 { color: #A855F7; margin: 0 0 12px; }
-            p  { color: #CAC4D0; margin: 0; }
+            h1 { color: #C9FF00; margin: 0 0 12px; }
+            p  { color: #FCFCFE; margin: 0; }
           </style>
         </head>
         <body>
           <div class="card">
-            <h1>Authorized!</h1>
-            <p>You can close this tab and return to the app.</p>
+            <h1>$title</h1>
+            <p>$message</p>
           </div>
         </body>
         </html>
