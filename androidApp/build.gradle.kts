@@ -21,6 +21,7 @@ dependencies {
     implementation(libs.decompose.core)
 
     implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.splashScreen)
     implementation(libs.compose.uiToolingPreview)
     debugImplementation(libs.compose.uiTooling)
 }

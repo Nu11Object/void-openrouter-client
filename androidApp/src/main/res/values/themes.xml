@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.VoidApp" parent="Theme.AppCompat.DayNight.NoActionBar">
-        <item name="android:windowBackground">#FAFAFA</item>
+    <style name="Theme.VoidApp" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">#F7F5FA</item>
+    </style>
+
+    <style name="Theme.VoidApp.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">#F7F5FA</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_light</item>
+        <item name="windowSplashScreenIconBackgroundColor">#F0E6FF</item>
+        <item name="postSplashScreenTheme">@style/Theme.VoidApp</item>
     </style>
 </resources>
