@@ -203,11 +203,11 @@ private fun AuthScreenContent(
             DeviceConfiguration.DESKTOP -> {
                 Row(
                     modifier = Modifier
-                        .padding(innerPadding)
                         .glowOnExit(
                             progress = { ticketExitAnimation.linearProgress },
                             brush = glowBrush
                         )
+                        .padding(innerPadding)
                         .padding(32.dp)
                         .fillMaxSize()
                 ) {
