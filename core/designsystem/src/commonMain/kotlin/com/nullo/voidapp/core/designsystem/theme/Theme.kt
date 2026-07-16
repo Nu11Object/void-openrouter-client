@@ -73,6 +73,7 @@ fun VoidTheme(
     CompositionLocalProvider(LocalDarkTheme provides darkTheme) {
         MaterialTheme(
             colorScheme = colorScheme,
+            typography = googleSansFlexTypography(),
             content = content
         )
     }
