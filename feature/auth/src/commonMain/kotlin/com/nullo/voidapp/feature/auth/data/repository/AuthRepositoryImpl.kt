@@ -1,8 +1,8 @@
 package com.nullo.voidapp.feature.auth.data.repository
 
+import com.nullo.voidapp.core.network.auth.service.AuthApiService
 import com.nullo.voidapp.core.security.ApiKeyStorage
-import com.nullo.voidapp.feature.auth.data.network.service.AuthApiService
-import com.nullo.voidapp.feature.auth.util.repository.AuthRepository
+import com.nullo.voidapp.feature.auth.domain.repository.AuthRepository
 import kotlinx.coroutines.flow.Flow
 
 internal class AuthRepositoryImpl(
@@ -24,7 +24,7 @@ internal class AuthRepositoryImpl(
         authApiService.validateApiKey(apiKey)
     }
 
-    override suspend fun exchangeAuthCodeForApiKey(code: String, codeVerifier: String): String {
+    override suspend fun exchangeAuthCodeForApiKey(code: String?, codeVerifier: String): String {
         return authApiService.exchangeCode(code, codeVerifier)
     }
 }

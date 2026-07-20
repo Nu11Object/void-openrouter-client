@@ -1,7 +1,7 @@
 package com.nullo.voidapp.feature.auth
 
-import com.nullo.voidapp.feature.auth.util.entity.PkceParams
-import com.nullo.voidapp.feature.auth.util.util.PkceGenerator
+import com.nullo.voidapp.feature.auth.domain.entity.PkceParams
+import com.nullo.voidapp.feature.auth.domain.util.PkceGenerator
 
 internal class FakePkceGenerator(
     private val codeVerifier: String = "test_code_verifier",

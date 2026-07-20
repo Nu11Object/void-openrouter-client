@@ -70,7 +70,7 @@ internal class IosApiKeyStorage : ApiKeyStorage {
         deleteApiKeyNative()
 
         val data = (newKey as NSString).dataUsingEncoding(NSUTF8StringEncoding)
-            ?: throw SecureStorageException("iOS Keychain: Failed to encode API key to UTF-8")
+            ?: throw SecureStorageException()
 
         val cfData = CFBridgingRetain(data)
         val query = buildBaseQuery()
@@ -82,7 +82,7 @@ internal class IosApiKeyStorage : ApiKeyStorage {
         CFRelease(query)
 
         if (status != errSecSuccess) {
-            throw SecureStorageException("iOS Keychain SecItemAdd failed with status: $status")
+            throw SecureStorageException()
         }
 
         hasKeyState.value = true
@@ -101,9 +101,7 @@ internal class IosApiKeyStorage : ApiKeyStorage {
             if (status == errSecItemNotFound) return@withContext null
 
             if (status != errSecSuccess) {
-                throw SecureStorageException(
-                    "iOS Keychain SecItemCopyMatching failed with status: $status"
-                )
+                throw SecureStorageException()
             }
 
             val data = CFBridgingRelease(result.value) as? NSData ?: return@withContext null
@@ -122,9 +120,7 @@ internal class IosApiKeyStorage : ApiKeyStorage {
         CFRelease(query)
 
         if (status != errSecSuccess && status != errSecItemNotFound) {
-            throw SecureStorageException(
-                "iOS Keychain SecItemDelete failed with status: $status"
-            )
+            throw SecureStorageException()
         }
     }
 

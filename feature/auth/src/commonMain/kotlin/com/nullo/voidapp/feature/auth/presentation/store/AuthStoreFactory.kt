@@ -5,18 +5,33 @@ import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineBootstrapper
 import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineExecutor
+import com.nullo.voidapp.core.network.auth.exception.CodeExchangeException
+import com.nullo.voidapp.core.network.auth.exception.InternalServerException
+import com.nullo.voidapp.core.network.auth.exception.InvalidApiKeyException
+import com.nullo.voidapp.core.network.auth.exception.UnexpectedStatusException
+import com.nullo.voidapp.core.network.auth.exception.ValidationNetworkException
+import com.nullo.voidapp.core.security.SecureStorageException
 import com.nullo.voidapp.core.utils.resources.UiText
 import com.nullo.voidapp.core.utils.resources.toUiText
+import com.nullo.voidapp.feature.auth.domain.usecase.ObserveAuthStateUseCase
+import com.nullo.voidapp.feature.auth.domain.usecase.SignInViaOpenRouterUseCase
+import com.nullo.voidapp.feature.auth.domain.usecase.SignInWithApiKeyUseCase
+import com.nullo.voidapp.feature.auth.exception.ApiKeyException
+import com.nullo.voidapp.feature.auth.exception.OAuthCancelledException
+import com.nullo.voidapp.feature.auth.exception.OAuthException
 import com.nullo.voidapp.feature.auth.presentation.store.AuthStore.State.Completion
-import com.nullo.voidapp.feature.auth.util.entity.OAuthCancelledException
-import com.nullo.voidapp.feature.auth.util.usecase.ObserveAuthStateUseCase
-import com.nullo.voidapp.feature.auth.util.usecase.SignInViaOpenRouterUseCase
-import com.nullo.voidapp.feature.auth.util.usecase.SignInWithApiKeyUseCase
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import voidapp.feature.auth.generated.resources.Res
+import voidapp.feature.auth.generated.resources.exception_code_exchange
+import voidapp.feature.auth.generated.resources.exception_internal
+import voidapp.feature.auth.generated.resources.exception_invalid_api_key
+import voidapp.feature.auth.generated.resources.exception_secure_storage
+import voidapp.feature.auth.generated.resources.exception_validation_network
+import voidapp.feature.auth.generated.resources.exception_validation_unexpected
 
 internal class AuthStoreFactory(
     private val storeFactory: StoreFactory,
@@ -85,8 +100,47 @@ internal class AuthStoreFactory(
         private var oAuthJob: Job? = null
         private var apiKeyAuthJob: Job? = null
 
-        private fun handleException(exception: Exception) {
-            dispatch(Message.ErrorOccurred(exception.toUiText()))
+        private fun handleException(e: Exception) {
+            val finalException = when (e) {
+                is InvalidApiKeyException -> ApiKeyException(
+                    uiText = UiText(Res.string.exception_invalid_api_key),
+                    cause = e
+                )
+
+                is InternalServerException -> ApiKeyException(
+                    uiText = UiText(Res.string.exception_internal),
+                    cause = e
+                )
+
+                is UnexpectedStatusException -> ApiKeyException(
+                    uiText = UiText(Res.string.exception_validation_unexpected),
+                    cause = e
+                )
+
+                is ValidationNetworkException -> ApiKeyException(
+                    uiText = UiText(Res.string.exception_validation_network),
+                    cause = e
+                )
+
+                is SecureStorageException -> ApiKeyException(
+                    uiText = UiText(Res.string.exception_secure_storage),
+                    cause = e
+                )
+
+                is CodeExchangeException -> OAuthException(
+                    uiText = UiText(Res.string.exception_code_exchange),
+                    cause = e
+                )
+
+                is OAuthCancelledException -> {
+                    dispatch(Message.OAuthCancelled)
+                    return
+                }
+
+                else -> e
+            }
+
+            dispatch(Message.ErrorOccurred(finalException.toUiText()))
         }
 
         override fun executeAction(action: Action) {
@@ -113,8 +167,6 @@ internal class AuthStoreFactory(
                             signInViaOpenRouterUseCase()
                         } catch (e: CancellationException) {
                             throw e
-                        } catch (_: OAuthCancelledException) {
-                            dispatch(Message.OAuthCancelled)
                         } catch (e: Exception) {
                             handleException(e)
                         }

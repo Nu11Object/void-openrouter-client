@@ -23,9 +23,10 @@
     <string name="exception_empty_request">Browser sent empty request. Please try again or log in with an API key instead.</string>
     <string name="exception_browser_unsupported">System browser launch is not supported on this machine. Please try again or log in with an API key instead.</string>
     <string name="exception_browser_cannot_open">Cannot open browser: %s. Please try again or log in with an API key instead.</string>
-    <string name="exception_auth_code">Authorization code was not found. Please try again or log in with an API key instead.</string>
+    <string name="exception_no_auth_code">Authorization code was not found. Please try again or log in with an API key instead.</string>
     <string name="exception_invalid_url">Failed to generate a valid authorization link. Please try again or log in with an API key instead.</string>
     <string name="exception_system_error">An error occurred during the login process. Please try again or log in with an API key instead.</string>
     <string name="exception_empty_response">Received an empty response from the login provider. Please try again or log in with an API key instead.</string>
     <string name="exception_session_failed">The authorization window could not be opened. Please try again or log in with an API key instead.</string>
+    <string name="exception_secure_storage">An error occurred while accessing your device's secure storage. Please try again.</string>
 </resources>

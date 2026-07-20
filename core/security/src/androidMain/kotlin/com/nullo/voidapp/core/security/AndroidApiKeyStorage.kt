@@ -53,7 +53,7 @@ internal class AndroidApiKeyStorage(
         val encrypted = runCatching {
             dataStore.data.map { it[KEY_API_KEY] }.first()
         }.getOrElse { cause ->
-            throw SecureStorageException("Android DataStore read failed", cause)
+            throw SecureStorageException(cause)
         }
 
         if (encrypted == null) return null
@@ -62,9 +62,7 @@ internal class AndroidApiKeyStorage(
             val decoded = Base64.decode(encrypted, Base64.DEFAULT)
             aead.decrypt(decoded, ASSOCIATED_DATA).toString(Charsets.UTF_8)
         }.getOrElse { cause ->
-            throw SecureStorageException(
-                "Android Decryption failed (Key might be corrupted)", cause
-            )
+            throw SecureStorageException(cause)
         }
     }
 
@@ -74,7 +72,7 @@ internal class AndroidApiKeyStorage(
             dataStore.edit { it[KEY_API_KEY] = Base64.encodeToString(encrypted, Base64.DEFAULT) }
             hasKeyState.value = true
         }.getOrElse { cause ->
-            throw SecureStorageException("Android Secure Storage write failed", cause)
+            throw SecureStorageException(cause)
         }
     }
 
@@ -83,7 +81,7 @@ internal class AndroidApiKeyStorage(
             dataStore.edit { it.remove(KEY_API_KEY) }
             hasKeyState.value = false
         }.getOrElse { cause ->
-            throw SecureStorageException("Android Secure Storage failed to clear", cause)
+            throw SecureStorageException(cause)
         }
     }
 

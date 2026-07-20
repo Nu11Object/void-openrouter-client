@@ -36,7 +36,9 @@ include(":androidApp")
 include(":desktopApp")
 include(":shared")
 
-include(":core:network")
+include(":core:network:client")
+include(":core:network:auth")
+
 include(":core:security")
 include(":core:utils")
 include(":core:designsystem")

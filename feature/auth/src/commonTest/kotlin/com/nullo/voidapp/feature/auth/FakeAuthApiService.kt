@@ -1,6 +1,6 @@
 package com.nullo.voidapp.feature.auth
 
-import com.nullo.voidapp.feature.auth.data.network.service.AuthApiService
+import com.nullo.voidapp.core.network.auth.service.AuthApiService
 
 internal class FakeAuthApiService : AuthApiService {
 
@@ -19,7 +19,7 @@ internal class FakeAuthApiService : AuthApiService {
         validateResult.getOrThrow()
     }
 
-    override suspend fun exchangeCode(code: String, codeVerifier: String): String {
+    override suspend fun exchangeCode(code: String?, codeVerifier: String): String {
         lastExchangedCode = code
         lastExchangedVerifier = codeVerifier
         return exchangeResult.getOrThrow()

@@ -31,7 +31,7 @@ internal class DesktopApiKeyStorage : ApiKeyStorage {
         runCatching {
             keyring.getPassword(DOMAIN, ACCOUNT)
         }.getOrElse { cause ->
-            throw SecureStorageException("Failed to read from Desktop Keyring", cause)
+            throw SecureStorageException(cause)
         }
     }
 
@@ -40,7 +40,7 @@ internal class DesktopApiKeyStorage : ApiKeyStorage {
             keyring.setPassword(DOMAIN, ACCOUNT, newKey)
             hasKeyState.value = true
         }.getOrElse { cause ->
-            throw SecureStorageException("Failed to write to Desktop Keyring", cause)
+            throw SecureStorageException(cause)
         }
     }
 
@@ -50,7 +50,7 @@ internal class DesktopApiKeyStorage : ApiKeyStorage {
             hasKeyState.value = false
         }.getOrElse { cause ->
             if (cause is PasswordAccessException) return@withContext
-            throw SecureStorageException("Failed to clear Desktop Keyring", cause)
+            throw SecureStorageException(cause)
         }
     }
 

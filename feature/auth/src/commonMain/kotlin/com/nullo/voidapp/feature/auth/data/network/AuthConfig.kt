@@ -4,9 +4,6 @@ internal object AuthConfig {
 
     const val AUTH_URL = "https://openrouter.ai/auth"
 
-    const val CODE_EXCHANGE_ENDPOINT = "auth/keys"
-    const val CHECK_API_KEY_ENDPOINT = "key"
-
     const val CALLBACK_SCHEME = "voidapp"
 
     // The app deep link is: voidapp://oauth/callback

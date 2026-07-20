@@ -1,6 +1,6 @@
 package com.nullo.voidapp.feature.auth
 
-import com.nullo.voidapp.feature.auth.util.repository.AuthRepository
+import com.nullo.voidapp.feature.auth.domain.repository.AuthRepository
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.Flow
 
@@ -39,7 +39,7 @@ internal class FakeAuthRepository(
         throwOnValidate?.let { throw it }
     }
 
-    override suspend fun exchangeAuthCodeForApiKey(code: String, codeVerifier: String): String {
+    override suspend fun exchangeAuthCodeForApiKey(code: String?, codeVerifier: String): String {
         exchangeAuthCodeCallsCount++
         throwOnExchange?.let { throw it }
 

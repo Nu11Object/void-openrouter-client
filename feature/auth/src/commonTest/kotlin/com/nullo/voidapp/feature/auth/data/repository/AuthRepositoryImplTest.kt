@@ -2,7 +2,7 @@ package com.nullo.voidapp.feature.auth.data.repository
 
 import com.nullo.voidapp.feature.auth.FakeApiKeyStorage
 import com.nullo.voidapp.feature.auth.FakeAuthApiService
-import com.nullo.voidapp.feature.auth.util.entity.InvalidApiKeyException
+import com.nullo.voidapp.core.network.auth.exception.InvalidApiKeyException
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
