@@ -22,6 +22,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPlacement
@@ -40,8 +42,14 @@ import com.nullo.voidapp.core.designsystem.icon.default.Fullscreen
 import com.nullo.voidapp.core.designsystem.icon.default.Minimize
 import com.nullo.voidapp.core.designsystem.theme.VoidTheme
 import com.nullo.voidapp.di.initKoin
+import org.jetbrains.compose.resources.stringResource
 import org.koin.core.parameter.parametersOf
 import org.koin.mp.KoinPlatform.getKoin
+import voidapp.desktopapp.generated.resources.Res
+import voidapp.desktopapp.generated.resources.desc_close_window
+import voidapp.desktopapp.generated.resources.desc_maximize_window
+import voidapp.desktopapp.generated.resources.desc_minimize_window
+import voidapp.desktopapp.generated.resources.desc_restore_window
 import java.awt.Dimension
 
 private const val WINDOW_TITLE = "Void"
@@ -122,7 +130,7 @@ private fun CustomTitleBar(
 
         WindowControlButton(
             icon = Icons.Default.Minimize,
-            contentDescription = "Minimize window"
+            contentDescription = stringResource(Res.string.desc_minimize_window)
         ) {
             windowState.isMinimized = true
         }
@@ -132,11 +140,13 @@ private fun CustomTitleBar(
         }
         WindowControlButton(
             icon = Icons.Default.Fullscreen,
-            contentDescription = if (isMaximized) {
-                "Restore window"
-            } else {
-                "Maximize window"
-            }
+            contentDescription = stringResource(
+                if (isMaximized) {
+                    Res.string.desc_restore_window
+                } else {
+                    Res.string.desc_maximize_window
+                }
+            )
         ) {
             windowState.placement = if (isMaximized) {
                 WindowPlacement.Floating
@@ -147,7 +157,7 @@ private fun CustomTitleBar(
 
         WindowControlButton(
             icon = Icons.Default.Close,
-            contentDescription = "Close window"
+            contentDescription = stringResource(Res.string.desc_close_window)
         ) {
             onClose()
         }

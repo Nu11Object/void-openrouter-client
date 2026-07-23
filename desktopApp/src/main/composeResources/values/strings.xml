@@ -1,0 +1,6 @@
+<resources>
+    <string name="desc_minimize_window">Minimize window</string>
+    <string name="desc_restore_window">Restore window</string>
+    <string name="desc_maximize_window">Maximize window</string>
+    <string name="desc_close_window">Close window</string>
+</resources>
