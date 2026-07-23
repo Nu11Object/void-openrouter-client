@@ -172,7 +172,9 @@ private fun WindowControlButton(
 ) {
     IconButton(
         onClick = onClick,
-        modifier = Modifier.size(32.dp)
+        modifier = Modifier
+            .size(32.dp)
+            .pointerHoverIcon(PointerIcon.Hand)
     ) {
         Icon(
             modifier = Modifier.size(16.dp),
