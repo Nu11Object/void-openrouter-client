@@ -13,7 +13,8 @@ val sharedModule = module {
     factory<RootComponent> { params ->
         DefaultRootComponent(
             componentContext = params.get<ComponentContext>(),
-            authComponentFactory = get()
+            authComponentFactory = get(),
+            settingsRepository = get(),
         )
     }
 }

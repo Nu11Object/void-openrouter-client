@@ -1,12 +1,14 @@
 package com.nullo.voidapp.core.designsystem.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.graphics.Color
 
 private val DarkColorScheme = darkColorScheme(
     background = DarkBackground,
@@ -58,19 +60,45 @@ private val LightColorScheme = lightColorScheme(
     outlineVariant = LightOutlineVariant
 )
 
-val ColorScheme.Success
-    @Composable get() = if (LocalDarkTheme.current) DarkSuccess else LightSuccess
-val ColorScheme.Warning
-    @Composable get() = if (LocalDarkTheme.current) DarkWarning else LightWarning
+@Immutable
+data class ExtendedColors(
+    val success: Color,
+    val warning: Color,
+)
+
+private val LightExtendedColors = ExtendedColors(
+    success = LightSuccess,
+    warning = LightWarning
+)
+
+private val DarkExtendedColors = ExtendedColors(
+    success = DarkSuccess,
+    warning = DarkWarning
+)
+
+private val LocalExtendedColors = staticCompositionLocalOf { LightExtendedColors }
+
+val MaterialTheme.extendedColors: ExtendedColors
+    @Composable get() = LocalExtendedColors.current
+
 
 @Composable
 fun VoidTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    appTheme: AppTheme = AppTheme.SYSTEM,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
+    val darkTheme = when (appTheme) {
+        AppTheme.SYSTEM -> isSystemInDarkTheme()
+        AppTheme.LIGHT -> false
+        AppTheme.DARK -> true
+    }
 
-    CompositionLocalProvider(LocalDarkTheme provides darkTheme) {
+    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
+    val extendedColors = if (darkTheme) DarkExtendedColors else LightExtendedColors
+
+    CompositionLocalProvider(
+        LocalExtendedColors provides extendedColors
+    ) {
         MaterialTheme(
             colorScheme = colorScheme,
             typography = googleSansFlexTypography(),

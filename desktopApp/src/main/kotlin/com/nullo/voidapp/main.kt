@@ -17,6 +17,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,6 +31,7 @@ import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.window.core.layout.WindowSizeClass.Companion.HEIGHT_DP_MEDIUM_LOWER_BOUND
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_EXPANDED_LOWER_BOUND
 import com.arkivanov.decompose.DefaultComponentContext
@@ -79,6 +81,8 @@ fun main() {
             undecorated = true,
             transparent = true
         ) {
+            val appTheme by rootComponent.appTheme.collectAsStateWithLifecycle()
+
             LaunchedEffect(Unit) {
                 window.minimumSize = Dimension(
                     WIDTH_DP_EXPANDED_LOWER_BOUND,
@@ -86,7 +90,7 @@ fun main() {
                 )
             }
 
-            VoidTheme {
+            VoidTheme(appTheme = appTheme) {
                 Column(
                     modifier = Modifier.clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
                 ) {

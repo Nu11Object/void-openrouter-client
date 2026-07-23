@@ -5,13 +5,29 @@ import com.arkivanov.decompose.router.stack.ChildStack
 import com.arkivanov.decompose.router.stack.StackNavigation
 import com.arkivanov.decompose.router.stack.childStack
 import com.arkivanov.decompose.value.Value
+import com.nullo.voidapp.core.designsystem.theme.AppTheme
+import com.nullo.voidapp.core.settings.domain.SettingsRepository
+import com.nullo.voidapp.core.utils.decompose.componentScope
 import com.nullo.voidapp.feature.auth.presentation.component.AuthComponent
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.serialization.Serializable
 
 internal class DefaultRootComponent(
     private val componentContext: ComponentContext,
     private val authComponentFactory: AuthComponent.Factory,
+    private val settingsRepository: SettingsRepository,
 ) : RootComponent, ComponentContext by componentContext {
+
+    private val scope = componentScope()
+
+    override val appTheme: StateFlow<AppTheme> = settingsRepository.appTheme
+        .stateIn(
+            scope = scope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = AppTheme.SYSTEM
+        )
 
     val navigation = StackNavigation<Config>()
 

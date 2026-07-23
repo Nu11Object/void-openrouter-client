@@ -3,6 +3,7 @@ package com.nullo.voidapp.di
 import com.nullo.voidapp.core.network.auth.di.networkAuthModule
 import com.nullo.voidapp.core.network.client.networkClientModule
 import com.nullo.voidapp.core.security.di.securityModule
+import com.nullo.voidapp.core.settings.di.settingsModule
 import com.nullo.voidapp.feature.auth.di.authModule
 import org.koin.core.context.startKoin
 import org.koin.dsl.KoinAppDeclaration
@@ -14,6 +15,7 @@ fun initKoin(config: KoinAppDeclaration? = null) {
             sharedModule,
             networkClientModule,
             networkAuthModule,
+            settingsModule,
             securityModule,
             authModule,
         )

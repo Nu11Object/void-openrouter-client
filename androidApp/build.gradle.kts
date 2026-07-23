@@ -13,11 +13,8 @@ kotlin {
 }
 dependencies {
     implementation(projects.shared)
-    implementation(projects.core.designsystem)
-    implementation(projects.feature.auth)
 
     implementation(libs.koin.android)
-
     implementation(libs.decompose.core)
 
     implementation(libs.androidx.activity.compose)

@@ -8,7 +8,6 @@ plugins {
 
 dependencies {
     implementation(projects.shared)
-    implementation(projects.core.designsystem)
 
     implementation(libs.koin.core)
 

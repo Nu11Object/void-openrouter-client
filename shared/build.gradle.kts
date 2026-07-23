@@ -41,9 +41,11 @@ kotlin {
         commonMain.dependencies {
             implementation(projects.core.network.client)
             implementation(projects.core.network.auth)
+            implementation(projects.core.settings)
             implementation(projects.core.security)
-            implementation(projects.core.designsystem)
-            implementation(projects.feature.auth)
+            implementation(projects.core.utils)
+            api(projects.feature.auth)
+            api(projects.core.designsystem)
 
             implementation(libs.koin.core)
             implementation(libs.koin.compose)

@@ -38,6 +38,7 @@ include(":shared")
 
 include(":core:network:client")
 include(":core:network:auth")
+include(":core:settings")
 
 include(":core:security")
 include(":core:utils")
