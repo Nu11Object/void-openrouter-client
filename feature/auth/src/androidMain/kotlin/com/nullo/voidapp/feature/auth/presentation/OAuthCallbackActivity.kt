@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import com.nullo.voidapp.feature.auth.data.OAuthCallbackDispatcher
 import org.koin.android.ext.android.inject
+import org.koin.java.KoinJavaComponent.inject
 
 /**
  * A fallback [Activity] used to capture OAuth redirect deep links.

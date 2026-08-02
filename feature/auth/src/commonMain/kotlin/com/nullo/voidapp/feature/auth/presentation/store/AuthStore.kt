@@ -12,19 +12,8 @@ interface AuthStore : Store<AuthStore.Intent, AuthStore.State, Nothing> {
         val isLoading: Boolean = false,
         val isOAuthInProgress: Boolean = false,
         val error: UiText? = null,
-        val completion: Completion? = null
-    ) {
-
-        /** Determines how the UI handles successful auth. */
-        sealed interface Completion {
-
-            /** Instantly skips the screen (logged in before). */
-            data object Instant : Completion
-
-            /** Plays the exit animation first (first-time login). */
-            data object Animated : Completion
-        }
-    }
+        val isAuthCompleted: Boolean = false,
+    )
 
     sealed interface Intent {
 

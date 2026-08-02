@@ -1,6 +1,6 @@
 package com.nullo.voidapp.feature.auth.domain.usecase
 
-import com.nullo.voidapp.feature.auth.domain.repository.AuthRepository
+import com.nullo.voidapp.core.auth.domain.repository.AuthRepository
 import kotlinx.coroutines.flow.Flow
 
 /**

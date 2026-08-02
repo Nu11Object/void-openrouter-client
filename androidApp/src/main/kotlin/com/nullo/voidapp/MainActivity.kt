@@ -4,14 +4,11 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.arkivanov.decompose.defaultComponentContext
-import com.nullo.voidapp.component.RootComponent
-import com.nullo.voidapp.core.designsystem.theme.VoidTheme
 import com.nullo.voidapp.feature.auth.presentation.AuthTabResultRegistrar
+import com.nullo.voidapp.feature.root.component.RootComponent
 import org.koin.android.ext.android.get
 import org.koin.core.parameter.parametersOf
 
@@ -28,14 +25,7 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
-            val appTheme by rootComponent.appTheme.collectAsStateWithLifecycle()
-
-            VoidTheme(appTheme = appTheme) {
-                App(
-                    platform = Platform.ANDROID,
-                    rootComponent = remember { rootComponent }
-                )
-            }
+            App(rootComponent = remember { rootComponent })
         }
     }
 }

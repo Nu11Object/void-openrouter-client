@@ -12,11 +12,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 
+/** A themed text field component with a pill-like shape. */
 @Composable
 fun VoidTextField(
     value: String,
@@ -36,6 +38,7 @@ fun VoidTextField(
     singleLine: Boolean = true,
     maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
     minLines: Int = 1,
+    containerColor: Color = MaterialTheme.colorScheme.surfaceVariant,
 ) {
     BasicTextField(
         value = value,
@@ -55,7 +58,7 @@ fun VoidTextField(
             Row(
                 modifier = Modifier
                     .background(
-                        color = MaterialTheme.colorScheme.surfaceVariant,
+                        color = containerColor,
                         shape = CircleShape
                     )
                     .padding(

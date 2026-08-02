@@ -37,11 +37,14 @@ include(":desktopApp")
 include(":shared")
 
 include(":core:network:client")
-include(":core:network:auth")
-include(":core:settings")
+include(":core:auth")
+include(":core:data:settings")
 
 include(":core:security")
 include(":core:utils")
 include(":core:designsystem")
+include(":core:datastore")
 
+include(":feature:root")
 include(":feature:auth")
+include(":feature:settings")

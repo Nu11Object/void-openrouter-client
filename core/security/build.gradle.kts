@@ -24,12 +24,10 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            implementation(projects.core.datastore)
             implementation(libs.kotlinx.coroutines.core)
-            implementation(libs.koin.core)
         }
         androidMain.dependencies {
-            implementation(libs.koin.android)
-            implementation(libs.androidx.datastore.preferences)
             implementation(libs.android.tink)
         }
         jvmMain.dependencies {

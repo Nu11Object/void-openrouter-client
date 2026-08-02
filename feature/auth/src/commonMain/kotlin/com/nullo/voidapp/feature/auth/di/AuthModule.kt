@@ -1,10 +1,7 @@
 package com.nullo.voidapp.feature.auth.di
 
-import com.nullo.voidapp.feature.auth.data.repository.AuthRepositoryImpl
-import com.nullo.voidapp.feature.auth.domain.repository.AuthRepository
 import com.nullo.voidapp.feature.auth.domain.usecase.ObserveAuthStateUseCase
 import com.nullo.voidapp.feature.auth.domain.usecase.SignInViaOpenRouterUseCase
-import com.nullo.voidapp.feature.auth.domain.usecase.SignInWithApiKeyUseCase
 import com.nullo.voidapp.feature.auth.presentation.component.AuthComponent
 import com.nullo.voidapp.feature.auth.presentation.component.DefaultAuthComponent
 import com.nullo.voidapp.feature.auth.presentation.store.AuthStoreFactory
@@ -14,15 +11,8 @@ import org.koin.dsl.module
 
 internal expect val authPlatformModule: Module
 
-val authModule = module {
+val authFeatureModule = module {
     includes(authPlatformModule)
-
-    single<AuthRepository> {
-        AuthRepositoryImpl(
-            apiKeyStorage = get(),
-            authApiService = get(),
-        )
-    }
 
     factoryOf(::AuthStoreFactory)
 
@@ -36,7 +26,6 @@ val authModule = module {
         }
     }
 
-    factoryOf(::ObserveAuthStateUseCase)
-    factoryOf(::SignInWithApiKeyUseCase)
     factoryOf(::SignInViaOpenRouterUseCase)
+    factoryOf(::ObserveAuthStateUseCase)
 }

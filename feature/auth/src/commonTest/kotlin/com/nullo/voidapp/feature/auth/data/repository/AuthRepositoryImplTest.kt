@@ -1,5 +1,6 @@
 package com.nullo.voidapp.feature.auth.data.repository
 
+import com.nullo.voidapp.core.auth.data.repository.AuthRepositoryImpl
 import com.nullo.voidapp.feature.auth.FakeApiKeyStorage
 import com.nullo.voidapp.feature.auth.FakeAuthApiService
 import com.nullo.voidapp.core.network.auth.exception.InvalidApiKeyException

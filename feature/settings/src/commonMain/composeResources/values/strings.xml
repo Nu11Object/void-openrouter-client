@@ -1,0 +1,23 @@
+<resources>
+    <string name="question_sign_out">Sign out?</string>
+    <string name="sign_out">Sign out</string>
+    <string name="description_sign_out">All data will be erased.</string>
+    <string name="button_desc_sign_out">Clears API key and chats</string>
+
+    <string name="title_auth">Authentication</string>
+    <string name="title_theme">Theme</string>
+    <string name="title_danger">Danger Zone</string>
+    <string name="title_settings">Settings</string>
+
+    <string name="description_auth">Your API key is stored locally in encrypted storage. It is never displayed or accessible within the app.</string>
+    <string name="change_api_key">Change API key</string>
+    <string name="desc_submit_api_key">Submit new API key</string>
+    <string name="api_key_changed">API key changed!</string>
+
+    <string name="dark">Dark</string>
+    <string name="desc_dark">Enable dark color theme</string>
+    <string name="light">Light</string>
+    <string name="desc_light">Enable light color theme</string>
+    <string name="system">System</string>
+    <string name="desc_system">Enable system color theme</string>
+</resources>

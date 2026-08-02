@@ -15,12 +15,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -43,28 +40,22 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
+import com.nullo.voidapp.core.designsystem.component.ApiKeyField
 import com.nullo.voidapp.core.designsystem.component.VoidAlertDialog
 import com.nullo.voidapp.core.designsystem.component.VoidDialogButton
-import com.nullo.voidapp.core.designsystem.component.VoidTextField
 import com.nullo.voidapp.core.designsystem.icon.Icons
-import com.nullo.voidapp.core.designsystem.icon.automirrored.ArrowForward
 import com.nullo.voidapp.core.designsystem.icon.default.Logo
 import com.nullo.voidapp.core.designsystem.icon.default.ShieldLock
 import com.nullo.voidapp.core.designsystem.theme.VoidTheme
-import com.nullo.voidapp.core.security.ApiKeyStorage
 import com.nullo.voidapp.core.utils.compose.DeviceConfiguration
 import com.nullo.voidapp.core.utils.compose.rememberDeviceConfiguration
 import com.nullo.voidapp.feature.auth.presentation.component.AuthComponent
 import com.nullo.voidapp.feature.auth.presentation.store.AuthStore
-import com.nullo.voidapp.feature.auth.presentation.store.AuthStore.State.Completion
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.getKoin
 import voidapp.core.utils.generated.resources.ok
 import voidapp.core.utils.generated.resources.oops
 import voidapp.feature.auth.generated.resources.Res
@@ -85,19 +76,14 @@ private val maxButtonAndTextFieldWidth = 350.dp
 
 @Composable
 fun AuthScreen(
-    modifier: Modifier = Modifier,
     authComponent: AuthComponent,
+    modifier: Modifier = Modifier,
 ) {
-    val model by authComponent.model.subscribeAsState()
-    val storage = getKoin().get<ApiKeyStorage>() // todo: remove after testing
-
-    LaunchedEffect(Unit) {
-        storage.clear()
-    }
+    val state by authComponent.model.subscribeAsState()
 
     AuthScreenContent(
         modifier = modifier,
-        state = model,
+        state = state,
         onOAuthClick = authComponent::onOAuthClicked,
         onCancelOAuthClick = authComponent::onCancelOAuthClicked,
         onApiKeyChange = authComponent::onApiKeyInputChanged,
@@ -134,15 +120,11 @@ private fun AuthScreenContent(
         )
     }
 
-    LaunchedEffect(state.completion) {
-        when (state.completion) {
-            null -> Unit
-            Completion.Instant -> onAuthFinish()
-            Completion.Animated -> {
-                keyboardController?.hide()
-                ticketExitAnimation.animateExit()
-                onAuthFinish()
-            }
+    LaunchedEffect(state.isAuthCompleted) {
+        if (state.isAuthCompleted) {
+            keyboardController?.hide()
+            ticketExitAnimation.animateExit()
+            onAuthFinish()
         }
     }
 
@@ -150,7 +132,7 @@ private fun AuthScreenContent(
         AuthMethodSection(
             modifier = modifier,
             isLoading = state.isLoading,
-            isAuthCompleted = state.completion != null,
+            isAuthCompleted = state.isAuthCompleted,
             isOAuthInProgress = state.isOAuthInProgress,
             onOAuthClick = onOAuthClick,
             onCancelOAuthClick = onCancelOAuthClick,
@@ -161,18 +143,21 @@ private fun AuthScreenContent(
     }
 
     Scaffold(modifier = modifier) { innerPadding ->
+        val rootModifier = Modifier
+            .glowOnExit(
+                progress = { ticketExitAnimation.linearProgress },
+                brush = glowBrush
+            )
+            .padding(innerPadding)
+            .padding(32.dp)
+
         when (deviceConfiguration) {
             DeviceConfiguration.MOBILE_PORTRAIT,
             DeviceConfiguration.TABLET_PORTRAIT -> {
                 Column(
                     modifier = Modifier
                         .fillMaxHeight()
-                        .glowOnExit(
-                            progress = { ticketExitAnimation.linearProgress },
-                            brush = glowBrush
-                        )
-                        .padding(innerPadding)
-                        .padding(32.dp),
+                        .then(rootModifier),
                     verticalArrangement = Arrangement.Center,
                 ) {
                     WelcomeSection(
@@ -202,14 +187,7 @@ private fun AuthScreenContent(
             DeviceConfiguration.TABLET_LANDSCAPE,
             DeviceConfiguration.DESKTOP -> {
                 Row(
-                    modifier = Modifier
-                        .glowOnExit(
-                            progress = { ticketExitAnimation.linearProgress },
-                            brush = glowBrush
-                        )
-                        .padding(innerPadding)
-                        .padding(32.dp)
-                        .fillMaxSize()
+                    modifier = rootModifier.fillMaxSize()
                 ) {
                     WelcomeSection(
                         modifier = Modifier
@@ -427,54 +405,19 @@ private fun SignWithApiKeyOption(
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         ApiKeyField(
-            modifier = Modifier.widthIn(max = maxButtonAndTextFieldWidth),
             value = apiKey,
             onValueChange = onApiKeyChanged,
+            placeholder = stringResource(Res.string.paste_api_key),
             onSubmit = onApiKeySubmit,
-            submitEnabled = !isLoading && apiKey.isNotBlank()
+            submitEnabled = !isLoading && apiKey.isNotBlank(),
+            submitContentDescription = stringResource(Res.string.submit_api_key),
+            modifier = Modifier.widthIn(max = maxButtonAndTextFieldWidth),
         )
         Text(
             text = stringResource(Res.string.key_auth_description),
             style = MaterialTheme.typography.bodySmall
         )
     }
-}
-
-@Composable
-private fun ApiKeyField(
-    modifier: Modifier = Modifier,
-    value: String,
-    onValueChange: (String) -> Unit,
-    onSubmit: () -> Unit,
-    submitEnabled: Boolean,
-) {
-    VoidTextField(
-        value = value,
-        onValueChange = onValueChange,
-        modifier = modifier,
-        visualTransformation = PasswordVisualTransformation(),
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-        placeholder = {
-            Text(
-                text = stringResource(Res.string.paste_api_key),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
-            )
-        },
-        trailingIcon = {
-            IconButton(
-                enabled = submitEnabled,
-                onClick = onSubmit,
-                colors = IconButtonDefaults.filledIconButtonColors(),
-                modifier = Modifier.pointerHoverIcon(PointerIcon.Hand)
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.ArrowForward,
-                    contentDescription = stringResource(Res.string.submit_api_key),
-                )
-            }
-        }
-    )
 }
 
 private fun Modifier.ticketShadow(): Modifier = shadow(

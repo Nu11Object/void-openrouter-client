@@ -1,13 +1,12 @@
 package com.nullo.voidapp
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.window.WindowDraggableArea
 import androidx.compose.material3.HorizontalDivider
@@ -17,7 +16,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,19 +29,17 @@ import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.window.core.layout.WindowSizeClass.Companion.HEIGHT_DP_MEDIUM_LOWER_BOUND
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_EXPANDED_LOWER_BOUND
 import com.arkivanov.decompose.DefaultComponentContext
 import com.arkivanov.decompose.extensions.compose.lifecycle.LifecycleController
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
-import com.nullo.voidapp.component.RootComponent
 import com.nullo.voidapp.core.designsystem.icon.Icons
 import com.nullo.voidapp.core.designsystem.icon.default.Close
 import com.nullo.voidapp.core.designsystem.icon.default.Fullscreen
 import com.nullo.voidapp.core.designsystem.icon.default.Minimize
-import com.nullo.voidapp.core.designsystem.theme.VoidTheme
 import com.nullo.voidapp.di.initKoin
+import com.nullo.voidapp.feature.root.component.RootComponent
 import org.jetbrains.compose.resources.stringResource
 import org.koin.core.parameter.parametersOf
 import org.koin.mp.KoinPlatform.getKoin
@@ -55,6 +51,7 @@ import voidapp.desktopapp.generated.resources.desc_restore_window
 import java.awt.Dimension
 
 private const val WINDOW_TITLE = "Void"
+private val windowCornerRadius = 16.dp
 
 fun main() {
     initKoin()
@@ -81,8 +78,6 @@ fun main() {
             undecorated = true,
             transparent = true
         ) {
-            val appTheme by rootComponent.appTheme.collectAsStateWithLifecycle()
-
             LaunchedEffect(Unit) {
                 window.minimumSize = Dimension(
                     WIDTH_DP_EXPANDED_LOWER_BOUND,
@@ -90,10 +85,14 @@ fun main() {
                 )
             }
 
-            VoidTheme(appTheme = appTheme) {
-                Column(
-                    modifier = Modifier.clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
-                ) {
+            App(
+                rootComponent = rootComponent,
+                modifier = if (windowState.placement == WindowPlacement.Maximized) {
+                    Modifier
+                } else {
+                    Modifier.clip(RoundedCornerShape(windowCornerRadius))
+                },
+                windowTitleBar = {
                     WindowDraggableArea {
                         CustomTitleBar(
                             windowState = windowState,
@@ -101,12 +100,8 @@ fun main() {
                         )
                     }
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                    App(
-                        platform = Platform.DESKTOP,
-                        rootComponent = rootComponent
-                    )
                 }
-            }
+            )
         }
     }
 }
@@ -120,14 +115,14 @@ private fun CustomTitleBar(
         modifier = Modifier
             .fillMaxWidth()
             .height(32.dp)
-            .background(MaterialTheme.colorScheme.surfaceDim),
+            .background(MaterialTheme.colorScheme.surfaceDim)
+            .padding(start = 16.dp, end = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Spacer(Modifier.width(16.dp))
         Text(
             text = WINDOW_TITLE,
             color = MaterialTheme.colorScheme.onSurface,
-            style = MaterialTheme.typography.titleMedium
+            style = MaterialTheme.typography.bodyMedium
         )
 
         Spacer(Modifier.weight(1f))
@@ -139,9 +134,7 @@ private fun CustomTitleBar(
             windowState.isMinimized = true
         }
 
-        val isMaximized = remember(windowState.placement) {
-            windowState.placement == WindowPlacement.Maximized
-        }
+        val isMaximized = windowState.placement == WindowPlacement.Maximized
         WindowControlButton(
             icon = Icons.Default.Fullscreen,
             contentDescription = stringResource(

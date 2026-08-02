@@ -1,10 +1,10 @@
 package com.nullo.voidapp.feature.auth.domain.usecase
 
-import com.nullo.voidapp.core.network.auth.exception.CodeExchangeException
+import com.nullo.voidapp.core.auth.domain.exception.AuthException.CodeExchangeException
+import com.nullo.voidapp.core.auth.domain.repository.AuthRepository
 import com.nullo.voidapp.core.security.SecureStorageException
 import com.nullo.voidapp.feature.auth.data.network.buildOAuthUrl
 import com.nullo.voidapp.feature.auth.data.network.extractAuthCodeParam
-import com.nullo.voidapp.feature.auth.domain.repository.AuthRepository
 import com.nullo.voidapp.feature.auth.domain.util.OAuthWebLauncher
 import com.nullo.voidapp.feature.auth.domain.util.PkceGenerator
 

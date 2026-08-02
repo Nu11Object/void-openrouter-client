@@ -36,7 +36,7 @@ kotlin {
             implementation(libs.compose.uiToolingPreview)
         }
         commonMain.dependencies {
-            implementation(projects.core.network.auth)
+            implementation(projects.core.auth)
             implementation(projects.core.security)
             implementation(projects.core.utils)
             implementation(projects.core.designsystem)
@@ -53,7 +53,7 @@ kotlin {
             implementation(libs.ktor.serialization.kotlinx.json)
 
             implementation(libs.koin.core)
-            implementation(libs.koin.compose) // todo: remove soon
+            implementation(libs.koin.compose)
 
             implementation(libs.kotlinx.coroutines.core)
 

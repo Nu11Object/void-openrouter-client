@@ -21,6 +21,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
@@ -104,13 +106,18 @@ fun VoidAlertDialog(
                         TextButton(
                             modifier = Modifier
                                 .weight(1f)
-                                .fillMaxHeight(),
+                                .fillMaxHeight()
+                                .pointerHoverIcon(PointerIcon.Hand),
                             onClick = dismissButton.onClick,
                         ) {
                             Text(
                                 text = dismissButton.text,
                                 style = MaterialTheme.typography.bodyLarge,
-                                color = dismissButton.textColor
+                                color = if (dismissButton.textColor == Color.Unspecified) {
+                                    MaterialTheme.colorScheme.onSurface
+                                } else {
+                                    dismissButton.textColor
+                                }
                             )
                         }
 
@@ -120,7 +127,8 @@ fun VoidAlertDialog(
                     TextButton(
                         modifier = Modifier
                             .weight(1f)
-                            .fillMaxHeight(),
+                            .fillMaxHeight()
+                            .pointerHoverIcon(PointerIcon.Hand),
                         onClick = confirmButton.onClick,
                     ) {
                         Text(

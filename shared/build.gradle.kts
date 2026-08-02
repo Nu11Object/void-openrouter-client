@@ -40,21 +40,16 @@ kotlin {
         }
         commonMain.dependencies {
             implementation(projects.core.network.client)
-            implementation(projects.core.network.auth)
-            implementation(projects.core.settings)
+            implementation(projects.core.auth)
+            implementation(projects.core.data.settings)
             implementation(projects.core.security)
-            implementation(projects.core.utils)
+            implementation(projects.core.datastore)
+
             api(projects.feature.auth)
-            api(projects.core.designsystem)
+            api(projects.feature.root)
+            implementation(projects.feature.settings)
 
-            implementation(libs.koin.core)
             implementation(libs.koin.compose)
-
-            implementation(libs.mvikotlin.core)
-            implementation(libs.mvikotlin.main)
-
-            implementation(libs.decompose.core)
-            implementation(libs.decompose.compose)
 
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)

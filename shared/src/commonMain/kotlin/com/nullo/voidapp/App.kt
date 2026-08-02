@@ -1,28 +1,19 @@
 package com.nullo.voidapp
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import com.arkivanov.decompose.extensions.compose.stack.Children
-import com.arkivanov.decompose.extensions.compose.stack.animation.fade
-import com.arkivanov.decompose.extensions.compose.stack.animation.stackAnimation
-import com.nullo.voidapp.component.RootComponent
-import com.nullo.voidapp.feature.auth.presentation.ui.AuthScreen
+import androidx.compose.ui.Modifier
+import com.nullo.voidapp.feature.root.component.RootComponent
+import com.nullo.voidapp.feature.root.component.RootContent
 
 @Composable
 fun App(
-    platform: Platform,
-    rootComponent: RootComponent
+    rootComponent: RootComponent,
+    modifier: Modifier = Modifier,
+    windowTitleBar: (@Composable () -> Unit)? = null
 ) {
-    CompositionLocalProvider(LocalPlatform provides platform) {
-        Children(
-            stack = rootComponent.stack,
-            animation = stackAnimation(fade())
-        ) {
-            when (val instance = it.instance) {
-                is RootComponent.Child.Auth -> AuthScreen(
-                    authComponent = instance.component
-                )
-            }
-        }
-    }
+    RootContent(
+        rootComponent = rootComponent,
+        modifier = modifier,
+        windowTitleBar = windowTitleBar
+    )
 }

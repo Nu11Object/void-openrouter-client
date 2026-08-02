@@ -1,5 +1,7 @@
 package com.nullo.voidapp.core.designsystem.theme
 
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
@@ -63,16 +65,19 @@ private val LightColorScheme = lightColorScheme(
 @Immutable
 data class ExtendedColors(
     val success: Color,
+    val successContainer: Color,
     val warning: Color,
 )
 
 private val LightExtendedColors = ExtendedColors(
     success = LightSuccess,
+    successContainer = LightSuccessContainer,
     warning = LightWarning
 )
 
 private val DarkExtendedColors = ExtendedColors(
     success = DarkSuccess,
+    successContainer = DarkSuccessContainer,
     warning = DarkWarning
 )
 
@@ -80,7 +85,6 @@ private val LocalExtendedColors = staticCompositionLocalOf { LightExtendedColors
 
 val MaterialTheme.extendedColors: ExtendedColors
     @Composable get() = LocalExtendedColors.current
-
 
 @Composable
 fun VoidTheme(
@@ -93,16 +97,22 @@ fun VoidTheme(
         AppTheme.DARK -> true
     }
 
-    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
-    val extendedColors = if (darkTheme) DarkExtendedColors else LightExtendedColors
+    Crossfade(
+        targetState = darkTheme,
+        animationSpec = tween(durationMillis = 500),
+        label = "ThemeCrossfade"
+    ) { isDark ->
+        val colorScheme = if (isDark) DarkColorScheme else LightColorScheme
+        val extendedColors = if (isDark) DarkExtendedColors else LightExtendedColors
 
-    CompositionLocalProvider(
-        LocalExtendedColors provides extendedColors
-    ) {
-        MaterialTheme(
-            colorScheme = colorScheme,
-            typography = googleSansFlexTypography(),
-            content = content
-        )
+        CompositionLocalProvider(
+            LocalExtendedColors provides extendedColors
+        ) {
+            MaterialTheme(
+                colorScheme = colorScheme,
+                typography = googleSansFlexTypography(),
+                content = content
+            )
+        }
     }
 }
