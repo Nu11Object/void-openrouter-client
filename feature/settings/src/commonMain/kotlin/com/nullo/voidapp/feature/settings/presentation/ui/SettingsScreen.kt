@@ -19,6 +19,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -43,6 +45,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
@@ -261,9 +264,11 @@ private fun AuthSection(
             value = apiKey,
             onValueChange = onApiKeyChange,
             placeholder = stringResource(Res.string.change_api_key),
-            onSubmit = {
-                focusManager.clearFocus()
-                onSubmitApiKey()
+            onSubmit = remember(onSubmitApiKey) {
+                {
+                    focusManager.clearFocus()
+                    onSubmitApiKey()
+                }
             },
             submitEnabled = !isLoading,
             submitContentDescription = stringResource(Res.string.desc_submit_api_key),
@@ -313,7 +318,8 @@ private fun ThemeSection(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(size = 24.dp)),
+                .clip(RoundedCornerShape(size = 24.dp))
+                .selectableGroup(),
             horizontalArrangement = Arrangement.spacedBy(2.dp),
         ) {
             themeOptions.fastForEach { option ->
@@ -351,12 +357,17 @@ private fun ThemeOption(
     } else {
         MaterialTheme.colorScheme.onSurfaceVariant
     }
+    val onClick = remember(theme, onSelect) { { onSelect(theme) } }
 
     CompositionLocalProvider(LocalContentColor provides contentColor) {
         Column(
             modifier = modifier
                 .background(color = containerColor)
-                .clickable { onSelect(theme) }
+                .selectable(
+                    selected = isSelected,
+                    role = Role.RadioButton,
+                    onClick = onClick
+                )
                 .pointerHoverIcon(PointerIcon.Hand),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
@@ -460,7 +471,7 @@ private data class ThemeOptionData(
 
 @PreviewLightDark
 @Composable
-private fun AuthScreenPreview() {
+private fun SettingsScreenPreview() {
     VoidTheme {
         SettingsScreenContent(
             state = SettingsStore.State(
