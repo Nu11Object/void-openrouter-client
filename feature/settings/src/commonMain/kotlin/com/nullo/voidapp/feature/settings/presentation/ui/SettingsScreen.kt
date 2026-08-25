@@ -4,7 +4,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -318,7 +317,7 @@ private fun ThemeSection(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(size = 24.dp))
+                .clip(MaterialTheme.shapes.extraLarge)
                 .selectableGroup(),
             horizontalArrangement = Arrangement.spacedBy(2.dp),
         ) {
@@ -362,6 +361,7 @@ private fun ThemeOption(
     CompositionLocalProvider(LocalContentColor provides contentColor) {
         Column(
             modifier = modifier
+                .clip(MaterialTheme.shapes.extraSmall)
                 .background(color = containerColor)
                 .selectable(
                     selected = isSelected,
@@ -408,7 +408,7 @@ private fun DangerSection(
                 containerColor = MaterialTheme.colorScheme.errorContainer,
                 contentColor = MaterialTheme.colorScheme.error
             ),
-            shape = RoundedCornerShape(size = 16.dp)
+            shape = MaterialTheme.shapes.medium
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
