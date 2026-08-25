@@ -1,0 +1,210 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "c093bbcdb68cc59896484fec288ae3a0",
+    "entities": [
+      {
+        "tableName": "ai_models",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `description` TEXT NOT NULL, `createdAtTimestamp` INTEGER, `contextLength` INTEGER, `maxCompletionTokens` INTEGER, `pinned` INTEGER NOT NULL, `inputModalities` TEXT NOT NULL, `outputModalities` TEXT NOT NULL, `supportedTuningParameters` TEXT NOT NULL, `supportedFeatures` TEXT NOT NULL, `promptPerMillion` TEXT NOT NULL, `completionPerMillion` TEXT NOT NULL, `image` TEXT, `request` TEXT, `webSearch` TEXT, `defaultTemperature` REAL, `defaultTopP` REAL, `defaultTopK` INTEGER, `defaultFrequencyPenalty` REAL, `defaultPresencePenalty` REAL, `defaultRepetitionPenalty` REAL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAtTimestamp",
+            "columnName": "createdAtTimestamp",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "contextLength",
+            "columnName": "contextLength",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "maxCompletionTokens",
+            "columnName": "maxCompletionTokens",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "pinned",
+            "columnName": "pinned",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "inputModalities",
+            "columnName": "inputModalities",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "outputModalities",
+            "columnName": "outputModalities",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "supportedTuningParameters",
+            "columnName": "supportedTuningParameters",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "supportedFeatures",
+            "columnName": "supportedFeatures",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "promptPerMillion",
+            "columnName": "promptPerMillion",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "completionPerMillion",
+            "columnName": "completionPerMillion",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "image",
+            "columnName": "image",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "request",
+            "columnName": "request",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "webSearch",
+            "columnName": "webSearch",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "defaultTemperature",
+            "columnName": "defaultTemperature",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "defaultTopP",
+            "columnName": "defaultTopP",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "defaultTopK",
+            "columnName": "defaultTopK",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "defaultFrequencyPenalty",
+            "columnName": "defaultFrequencyPenalty",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "defaultPresencePenalty",
+            "columnName": "defaultPresencePenalty",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "defaultRepetitionPenalty",
+            "columnName": "defaultRepetitionPenalty",
+            "affinity": "REAL"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "ai_image_models",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `description` TEXT NOT NULL, `createdAtTimestamp` INTEGER, `pinned` INTEGER NOT NULL, `inputModalities` TEXT NOT NULL, `outputModalities` TEXT NOT NULL, `supportsStreaming` INTEGER NOT NULL, `supportedParameters` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAtTimestamp",
+            "columnName": "createdAtTimestamp",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "pinned",
+            "columnName": "pinned",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "inputModalities",
+            "columnName": "inputModalities",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "outputModalities",
+            "columnName": "outputModalities",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "supportsStreaming",
+            "columnName": "supportsStreaming",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "supportedParameters",
+            "columnName": "supportedParameters",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c093bbcdb68cc59896484fec288ae3a0')"
+    ]
+  }
+}

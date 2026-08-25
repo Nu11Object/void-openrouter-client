@@ -44,6 +44,7 @@ kotlin {
             implementation(projects.core.data.settings)
             implementation(projects.core.security)
             implementation(projects.core.datastore)
+            implementation(projects.core.database)
 
             api(projects.feature.auth)
             api(projects.feature.root)

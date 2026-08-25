@@ -36,6 +36,8 @@ include(":androidApp")
 include(":desktopApp")
 include(":shared")
 
+include(":core:model")
+include(":core:database")
 include(":core:network:client")
 include(":core:auth")
 include(":core:data:settings")
