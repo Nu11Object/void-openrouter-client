@@ -14,16 +14,16 @@ interface ImageModelDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(items: List<ImageModelEntity>)
 
-    @Query("SELECT * FROM ai_image_models")
+    @Query("SELECT * FROM image_models")
     fun observeAll(): Flow<List<ImageModelEntity>>
 
-    @Query("SELECT * FROM ai_image_models WHERE pinned = 1")
+    @Query("SELECT * FROM image_models WHERE pinned = 1")
     fun observePinned(): Flow<List<ImageModelEntity>>
 
-    @Query("SELECT COUNT(*) FROM ai_image_models")
+    @Query("SELECT COUNT(*) FROM image_models")
     suspend fun count(): Int
 
-    @Query("UPDATE ai_image_models SET pinned = :pinned WHERE id = :modelId")
+    @Query("UPDATE image_models SET pinned = :pinned WHERE id = :modelId")
     suspend fun setPinned(modelId: String, pinned: Boolean)
 
     @Transaction
@@ -37,9 +37,9 @@ interface ImageModelDao {
         )
     }
 
-    @Query("SELECT id FROM ai_image_models WHERE pinned = 1")
+    @Query("SELECT id FROM image_models WHERE pinned = 1")
     suspend fun getPinnedIds(): List<String>
 
-    @Query("DELETE FROM ai_image_models")
+    @Query("DELETE FROM image_models")
     suspend fun deleteAll()
 }

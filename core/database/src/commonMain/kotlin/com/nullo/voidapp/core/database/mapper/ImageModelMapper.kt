@@ -1,7 +1,7 @@
 package com.nullo.voidapp.core.database.mapper
 
 import com.nullo.voidapp.core.database.entity.ImageModelEntity
-import com.nullo.voidapp.core.model.aimodel.Modality
+import com.nullo.voidapp.core.model.chatmodel.Modality
 import com.nullo.voidapp.core.model.imagemodel.ImageModel
 import com.nullo.voidapp.core.model.imagemodel.ImageParameter
 
@@ -16,7 +16,8 @@ fun ImageModelEntity.toDomain(): ImageModel = ImageModel(
     supportedParameters = supportedParameters.mapNotNull { (key, capability) ->
         val param = ImageParameter.fromKey(key) ?: return@mapNotNull null
         param to capability
-    }.toMap()
+    }.toMap(),
+    endpointsUrl = endpointsUrl,
 )
 
 fun ImageModel.toEntity(): ImageModelEntity = ImageModelEntity(
@@ -27,5 +28,6 @@ fun ImageModel.toEntity(): ImageModelEntity = ImageModelEntity(
     inputModalities = inputModalities.map { it.name.lowercase() },
     outputModalities = outputModalities.map { it.name.lowercase() },
     supportsStreaming = supportsStreaming,
-    supportedParameters = supportedParameters.mapKeys { (param, _) -> param.name.lowercase() }
+    supportedParameters = supportedParameters.mapKeys { (param, _) -> param.name.lowercase() },
+    endpointsUrl = endpointsUrl,
 )

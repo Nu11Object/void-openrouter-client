@@ -38,9 +38,10 @@ include(":shared")
 
 include(":core:model")
 include(":core:database")
-include(":core:network:client")
+include(":core:network")
 include(":core:auth")
 include(":core:data:settings")
+include(":core:data:catalog")
 
 include(":core:security")
 include(":core:utils")

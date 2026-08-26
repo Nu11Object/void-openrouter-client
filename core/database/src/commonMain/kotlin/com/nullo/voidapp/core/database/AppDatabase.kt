@@ -5,9 +5,9 @@ import androidx.room3.Database
 import androidx.room3.RoomDatabase
 import androidx.room3.RoomDatabaseConstructor
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
-import com.nullo.voidapp.core.database.dao.AiModelDao
+import com.nullo.voidapp.core.database.dao.ChatModelDao
 import com.nullo.voidapp.core.database.dao.ImageModelDao
-import com.nullo.voidapp.core.database.entity.AiModelEntity
+import com.nullo.voidapp.core.database.entity.ChatModelEntity
 import com.nullo.voidapp.core.database.entity.ImageModelEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -15,13 +15,13 @@ import kotlinx.coroutines.IO
 internal const val DATABASE_NAME = "void_app.db"
 
 @Database(
-    entities = [AiModelEntity::class, ImageModelEntity::class],
+    entities = [ChatModelEntity::class, ImageModelEntity::class],
     version = 1
 )
 @ConstructedBy(AppDatabaseConstructor::class)
 internal abstract class AppDatabase : RoomDatabase() {
 
-    abstract fun aiModelDao(): AiModelDao
+    abstract fun aiModelDao(): ChatModelDao
     abstract fun imageModelDao(): ImageModelDao
 }
 
@@ -37,5 +37,6 @@ internal fun getRoomDatabase(
     return builder
         .setDriver(BundledSQLiteDriver())
         .setQueryCoroutineContext(Dispatchers.IO)
+        .fallbackToDestructiveMigration(dropAllTables = true) // todo: remove before release
         .build()
 }

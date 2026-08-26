@@ -1,6 +1,5 @@
 package com.nullo.voidapp.core.database.entity
 
-import androidx.room3.ColumnInfo
 import androidx.room3.ColumnTypeConverters
 import androidx.room3.Entity
 import androidx.room3.PrimaryKey
@@ -8,7 +7,7 @@ import com.nullo.voidapp.core.database.typeconverter.ImageParameterCapabilityCon
 import com.nullo.voidapp.core.database.typeconverter.StringListConverter
 import com.nullo.voidapp.core.model.imagemodel.ImageParameterCapability
 
-@Entity(tableName = "ai_image_models")
+@Entity(tableName = "image_models")
 @ColumnTypeConverters(
     StringListConverter::class,
     ImageParameterCapabilityConverter::class
@@ -18,8 +17,9 @@ data class ImageModelEntity(
     val id: String,
     val name: String,
     val description: String,
-    val createdAtTimestamp: Long?,
+    val createdAtTimestamp: Long,
     val pinned: Boolean = false,
+    val endpointsUrl: String,
 
     val inputModalities: List<String>,
     val outputModalities: List<String>,

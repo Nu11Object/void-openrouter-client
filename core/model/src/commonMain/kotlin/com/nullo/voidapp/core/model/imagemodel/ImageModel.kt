@@ -1,16 +1,17 @@
 package com.nullo.voidapp.core.model.imagemodel
 
-import com.nullo.voidapp.core.model.aimodel.Modality
+import com.nullo.voidapp.core.model.chatmodel.Modality
 
 data class ImageModel(
     val id: String,
     val name: String,
     val description: String,
-    val createdAtTimestamp: Long?,
+    val createdAtTimestamp: Long,
     val inputModalities: Set<Modality>,
     val outputModalities: Set<Modality>,
     val supportsStreaming: Boolean,
-    val supportedParameters: Map<ImageParameter, ImageParameterCapability>
+    val supportedParameters: Map<ImageParameter, ImageParameterCapability>,
+    val endpointsUrl: String
 ) {
 
     fun capabilityOf(param: ImageParameter): ImageParameterCapability? = supportedParameters[param]

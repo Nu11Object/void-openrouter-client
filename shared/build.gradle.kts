@@ -39,9 +39,10 @@ kotlin {
             implementation(libs.compose.uiToolingPreview)
         }
         commonMain.dependencies {
-            implementation(projects.core.network.client)
+            implementation(projects.core.network)
             implementation(projects.core.auth)
             implementation(projects.core.data.settings)
+            implementation(projects.core.data.catalog)
             implementation(projects.core.security)
             implementation(projects.core.datastore)
             implementation(projects.core.database)

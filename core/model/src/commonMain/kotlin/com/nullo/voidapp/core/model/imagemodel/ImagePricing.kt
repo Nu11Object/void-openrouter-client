@@ -3,6 +3,8 @@ package com.nullo.voidapp.core.model.imagemodel
 import com.ionspin.kotlin.bignum.decimal.BigDecimal
 
 data class ImagePricing(
+    val providerName: String,
+    val providerSlug: String,
     val lines: List<PricingLine>
 )
 
@@ -14,6 +16,7 @@ data class PricingLine(
 )
 
 enum class PricingUnit {
+    REQUEST,
     IMAGE,
     MEGAPIXEL,
     TOKEN
