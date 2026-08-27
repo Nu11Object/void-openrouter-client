@@ -17,6 +17,9 @@ interface ChatModelDao {
     @Query("SELECT * FROM chat_models")
     fun observeAll(): Flow<List<ChatModelEntity>>
 
+    @Query("SELECT * FROM chat_models WHERE id = :modelId LIMIT 1")
+    fun observeById(modelId: String): Flow<ChatModelEntity?>
+
     @Query("SELECT * FROM chat_models WHERE pinned = 1")
     fun observePinned(): Flow<List<ChatModelEntity>>
 

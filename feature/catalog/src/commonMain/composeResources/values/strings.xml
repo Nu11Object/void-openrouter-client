@@ -1,0 +1,4 @@
+<resources>
+    <string name="message_using_model">Using %s now</string>
+    <string name="message_catalog_refreshed">Catalog refreshed</string>
+</resources>

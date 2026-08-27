@@ -10,4 +10,7 @@ object DataStoreQualifiers {
 
     /** Qualifier for the encrypted API key DataStore. */
     val apiKeyStorage = named("datastore_api_storage")
+
+    /** Qualifier for the session parameters DataStore (e.g. active model). */
+    val session = named("datastore_session")
 }

@@ -20,6 +20,9 @@ interface ImageModelDao {
     @Query("SELECT * FROM image_models WHERE pinned = 1")
     fun observePinned(): Flow<List<ImageModelEntity>>
 
+    @Query("SELECT * FROM image_models WHERE id = :modelId LIMIT 1")
+    fun observeById(modelId: String): Flow<ImageModelEntity?>
+
     @Query("SELECT COUNT(*) FROM image_models")
     suspend fun count(): Int
 
