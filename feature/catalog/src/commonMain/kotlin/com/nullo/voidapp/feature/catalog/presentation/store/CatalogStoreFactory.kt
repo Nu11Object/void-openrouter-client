@@ -17,10 +17,15 @@ import com.nullo.voidapp.feature.catalog.domain.RefreshCatalogUseCase
 import com.nullo.voidapp.feature.catalog.domain.SetPinStatusUseCase
 import com.nullo.voidapp.feature.catalog.domain.UseModelUseCase
 import com.nullo.voidapp.feature.catalog.presentation.store.CatalogStore.State
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import voidapp.core.utils.generated.resources.exception_internal
 import voidapp.core.utils.generated.resources.exception_network
@@ -40,18 +45,21 @@ internal class CatalogStoreFactory(
     private val useModelUseCase: UseModelUseCase,
 ) : StoreFactory by storeFactory {
 
-    fun create(): CatalogStore = object : CatalogStore,
-        Store<CatalogStore.Intent, State, CatalogStore.Label> by storeFactory.create(
-            name = "CatalogStore",
-            initialState = State(),
-            bootstrapper = BootstrapperImpl(),
-            executorFactory = ::ExecutorImpl,
-            reducer = ReducerImpl
-        ) {}
+    fun create(): CatalogStore {
+        val searchQuery = MutableStateFlow("")
+
+        return object : CatalogStore,
+            Store<CatalogStore.Intent, State, CatalogStore.Label> by storeFactory.create(
+                name = "CatalogStore",
+                initialState = State(),
+                bootstrapper = BootstrapperImpl(searchQuery),
+                executorFactory = { ExecutorImpl(searchQuery) },
+                reducer = ReducerImpl
+            ) {}
+    }
 
     private sealed interface Message {
 
-        data class SearchQueryChanged(val query: String) : Message
         data class CatalogTabChanged(val tab: State.CatalogTab) : Message
         data object VerboseInfoToggled : Message
         data object CatalogRefreshStarted : Message
@@ -73,21 +81,32 @@ internal class CatalogStoreFactory(
         data class UpdateImageModelsList(val models: List<ImageModel>) : Action
     }
 
-    private inner class BootstrapperImpl : CoroutineBootstrapper<Action>() {
+    private inner class BootstrapperImpl(
+        private val searchQuery: Flow<String>
+    ) : CoroutineBootstrapper<Action>() {
 
         override fun invoke() {
-            observeChatModelsUseCase()
-                .onEach { dispatch(Action.UpdateChatModelsList(it)) }
-                .launchIn(scope)
+            observeModelsWithQuery(
+                modelSource = observeChatModelsUseCase(),
+                searchQuery = searchQuery,
+                filterBy = { it.name },
+                onEach = { dispatch(Action.UpdateChatModelsList(it)) },
+                scope = scope
+            )
 
-            observeImageModelsUseCase()
-                .onEach { dispatch(Action.UpdateImageModelsList(it)) }
-                .launchIn(scope)
+            observeModelsWithQuery(
+                modelSource = observeImageModelsUseCase(),
+                searchQuery = searchQuery,
+                filterBy = { it.name },
+                onEach = { dispatch(Action.UpdateImageModelsList(it)) },
+                scope = scope
+            )
         }
     }
 
-    private inner class ExecutorImpl :
-        CoroutineExecutor<CatalogStore.Intent, Action, State, Message, CatalogStore.Label>() {
+    private inner class ExecutorImpl(
+        private val searchQuery: MutableStateFlow<String>
+    ) : CoroutineExecutor<CatalogStore.Intent, Action, State, Message, CatalogStore.Label>() {
 
         private var changeSearchQueryJob: Job? = null
         private var useModelJob: Job? = null
@@ -115,7 +134,7 @@ internal class CatalogStoreFactory(
                     changeSearchQueryJob?.cancel()
                     changeSearchQueryJob = scope.launch {
                         delay(SEARCH_QUERY_DEBOUNCE_MS.milliseconds)
-                        dispatch(Message.SearchQueryChanged(intent.query))
+                        searchQuery.update { intent.query }
                     }
                 }
 
@@ -199,10 +218,30 @@ internal class CatalogStoreFactory(
                 is Message.ErrorOccurred -> copy(error = msg.uiText, isLoading = false)
                 Message.ErrorDismissed -> copy(error = null)
 
-                is Message.SearchQueryChanged -> copy(searchQuery = msg.query)
                 Message.VerboseInfoToggled -> copy(showVerboseInfo = !showVerboseInfo)
             }
         }
+    }
+
+    private inline fun <T> observeModelsWithQuery(
+        modelSource: Flow<List<T>>,
+        searchQuery: Flow<String>,
+        crossinline filterBy: (T) -> String,
+        crossinline onEach: (filtered: List<T>) -> Unit,
+        scope: CoroutineScope,
+    ) {
+        combine(
+            modelSource,
+            searchQuery
+        ) { models, query ->
+            if (query.isBlank()) {
+                models
+            } else {
+                models.filter { filterBy(it).contains(query, ignoreCase = true) }
+            }
+        }
+            .onEach { onEach(it) }
+            .launchIn(scope)
     }
 
     companion object {

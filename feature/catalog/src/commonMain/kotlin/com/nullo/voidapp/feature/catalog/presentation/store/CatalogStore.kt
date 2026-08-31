@@ -12,7 +12,6 @@ interface CatalogStore : Store<CatalogStore.Intent, CatalogStore.State, CatalogS
 
     @Immutable
     data class State(
-        val searchQuery: String = "",
         val chatModels: List<ChatModel> = emptyList(),
         val imageModels: List<ImageModel> = emptyList(),
         val selectedTab: CatalogTab = CatalogTab.ChatModels,
