@@ -7,6 +7,8 @@ import com.nullo.voidapp.feature.catalog.domain.ObserveImageModelsUseCase
 import com.nullo.voidapp.feature.catalog.domain.RefreshCatalogUseCase
 import com.nullo.voidapp.feature.catalog.domain.SetPinStatusUseCase
 import com.nullo.voidapp.feature.catalog.domain.UseModelUseCase
+import com.nullo.voidapp.feature.catalog.presentation.component.CatalogComponent
+import com.nullo.voidapp.feature.catalog.presentation.component.DefaultCatalogComponent
 import com.nullo.voidapp.feature.catalog.presentation.store.CatalogStoreFactory
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
@@ -22,4 +24,14 @@ val catalogFeatureModule = module {
     factoryOf(::UseModelUseCase)
 
     factoryOf(::CatalogStoreFactory)
+
+    factory {
+        CatalogComponent.Factory { onNavigateBack, componentContext ->
+            DefaultCatalogComponent(
+                onNavigateBack = onNavigateBack,
+                catalogStoreFactory = get(),
+                componentContext = componentContext,
+            )
+        }
+    }
 }
