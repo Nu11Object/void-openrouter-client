@@ -18,11 +18,13 @@ import com.nullo.voidapp.feature.catalog.domain.SetPinStatusUseCase
 import com.nullo.voidapp.feature.catalog.domain.UseModelUseCase
 import com.nullo.voidapp.feature.catalog.presentation.store.CatalogStore.State
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
@@ -46,6 +48,8 @@ internal class CatalogStoreFactory(
 ) : StoreFactory by storeFactory {
 
     fun create(): CatalogStore {
+        // Internal state flow to sync search queries between Executor and Bootstrapper.
+        // State.searchQuery is used for UI only!
         val searchQuery = MutableStateFlow("")
 
         return object : CatalogStore,
@@ -60,6 +64,7 @@ internal class CatalogStoreFactory(
 
     private sealed interface Message {
 
+        data class SearchQueryChanged(val query: String) : Message
         data class CatalogTabChanged(val tab: State.CatalogTab) : Message
         data object VerboseInfoToggled : Message
         data object CatalogRefreshStarted : Message
@@ -108,7 +113,6 @@ internal class CatalogStoreFactory(
         private val searchQuery: MutableStateFlow<String>
     ) : CoroutineExecutor<CatalogStore.Intent, Action, State, Message, CatalogStore.Label>() {
 
-        private var changeSearchQueryJob: Job? = null
         private var useModelJob: Job? = null
         private var dismissMessageJob: Job? = null
 
@@ -131,11 +135,8 @@ internal class CatalogStoreFactory(
                 )
 
                 is CatalogStore.Intent.ChangeSearchQuery -> {
-                    changeSearchQueryJob?.cancel()
-                    changeSearchQueryJob = scope.launch {
-                        delay(SEARCH_QUERY_DEBOUNCE_MS.milliseconds)
-                        searchQuery.update { intent.query }
-                    }
+                    dispatch(Message.SearchQueryChanged(intent.query))
+                    searchQuery.update { intent.query }
                 }
 
                 CatalogStore.Intent.RefreshCatalog -> {
@@ -218,11 +219,13 @@ internal class CatalogStoreFactory(
                 is Message.ErrorOccurred -> copy(error = msg.uiText, isLoading = false)
                 Message.ErrorDismissed -> copy(error = null)
 
+                is Message.SearchQueryChanged -> copy(searchQuery = msg.query)
                 Message.VerboseInfoToggled -> copy(showVerboseInfo = !showVerboseInfo)
             }
         }
     }
 
+    @OptIn(FlowPreview::class)
     private inline fun <T> observeModelsWithQuery(
         modelSource: Flow<List<T>>,
         searchQuery: Flow<String>,
@@ -230,9 +233,17 @@ internal class CatalogStoreFactory(
         crossinline onEach: (filtered: List<T>) -> Unit,
         scope: CoroutineScope,
     ) {
+        val debouncedQuery = searchQuery.debounce { query ->
+            if (query.isEmpty()) {
+                0.milliseconds
+            } else {
+                SEARCH_QUERY_DEBOUNCE_MS.milliseconds
+            }
+        }
+
         combine(
             modelSource,
-            searchQuery
+            debouncedQuery
         ) { models, query ->
             if (query.isBlank()) {
                 models
