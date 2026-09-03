@@ -25,13 +25,10 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -39,7 +36,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
@@ -50,10 +46,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import com.nullo.voidapp.core.designsystem.component.ApiKeyField
+import com.nullo.voidapp.core.designsystem.component.BackTopAppBar
 import com.nullo.voidapp.core.designsystem.component.VoidAlertDialog
 import com.nullo.voidapp.core.designsystem.component.VoidDialogButton
 import com.nullo.voidapp.core.designsystem.icon.Icons
-import com.nullo.voidapp.core.designsystem.icon.automirrored.ArrowBack
 import com.nullo.voidapp.core.designsystem.icon.default.DarkTheme
 import com.nullo.voidapp.core.designsystem.icon.default.Key
 import com.nullo.voidapp.core.designsystem.icon.default.LightTheme
@@ -71,7 +67,6 @@ import com.nullo.voidapp.feature.settings.presentation.store.SettingsStore.State
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import voidapp.core.utils.generated.resources.cancel
-import voidapp.core.utils.generated.resources.desc_go_back
 import voidapp.core.utils.generated.resources.ok
 import voidapp.core.utils.generated.resources.oops
 import voidapp.feature.settings.generated.resources.Res
@@ -144,7 +139,12 @@ private fun SettingsScreenContent(
 
     Scaffold(
         modifier = modifier,
-        topBar = { SettingsTopAppBar(onBackClick = onBackClick) }
+        topBar = {
+            BackTopAppBar(
+                title = stringResource(Res.string.title_settings),
+                onBackClick = onBackClick,
+            )
+        }
     ) { innerPadding ->
         LazyVerticalStaggeredGrid(
             modifier = Modifier
@@ -437,29 +437,6 @@ private fun SectionHeader(
         Icon(imageVector = icon, contentDescription = null)
         Text(text = title, style = MaterialTheme.typography.titleMedium)
     }
-}
-
-@Composable
-private fun SettingsTopAppBar(
-    onBackClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    TopAppBar(
-        modifier = modifier,
-        title = { Text(text = stringResource(Res.string.title_settings)) },
-        navigationIcon = {
-            IconButton(onClick = onBackClick) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.ArrowBack,
-                    contentDescription = stringResource(CoreRes.string.desc_go_back)
-                )
-            }
-        },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = Color.Transparent,
-            scrolledContainerColor = Color.Transparent
-        ),
-    )
 }
 
 private data class ThemeOptionData(
