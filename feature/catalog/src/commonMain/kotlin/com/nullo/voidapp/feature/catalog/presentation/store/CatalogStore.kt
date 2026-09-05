@@ -20,8 +20,10 @@ interface CatalogStore : Store<CatalogStore.Intent, CatalogStore.State, CatalogS
         val isLoading: Boolean = false,
         val error: UiText? = null,
         val message: UiText? = null,
+        val isDbEmpty: Boolean = false,
     ) {
 
+        @Immutable
         sealed interface CatalogTab {
 
             data object ChatModels : CatalogTab
@@ -33,9 +35,12 @@ interface CatalogStore : Store<CatalogStore.Intent, CatalogStore.State, CatalogS
 
         data object NavigateBack : Intent
         data object RefreshCatalog : Intent
+
         data class ChangeSearchQuery(val query: String) : Intent
+        data object ClearSearchQuery : Intent
+
         data class ChangeCatalogTab(val tab: State.CatalogTab) : Intent
-        data object ToggleVerboseInfo : Intent
+        data class ToggleVerboseInfo(val verbose: Boolean) : Intent
 
         data class UseModel(val modelRef: ActiveModelRef) : Intent
         data class SetPinState(

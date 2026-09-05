@@ -13,6 +13,8 @@ import com.arkivanov.decompose.extensions.compose.stack.animation.scale
 import com.arkivanov.decompose.extensions.compose.stack.animation.stackAnimation
 import com.nullo.voidapp.core.designsystem.theme.VoidTheme
 import com.nullo.voidapp.feature.auth.presentation.ui.AuthScreen
+import com.nullo.voidapp.feature.catalog.presentation.store.CatalogStore
+import com.nullo.voidapp.feature.catalog.presentation.ui.CatalogScreen
 import com.nullo.voidapp.feature.settings.presentation.ui.SettingsScreen
 
 @Composable
@@ -37,6 +39,7 @@ fun RootContent(
                     is RootComponent.Child.Initial -> {}
                     is RootComponent.Child.Auth -> AuthScreen(instance.component)
                     is RootComponent.Child.Settings -> SettingsScreen(instance.component)
+                    is RootComponent.Child.Catalog -> CatalogScreen(instance.component)
                 }
             }
         }

@@ -35,7 +35,8 @@ fun ChatModelEntity.toDomain(): ChatModel = ChatModel(
         request = request.toBigDecimalOrNull(),
         webSearch = webSearch.toBigDecimalOrNull()
     ),
-    defaultTuningParameters = this.toDefaultParameters()
+    defaultTuningParameters = this.toDefaultParameters(),
+    pinned = pinned,
 )
 
 fun ChatModel.toEntity(): ChatModelEntity = ChatModelEntity(

@@ -1,7 +1,9 @@
 package com.nullo.voidapp.core.model.chatmodel
 
+import androidx.compose.runtime.Immutable
 import com.ionspin.kotlin.bignum.decimal.BigDecimal
 
+@Immutable
 data class ModelPricing(
     val promptPerMillion: BigDecimal,
     val completionPerMillion: BigDecimal,

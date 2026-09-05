@@ -14,7 +14,11 @@ interface CatalogComponent {
 
     fun onSearchQueryChanged(query: String)
 
-    fun onVerboseInfoToggled()
+    fun onSearchQueryCleared()
+
+    fun onRefreshCatalogClicked()
+
+    fun onVerboseInfoToggled(enabled: Boolean)
 
     fun onUseModelClicked(modelRef: ActiveModelRef)
 

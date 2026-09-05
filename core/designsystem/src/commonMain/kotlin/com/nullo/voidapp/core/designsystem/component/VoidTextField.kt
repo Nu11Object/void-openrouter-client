@@ -62,8 +62,8 @@ fun VoidTextField(
                         shape = CircleShape
                     )
                     .padding(
-                        start = if (leadingIcon != null) 4.dp else 24.dp,
-                        end = if (trailingIcon != null) 4.dp else 24.dp,
+                        start = if (leadingIcon != null) 24.dp else 16.dp,
+                        end = 8.dp,
                         top = 4.dp,
                         bottom = 4.dp
                     ),
@@ -76,10 +76,7 @@ fun VoidTextField(
                 Box(
                     modifier = Modifier
                         .weight(1f)
-                        .padding(
-                            start = if (leadingIcon != null) 12.dp else 0.dp,
-                            end = if (trailingIcon != null) 12.dp else 0.dp
-                        ),
+                        .padding(start = if (leadingIcon != null) 14.dp else 8.dp),
                     contentAlignment = Alignment.CenterStart
                 ) {
                     if (value.isEmpty() && placeholder != null) {

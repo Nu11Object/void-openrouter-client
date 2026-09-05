@@ -18,6 +18,7 @@ fun ImageModelEntity.toDomain(): ImageModel = ImageModel(
         param to capability
     }.toMap(),
     endpointsUrl = endpointsUrl,
+    pinned = pinned,
 )
 
 fun ImageModel.toEntity(): ImageModelEntity = ImageModelEntity(

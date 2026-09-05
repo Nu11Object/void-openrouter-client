@@ -1,5 +1,8 @@
 package com.nullo.voidapp.core.model.chatmodel
 
+import androidx.compose.runtime.Immutable
+
+@Immutable
 data class ChatModel(
     val id: String,
     val name: String,
@@ -12,7 +15,8 @@ data class ChatModel(
     val supportedTuningParameters: Set<TuningParameter>,
     val defaultTuningParameters: DefaultTuningParameters,
     val supportedFeatures: Set<ModelFeature>,
-    val pricing: ModelPricing
+    val pricing: ModelPricing,
+    val pinned: Boolean,
 ) {
 
     val supportsReasoning: Boolean
@@ -20,9 +24,6 @@ data class ChatModel(
 
     val supportsVision: Boolean
         get() = inputModalities.contains(Modality.IMAGE)
-
-    val canGenerateImage: Boolean
-        get() = outputModalities.contains(Modality.IMAGE)
 
     fun supports(tunParam: TuningParameter): Boolean = tunParam in supportedTuningParameters
 }

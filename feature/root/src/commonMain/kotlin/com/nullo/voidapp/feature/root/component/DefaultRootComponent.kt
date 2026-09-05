@@ -8,11 +8,12 @@ import com.arkivanov.decompose.router.stack.pop
 import com.arkivanov.decompose.router.stack.replaceAll
 import com.arkivanov.decompose.router.stack.replaceCurrent
 import com.arkivanov.decompose.value.Value
+import com.nullo.voidapp.core.data.settings.domain.SettingsRepository
 import com.nullo.voidapp.core.designsystem.theme.AppTheme
 import com.nullo.voidapp.core.security.ApiKeyStorage
-import com.nullo.voidapp.core.data.settings.domain.SettingsRepository
 import com.nullo.voidapp.core.utils.decompose.componentScope
 import com.nullo.voidapp.feature.auth.presentation.component.AuthComponent
+import com.nullo.voidapp.feature.catalog.presentation.component.CatalogComponent
 import com.nullo.voidapp.feature.settings.presentation.component.SettingsComponent
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -25,6 +26,7 @@ internal class DefaultRootComponent(
     private val componentContext: ComponentContext,
     private val authComponentFactory: AuthComponent.Factory,
     private val settingsComponentFactory: SettingsComponent.Factory,
+    private val catalogComponentFactory: CatalogComponent.Factory,
     private val settingsRepository: SettingsRepository,
     private val apiKeyStorage: ApiKeyStorage,
 ) : RootComponent, ComponentContext by componentContext {
@@ -52,7 +54,7 @@ internal class DefaultRootComponent(
         if (stack.value.active.configuration == Config.Initial) {
             scope.launch {
                 val hasKey = apiKeyStorage.hasApiKey().first()
-                val target = if (hasKey) Config.Settings else Config.Auth
+                val target = if (hasKey) Config.Catalog else Config.Auth
                 navigation.replaceCurrent(target)
             }
         }
@@ -67,7 +69,7 @@ internal class DefaultRootComponent(
                 val component = authComponentFactory.create(
                     onAuthFinished = {
                         // todo: navigate to main screen
-                        navigation.replaceCurrent(Config.Settings)
+                        navigation.replaceCurrent(Config.Catalog)
                     },
                     componentContext = componentContext
                 )
@@ -81,6 +83,14 @@ internal class DefaultRootComponent(
                     componentContext = componentContext,
                 )
                 RootComponent.Child.Settings(component)
+            }
+
+            Config.Catalog -> {
+                val component = catalogComponentFactory.create(
+                    onNavigateBack = navigation::pop,
+                    componentContext = componentContext,
+                )
+                RootComponent.Child.Catalog(component)
             }
 
             Config.Initial -> RootComponent.Child.Initial
@@ -98,5 +108,8 @@ internal class DefaultRootComponent(
 
         @Serializable
         data object Settings : Config
+
+        @Serializable
+        data object Catalog : Config
     }
 }

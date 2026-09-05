@@ -3,6 +3,7 @@
     <string name="oops">Oops</string>
     <string name="ok">Ok</string>
     <string name="cancel">Cancel</string>
+    <string name="dismiss">Dismiss</string>
 
     <string name="desc_go_back">Go back</string>
 

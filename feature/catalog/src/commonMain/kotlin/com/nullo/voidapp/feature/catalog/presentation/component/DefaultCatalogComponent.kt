@@ -37,8 +37,16 @@ internal class DefaultCatalogComponent(
         store.accept(Intent.ChangeSearchQuery(query))
     }
 
-    override fun onVerboseInfoToggled() {
-        store.accept(Intent.ToggleVerboseInfo)
+    override fun onSearchQueryCleared() {
+        store.accept(Intent.ClearSearchQuery)
+    }
+
+    override fun onRefreshCatalogClicked() {
+        store.accept(Intent.RefreshCatalog)
+    }
+
+    override fun onVerboseInfoToggled(enabled: Boolean) {
+        store.accept(Intent.ToggleVerboseInfo(enabled))
     }
 
     override fun onUseModelClicked(modelRef: ActiveModelRef) {

@@ -17,7 +17,6 @@ import com.nullo.voidapp.feature.catalog.domain.RefreshCatalogUseCase
 import com.nullo.voidapp.feature.catalog.domain.SetPinStatusUseCase
 import com.nullo.voidapp.feature.catalog.domain.UseModelUseCase
 import com.nullo.voidapp.feature.catalog.presentation.store.CatalogStore.State
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -65,13 +64,18 @@ internal class CatalogStoreFactory(
     private sealed interface Message {
 
         data class SearchQueryChanged(val query: String) : Message
+        data object SearchQueryCleared : Message
+
         data class CatalogTabChanged(val tab: State.CatalogTab) : Message
-        data object VerboseInfoToggled : Message
+        data class VerboseInfoToggled(val enabled: Boolean) : Message
         data object CatalogRefreshStarted : Message
         data object CatalogRefreshFinished : Message
 
-        data class ChatModelsUpdated(val models: List<ChatModel>) : Message
-        data class ImageModelsUpdated(val models: List<ImageModel>) : Message
+        data class ModelsUpdated(
+            val chatModels: List<ChatModel>,
+            val imageModels: List<ImageModel>,
+            val isDbEmpty: Boolean,
+        ) : Message
 
         data class ErrorOccurred(val uiText: UiText) : Message
         data class MessageReceived(val uiText: UiText) : Message
@@ -82,30 +86,61 @@ internal class CatalogStoreFactory(
 
     private sealed interface Action {
 
-        data class UpdateChatModelsList(val models: List<ChatModel>) : Action
-        data class UpdateImageModelsList(val models: List<ImageModel>) : Action
+        data class UpdateModels(
+            val chatModels: List<ChatModel>,
+            val imageModels: List<ImageModel>,
+            val isDbEmpty: Boolean
+        ) : Action
+
+        data object AutoRefreshCatalog : Action
     }
 
     private inner class BootstrapperImpl(
         private val searchQuery: Flow<String>
     ) : CoroutineBootstrapper<Action>() {
 
+        @OptIn(FlowPreview::class)
         override fun invoke() {
-            observeModelsWithQuery(
-                modelSource = observeChatModelsUseCase(),
-                searchQuery = searchQuery,
-                filterBy = { it.name },
-                onEach = { dispatch(Action.UpdateChatModelsList(it)) },
-                scope = scope
-            )
+            var isFirstEmission = true
 
-            observeModelsWithQuery(
-                modelSource = observeImageModelsUseCase(),
-                searchQuery = searchQuery,
-                filterBy = { it.name },
-                onEach = { dispatch(Action.UpdateImageModelsList(it)) },
-                scope = scope
-            )
+            val debouncedQuery = searchQuery.debounce { query ->
+                if (query.isEmpty()) {
+                    0.milliseconds
+                } else {
+                    SEARCH_QUERY_DEBOUNCE_MS.milliseconds
+                }
+            }
+
+            combine(
+                observeChatModelsUseCase(),
+                observeImageModelsUseCase(),
+                debouncedQuery
+            ) { chatModels, imageModels, query ->
+                val isDbEmpty = chatModels.isEmpty() && imageModels.isEmpty()
+
+                val filteredChat = chatModels.filterWithQuery(
+                    query = query,
+                    filterBy = { it.name }
+                )
+
+                val filteredImage = imageModels.filterWithQuery(
+                    query = query,
+                    filterBy = { it.name }
+                )
+
+                Triple(filteredChat, filteredImage, isDbEmpty)
+            }
+                .onEach { (chatModels, imageModels, isDbEmpty) ->
+                    dispatch(Action.UpdateModels(chatModels, imageModels, isDbEmpty))
+
+                    if (isFirstEmission) {
+                        isFirstEmission = false
+                        if (isDbEmpty) {
+                            dispatch(Action.AutoRefreshCatalog)
+                        }
+                    }
+                }
+                .launchIn(scope)
         }
     }
 
@@ -118,13 +153,15 @@ internal class CatalogStoreFactory(
 
         override fun executeAction(action: Action) {
             when (action) {
-                is Action.UpdateChatModelsList -> dispatch(
-                    Message.ChatModelsUpdated(action.models)
+                is Action.UpdateModels -> dispatch(
+                    Message.ModelsUpdated(
+                        chatModels = action.chatModels,
+                        imageModels = action.imageModels,
+                        isDbEmpty = action.isDbEmpty
+                    )
                 )
 
-                is Action.UpdateImageModelsList -> dispatch(
-                    Message.ImageModelsUpdated(action.models)
-                )
+                is Action.AutoRefreshCatalog -> executeIntent(CatalogStore.Intent.RefreshCatalog)
             }
         }
 
@@ -137,6 +174,11 @@ internal class CatalogStoreFactory(
                 is CatalogStore.Intent.ChangeSearchQuery -> {
                     dispatch(Message.SearchQueryChanged(intent.query))
                     searchQuery.update { intent.query }
+                }
+
+                is CatalogStore.Intent.ClearSearchQuery -> {
+                    dispatch(Message.SearchQueryCleared)
+                    searchQuery.update { "" }
                 }
 
                 CatalogStore.Intent.RefreshCatalog -> {
@@ -174,9 +216,12 @@ internal class CatalogStoreFactory(
                     dispatch(Message.MessageDismissed)
                 }
 
+                is CatalogStore.Intent.ToggleVerboseInfo -> dispatch(
+                    Message.VerboseInfoToggled(intent.verbose)
+                )
+
                 CatalogStore.Intent.DismissError -> dispatch(Message.ErrorDismissed)
                 CatalogStore.Intent.NavigateBack -> publish(CatalogStore.Label.NavigatedBack)
-                CatalogStore.Intent.ToggleVerboseInfo -> dispatch(Message.VerboseInfoToggled)
             }
         }
 
@@ -211,8 +256,12 @@ internal class CatalogStoreFactory(
                 Message.CatalogRefreshFinished -> copy(isLoading = false)
 
                 is Message.CatalogTabChanged -> copy(selectedTab = msg.tab)
-                is Message.ChatModelsUpdated -> copy(chatModels = msg.models)
-                is Message.ImageModelsUpdated -> copy(imageModels = msg.models)
+
+                is Message.ModelsUpdated -> copy(
+                    chatModels = msg.chatModels,
+                    imageModels = msg.imageModels,
+                    isDbEmpty = msg.isDbEmpty
+                )
 
                 is Message.MessageReceived -> copy(message = msg.uiText)
                 Message.MessageDismissed -> copy(message = null)
@@ -220,39 +269,19 @@ internal class CatalogStoreFactory(
                 Message.ErrorDismissed -> copy(error = null)
 
                 is Message.SearchQueryChanged -> copy(searchQuery = msg.query)
-                Message.VerboseInfoToggled -> copy(showVerboseInfo = !showVerboseInfo)
+                is Message.SearchQueryCleared -> copy(searchQuery = "")
+                is Message.VerboseInfoToggled -> copy(showVerboseInfo = msg.enabled)
             }
         }
     }
 
-    @OptIn(FlowPreview::class)
-    private inline fun <T> observeModelsWithQuery(
-        modelSource: Flow<List<T>>,
-        searchQuery: Flow<String>,
+    private inline fun <T> List<T>.filterWithQuery(
+        query: String,
         crossinline filterBy: (T) -> String,
-        crossinline onEach: (filtered: List<T>) -> Unit,
-        scope: CoroutineScope,
-    ) {
-        val debouncedQuery = searchQuery.debounce { query ->
-            if (query.isEmpty()) {
-                0.milliseconds
-            } else {
-                SEARCH_QUERY_DEBOUNCE_MS.milliseconds
-            }
-        }
-
-        combine(
-            modelSource,
-            debouncedQuery
-        ) { models, query ->
-            if (query.isBlank()) {
-                models
-            } else {
-                models.filter { filterBy(it).contains(query, ignoreCase = true) }
-            }
-        }
-            .onEach { onEach(it) }
-            .launchIn(scope)
+    ) = if (query.isBlank()) {
+        this
+    } else {
+        filter { filterBy(it).contains(query, ignoreCase = true) }
     }
 
     companion object {

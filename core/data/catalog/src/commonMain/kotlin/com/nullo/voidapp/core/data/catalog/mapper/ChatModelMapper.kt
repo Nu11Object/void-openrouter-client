@@ -33,7 +33,8 @@ internal fun ModelDto.toDomain(): ChatModel = ChatModel(
         .mapNotNull { ModelFeature.fromKey(it) }
         .toSet(),
     pricing = pricing.toDomain(),
-    defaultTuningParameters = defaultParameters?.toDomain() ?: DefaultTuningParameters()
+    defaultTuningParameters = defaultParameters?.toDomain() ?: DefaultTuningParameters(),
+    pinned = false,
 )
 
 private fun PricingDto.toDomain(): ModelPricing = ModelPricing(

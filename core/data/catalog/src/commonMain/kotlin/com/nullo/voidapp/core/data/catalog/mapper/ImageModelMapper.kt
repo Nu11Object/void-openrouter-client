@@ -21,7 +21,8 @@ internal fun ImageModelDto.toDomain(): ImageModel = ImageModel(
             param to dto.toDomain()
         }
         .toMap(),
-    endpointsUrl = endpoints
+    endpointsUrl = endpoints,
+    pinned = false
 )
 
 private fun ImageParameterCapabilityDto.toDomain(): ImageParameterCapability = when (this) {

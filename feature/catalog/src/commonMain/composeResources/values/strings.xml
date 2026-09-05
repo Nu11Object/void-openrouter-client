@@ -1,4 +1,22 @@
 <resources>
-    <string name="message_using_model">Using %s now</string>
+    <string name="message_using_model">Using %1$s now</string>
     <string name="message_catalog_refreshed">Catalog refreshed</string>
+    <string name="model_catalog">Model Catalog</string>
+    <string name="auto_sync_description">Auto-syncing...\nPress "Refresh" to retry</string>
+    <string name="no_models_found">No models found</string>
+    <string name="per_1m_tokens">Per 1M tokens:</string>
+    <string name="template_context_length_div">· %1$s Context</string>
+    <string name="template_context_length">%1$s Context</string>
+    <string name="reasoning">Reasoning</string>
+    <string name="vision">Vision</string>
+    <string name="use_now">Use Now</string>
+    <string name="pin">Pin</string>
+    <string name="unpin">Unpin</string>
+    <string name="chat_models">Chat Models</string>
+    <string name="image_models">Image Models</string>
+    <string name="search_models">Search models</string>
+    <string name="desc_clear_search_query">Clear search query</string>
+    <string name="syncing">Syncing...</string>
+    <string name="refresh">Refresh</string>
+    <string name="verbose">Verbose</string>
 </resources>

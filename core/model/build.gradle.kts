@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidMultiplatformLibrary)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 kotlin {
@@ -25,6 +26,8 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             api(libs.ionspin.bignum)
+            implementation(libs.compose.runtime)
+            implementation(libs.ktor.serialization.kotlinx.json)
         }
     }
 }

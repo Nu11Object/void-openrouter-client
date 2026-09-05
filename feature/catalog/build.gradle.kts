@@ -35,6 +35,7 @@ kotlin {
             implementation(projects.core.data.catalog)
             implementation(projects.core.data.session)
             implementation(projects.core.database)
+            implementation(projects.core.designsystem)
             implementation(projects.core.utils)
 
             implementation(libs.decompose.core)

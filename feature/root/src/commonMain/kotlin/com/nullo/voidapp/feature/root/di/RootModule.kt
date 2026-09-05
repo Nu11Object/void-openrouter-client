@@ -15,6 +15,7 @@ val rootModule = module {
             componentContext = params.get<ComponentContext>(),
             authComponentFactory = get(),
             settingsComponentFactory = get(),
+            catalogComponentFactory = get(),
             settingsRepository = get(),
             apiKeyStorage = get(),
         )
