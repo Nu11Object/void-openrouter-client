@@ -13,6 +13,7 @@ browse AI models and chat with them from a single codebase across Android, iOS, 
 ## Screenshots
 ![Phone Showcase](./assets/phone-showcase.png)
 ![Desktop Auth Screen](./assets/desktop-auth.png)
+![Desktop Catalog Screen](./assets/desktop-catalog.png)
 ![Desktop Settings Screen](./assets/desktop-settings.png)
 
 ## What is done
@@ -23,6 +24,10 @@ browse AI models and chat with them from a single codebase across Android, iOS, 
   - **OAuth 2.0 Authorization Code with PKCE**.
   - **Manual API key** entry with validation.
   - Secure, platform-specific storage.
+- **Model catalog**
+  - Fetches the list of available models from **OpenRouter**.
+  - Separate tabs for **Chat models** and **Image models**.
+  - Models can be selected for use or pinned for quick access.
 - **App settings**:
   - Theme selection (**Light / Dark / System**) persisted across sessions.
   - Change API key, sign out (clears stored credentials).
@@ -35,7 +40,6 @@ browse AI models and chat with them from a single codebase across Android, iOS, 
 
 The following core product features are **planned but not implemented**:
 
-- Model catalog / model selection UI.
 - **Chat** experience with models (messaging, streaming responses).
 - **Conversation management** (history, persistence, switching between chats).
 - **Model tuning** - exposing parameters such as `temperature`, `top_p`, `max_tokens`,
@@ -63,17 +67,20 @@ The project follows a **strictly multi-module** structure that separates reusabl
 infrastructure (`core:*`) from feature modules (`feature:*`):
 
 ```
-core:network:client   Ktor HttpClient factory & network DI
+core:network          Ktor HttpClient factory & network DI
 core:auth             Auth domain: repository, DTOs, OAuth API service, use cases
 core:security         Platform-agnostic secure API-key storage (Android/iOS/JVM)
 core:datastore        DataStore setup with platform factories
 core:data:settings    Settings repository (theme, etc.)
+core:data:session     Session repository (active model and params)
+core:data:catalog     Catalog API service
 core:designsystem     Theme, colors, typography, reusable Compose components
 core:utils            UiText, resource helpers, Decompose/MVIKotlin extensions
 
 feature:root          Root component & navigation graph
 feature:auth          Auth screen (OAuth PKCE + API key)
 feature:settings      Settings screen (theme, credentials)
+feature:catalog       Catalog screen (Chat & Image models)
 
 shared                Common App entry, Koin initialization
 androidApp            Android application entry point
@@ -98,13 +105,11 @@ Key patterns:
 
 ## Roadmap
 
-1. **Model catalog & selection** - list OpenRouter models with pricing, capabilities,
-   and modalities; pick an active model.
-2. **Chat** - conversing with selected models (text, streaming).
-3. **Conversation management** - persist and browse chat history.
-4. **Model tuning** - expose generation parameters (`temperature`, `top_p`, `max_tokens`,
+1. **Chat** - conversing with selected models (text, streaming).
+2. **Conversation management** - persist and browse chat history.
+3. **Model tuning** - expose generation parameters (`temperature`, `top_p`, `max_tokens`,
    `frequency_penalty`, `presence_penalty`, `seed`).
-5. Polish: error handling, accessibility, platform-specific UX.
+4. Polish: error handling, accessibility, platform-specific UX.
 
 ## License
 
