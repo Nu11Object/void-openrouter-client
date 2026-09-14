@@ -1,9 +1,9 @@
-package com.nullo.voidapp.feature.catalog.domain
+package com.nullo.voidapp.core.data.catalog.domain
 
 import com.nullo.voidapp.core.model.ModelType
 
 /** Use case responsible for setting a model's pin status. */
-internal class SetPinStatusUseCase(
+class SetPinStatusUseCase(
     private val catalogRepository: CatalogRepository,
 ) {
 

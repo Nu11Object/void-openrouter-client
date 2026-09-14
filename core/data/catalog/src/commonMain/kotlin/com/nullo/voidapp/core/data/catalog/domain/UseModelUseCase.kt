@@ -1,10 +1,10 @@
-package com.nullo.voidapp.feature.catalog.domain
+package com.nullo.voidapp.core.data.catalog.domain
 
 import com.nullo.voidapp.core.data.session.domain.SessionRepository
 import com.nullo.voidapp.core.model.ActiveModelRef
 
 /** Use case responsible for setting the session's active model. */
-internal class UseModelUseCase(
+class UseModelUseCase(
     private val sessionRepository: SessionRepository,
 ) {
 

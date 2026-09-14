@@ -1,7 +1,7 @@
-package com.nullo.voidapp.core.data.catalog.mapper
+package com.nullo.voidapp.core.data.catalog.data.mapper
 
-import com.nullo.voidapp.core.data.catalog.dto.ImageModelDto
-import com.nullo.voidapp.core.data.catalog.dto.ImageParameterCapabilityDto
+import com.nullo.voidapp.core.data.catalog.data.service.dto.ImageModelDto
+import com.nullo.voidapp.core.data.catalog.data.service.dto.ImageParameterCapabilityDto
 import com.nullo.voidapp.core.model.chatmodel.Modality
 import com.nullo.voidapp.core.model.imagemodel.ImageModel
 import com.nullo.voidapp.core.model.imagemodel.ImageParameter

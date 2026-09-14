@@ -1,18 +1,18 @@
-package com.nullo.voidapp.feature.catalog.domain
+package com.nullo.voidapp.core.data.catalog.domain
 
 import com.nullo.voidapp.core.model.ModelType
 import com.nullo.voidapp.core.model.chatmodel.ChatModel
 import com.nullo.voidapp.core.model.imagemodel.ImageModel
 import kotlinx.coroutines.flow.Flow
-import com.nullo.voidapp.core.data.catalog.service.exception.InternalServerException
-import com.nullo.voidapp.core.data.catalog.service.exception.NetworkException
+import com.nullo.voidapp.core.data.catalog.data.service.exception.InternalServerException
+import com.nullo.voidapp.core.data.catalog.data.service.exception.NetworkException
 
 /**
  * Manages the locally cached model catalog: syncing it with OpenRouter,
  * observing it (filtered by the current search query), and tracking which
  * models are pinned.
  */
-internal interface CatalogRepository {
+interface CatalogRepository {
 
     /**
      * Fetches the full chat and image model lists from OpenRouter and replaces
@@ -31,10 +31,20 @@ internal interface CatalogRepository {
     fun observeChatModels(): Flow<List<ChatModel>>
 
     /**
+     * Observes pinned chat models.
+     */
+    fun observePinnedChatModels(): Flow<List<ChatModel>>
+
+    /**
      * Observes cached image generation models.
      * @see [refreshCatalog]
      */
     fun observeImageModels(): Flow<List<ImageModel>>
+
+    /**
+     * Observes pinned image models.
+     */
+    fun observePinnedImageModels(): Flow<List<ImageModel>>
 
     /**
      * Sets the model's pin status.

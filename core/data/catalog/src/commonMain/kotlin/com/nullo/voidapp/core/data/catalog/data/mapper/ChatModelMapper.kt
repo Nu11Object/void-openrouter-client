@@ -1,9 +1,9 @@
-package com.nullo.voidapp.core.data.catalog.mapper
+package com.nullo.voidapp.core.data.catalog.data.mapper
 
 import com.ionspin.kotlin.bignum.decimal.BigDecimal
-import com.nullo.voidapp.core.data.catalog.dto.DefaultTuningParametersDto
-import com.nullo.voidapp.core.data.catalog.dto.ModelDto
-import com.nullo.voidapp.core.data.catalog.dto.PricingDto
+import com.nullo.voidapp.core.data.catalog.data.service.dto.DefaultTuningParametersDto
+import com.nullo.voidapp.core.data.catalog.data.service.dto.ModelDto
+import com.nullo.voidapp.core.data.catalog.data.service.dto.PricingDto
 import com.nullo.voidapp.core.model.chatmodel.ChatModel
 import com.nullo.voidapp.core.model.chatmodel.DefaultTuningParameters
 import com.nullo.voidapp.core.model.chatmodel.Modality

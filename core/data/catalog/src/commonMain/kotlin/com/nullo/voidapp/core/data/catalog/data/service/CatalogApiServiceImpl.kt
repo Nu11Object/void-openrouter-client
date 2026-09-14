@@ -1,11 +1,11 @@
-package com.nullo.voidapp.core.data.catalog.service
+package com.nullo.voidapp.core.data.catalog.data.service
 
-import com.nullo.voidapp.core.data.catalog.dto.ImageModelsListResponseDto
-import com.nullo.voidapp.core.data.catalog.dto.ImagePricingResponseDto
-import com.nullo.voidapp.core.data.catalog.dto.ChatModelsListResponseDto
-import com.nullo.voidapp.core.data.catalog.mapper.toDomain
-import com.nullo.voidapp.core.data.catalog.service.exception.InternalServerException
-import com.nullo.voidapp.core.data.catalog.service.exception.NetworkException
+import com.nullo.voidapp.core.data.catalog.data.service.dto.ImageModelsListResponseDto
+import com.nullo.voidapp.core.data.catalog.data.service.dto.ImagePricingResponseDto
+import com.nullo.voidapp.core.data.catalog.data.service.dto.ChatModelsListResponseDto
+import com.nullo.voidapp.core.data.catalog.data.mapper.toDomain
+import com.nullo.voidapp.core.data.catalog.data.service.exception.InternalServerException
+import com.nullo.voidapp.core.data.catalog.data.service.exception.NetworkException
 import com.nullo.voidapp.core.model.chatmodel.ChatModel
 import com.nullo.voidapp.core.model.imagemodel.ImageModel
 import com.nullo.voidapp.core.model.imagemodel.ImagePricing
@@ -13,11 +13,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.ResponseException
 import io.ktor.client.request.get
-import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
-import kotlinx.serialization.json.jsonArray
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
 import kotlin.coroutines.cancellation.CancellationException
 
 internal class CatalogApiServiceImpl(

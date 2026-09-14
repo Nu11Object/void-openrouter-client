@@ -26,6 +26,8 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(projects.core.network)
+            implementation(projects.core.database)
+            implementation(projects.core.data.session)
 
             api(projects.core.model)
             implementation(libs.koin.core)

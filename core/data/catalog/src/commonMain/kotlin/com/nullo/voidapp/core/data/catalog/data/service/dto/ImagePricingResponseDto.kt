@@ -1,4 +1,4 @@
-package com.nullo.voidapp.core.data.catalog.dto
+package com.nullo.voidapp.core.data.catalog.data.service.dto
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

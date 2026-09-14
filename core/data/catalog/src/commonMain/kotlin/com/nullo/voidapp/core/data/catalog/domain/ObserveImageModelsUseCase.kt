@@ -1,10 +1,10 @@
-package com.nullo.voidapp.feature.catalog.domain
+package com.nullo.voidapp.core.data.catalog.domain
 
 import com.nullo.voidapp.core.model.imagemodel.ImageModel
 import kotlinx.coroutines.flow.Flow
 
 /** Use case responsible for observing image models. */
-internal class ObserveImageModelsUseCase(
+class ObserveImageModelsUseCase(
     private val catalogRepository: CatalogRepository,
 ) {
 

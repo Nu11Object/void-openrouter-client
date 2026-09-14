@@ -1,10 +1,10 @@
-package com.nullo.voidapp.core.data.catalog.service
+package com.nullo.voidapp.core.data.catalog.data.service
 
 import com.nullo.voidapp.core.model.chatmodel.ChatModel
 import com.nullo.voidapp.core.model.imagemodel.ImageModel
 import com.nullo.voidapp.core.model.imagemodel.ImagePricing
-import com.nullo.voidapp.core.data.catalog.service.exception.InternalServerException
-import com.nullo.voidapp.core.data.catalog.service.exception.NetworkException
+import com.nullo.voidapp.core.data.catalog.data.service.exception.InternalServerException
+import com.nullo.voidapp.core.data.catalog.data.service.exception.NetworkException
 
 /**
  * Provides access to the OpenRouter model catalog: chat models, image generation

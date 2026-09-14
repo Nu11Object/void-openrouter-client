@@ -1,6 +1,6 @@
-package com.nullo.voidapp.feature.catalog.data
+package com.nullo.voidapp.core.data.catalog.data
 
-import com.nullo.voidapp.core.data.catalog.service.CatalogApiService
+import com.nullo.voidapp.core.data.catalog.data.service.CatalogApiService
 import com.nullo.voidapp.core.database.dao.ChatModelDao
 import com.nullo.voidapp.core.database.dao.ImageModelDao
 import com.nullo.voidapp.core.database.mapper.toDomain
@@ -8,7 +8,7 @@ import com.nullo.voidapp.core.database.mapper.toEntity
 import com.nullo.voidapp.core.model.ModelType
 import com.nullo.voidapp.core.model.chatmodel.ChatModel
 import com.nullo.voidapp.core.model.imagemodel.ImageModel
-import com.nullo.voidapp.feature.catalog.domain.CatalogRepository
+import com.nullo.voidapp.core.data.catalog.domain.CatalogRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.async
@@ -35,6 +35,14 @@ internal class CatalogRepositoryImpl(
 
     override fun observeImageModels(): Flow<List<ImageModel>> = imageModelDao
         .observeAll()
+        .mapItems { it.toDomain() }
+
+    override fun observePinnedChatModels(): Flow<List<ChatModel>> = chatModelDao
+        .observePinned()
+        .mapItems { it.toDomain() }
+
+    override fun observePinnedImageModels(): Flow<List<ImageModel>> = imageModelDao
+        .observePinned()
         .mapItems { it.toDomain() }
 
     override suspend fun setPinStatus(modelId: String, modelType: ModelType, pinned: Boolean) {

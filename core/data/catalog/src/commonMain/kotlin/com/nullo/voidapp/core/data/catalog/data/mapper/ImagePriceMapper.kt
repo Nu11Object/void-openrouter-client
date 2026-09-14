@@ -1,8 +1,8 @@
-package com.nullo.voidapp.core.data.catalog.mapper
+package com.nullo.voidapp.core.data.catalog.data.mapper
 
 import com.ionspin.kotlin.bignum.decimal.BigDecimal
-import com.nullo.voidapp.core.data.catalog.dto.ImagePricingEntryDto
-import com.nullo.voidapp.core.data.catalog.dto.ImagePricingResponseDto
+import com.nullo.voidapp.core.data.catalog.data.service.dto.ImagePricingEntryDto
+import com.nullo.voidapp.core.data.catalog.data.service.dto.ImagePricingResponseDto
 import com.nullo.voidapp.core.model.imagemodel.ImagePricing
 import com.nullo.voidapp.core.model.imagemodel.PricingLine
 import com.nullo.voidapp.core.model.imagemodel.PricingUnit
