@@ -5,7 +5,6 @@
     <string name="auto_sync_description">Auto-syncing...\nPress "Refresh" to retry</string>
     <string name="no_models_found">No models found</string>
     <string name="per_1m_tokens">Per 1M tokens:</string>
-    <string name="template_context_length_div">· %1$s Context</string>
     <string name="template_context_length">%1$s Context</string>
     <string name="reasoning">Reasoning</string>
     <string name="vision">Vision</string>

@@ -1,5 +1,6 @@
 package com.nullo.voidapp.feature.catalog.presentation.ui
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateContentSize
@@ -21,8 +22,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
+import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -108,7 +111,6 @@ import voidapp.feature.catalog.generated.resources.refresh
 import voidapp.feature.catalog.generated.resources.search_models
 import voidapp.feature.catalog.generated.resources.syncing
 import voidapp.feature.catalog.generated.resources.template_context_length
-import voidapp.feature.catalog.generated.resources.template_context_length_div
 import voidapp.feature.catalog.generated.resources.unpin
 import voidapp.feature.catalog.generated.resources.use_now
 import voidapp.feature.catalog.generated.resources.verbose
@@ -278,7 +280,7 @@ private fun CatalogScreenContent(
                     onUseModelClick = onUseModelClick,
                     onPinModelClick = onPinModelClick,
                     bottomFadeFraction = 0.1f,
-                    modifier = Modifier.weight(3f),
+                    modifier = Modifier.weight(4f),
                 )
             }
         }
@@ -310,7 +312,8 @@ private fun ModelsListSection(
         is CatalogTab.ImageModels -> state.imageModels.isEmpty()
     }
 
-    LazyColumn(
+    LazyVerticalStaggeredGrid(
+        columns = StaggeredGridCells.Adaptive(minSize = 296.dp),
         modifier = modifier
             .fillMaxSize()
             .background(
@@ -327,10 +330,11 @@ private fun ModelsListSection(
             end = 16.dp,
             bottom = 128.dp
         ),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        verticalItemSpacing = 8.dp,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         if (isListEmpty) {
-            item {
+            item(span = StaggeredGridItemSpan.FullLine) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -419,17 +423,35 @@ private fun ChatModelItem(
 ) = ModelCard(modifier = modifier) {
     val secondaryTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
 
-    Text(text = chatModel.name)
+    Text(text = chatModel.name, style = MaterialTheme.typography.titleSmall)
     Spacer(Modifier.height(4.dp))
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(6.dp)
     ) {
-        Text(
-            text = stringResource(Res.string.per_1m_tokens),
-            style = MaterialTheme.typography.bodySmall,
-            color = secondaryTextColor
-        )
+        AnimatedContent(
+            targetState = verbose,
+            label = "ContextInfo",
+        ) { isVerbose ->
+            if (isVerbose) {
+                Text(
+                    text = stringResource(Res.string.per_1m_tokens),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = secondaryTextColor
+                )
+            } else {
+                chatModel.contextLength?.let { context ->
+                    Text(
+                        text = stringResource(
+                            Res.string.template_context_length,
+                            context.toCompactString()
+                        ),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = secondaryTextColor
+                    )
+                }
+            }
+        }
         Icon(
             imageVector = Icons.Default.Stylus,
             modifier = Modifier.size(16.dp),
@@ -450,18 +472,6 @@ private fun ChatModelItem(
             style = MaterialTheme.typography.bodySmall,
             color = secondaryTextColor
         )
-        chatModel.contextLength?.let { context ->
-            AnimatedVisibility(visible = !verbose) {
-                Text(
-                    text = stringResource(
-                        Res.string.template_context_length_div,
-                        context.toCompactString()
-                    ),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = secondaryTextColor
-                )
-            }
-        }
     }
     Spacer(Modifier.height(4.dp))
     AnimatedVisibility(visible = verbose) {
