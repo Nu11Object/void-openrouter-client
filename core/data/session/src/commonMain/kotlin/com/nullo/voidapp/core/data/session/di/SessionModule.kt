@@ -16,7 +16,8 @@ val sessionModule = module {
 
     single<SessionRepository> {
         SessionRepositoryImpl(
-            dataStore = get(DataStoreQualifiers.session)
+            dataStore = get(DataStoreQualifiers.session),
+            json = get()
         )
     }
 }

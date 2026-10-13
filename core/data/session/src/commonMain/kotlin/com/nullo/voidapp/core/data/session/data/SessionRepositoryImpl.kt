@@ -8,20 +8,29 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import com.nullo.voidapp.core.data.session.domain.SessionRepository
 import com.nullo.voidapp.core.model.ActiveModelRef
 import com.nullo.voidapp.core.model.chatmodel.TuningParameter
+import com.nullo.voidapp.core.model.imagemodel.ImageParameter
+import com.nullo.voidapp.core.model.imagemodel.ImageParameterValue
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.serialization.builtins.MapSerializer
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 
 internal class SessionRepositoryImpl(
-    private val dataStore: DataStore<Preferences>
+    private val dataStore: DataStore<Preferences>,
+    private val json: Json,
 ) : SessionRepository {
 
-    private val json = Json { ignoreUnknownKeys = true }
+    private val imageParametersSerializer = MapSerializer(
+        keySerializer = String.serializer(),
+        valueSerializer = ImageParameterValue.serializer()
+    )
 
     private object Keys {
         val ACTIVE_MODEL_TYPE = stringPreferencesKey("active_model_type")
         val ACTIVE_MODEL_ID = stringPreferencesKey("active_model_id")
-        val TUNING_PARAMETERS_JSON = stringPreferencesKey("tuning_parameters_json")
+        val CHAT_TUNING_PARAMETERS_JSON = stringPreferencesKey("chat_tuning_parameters_json")
+        val IMAGE_PARAMETERS_JSON = stringPreferencesKey("image_parameters_json")
         val THINKING_ENABLED = booleanPreferencesKey("thinking_enabled")
         val WEB_SEARCH_ENABLED = booleanPreferencesKey("web_search_enabled")
     }
@@ -36,13 +45,25 @@ internal class SessionRepositoryImpl(
             }
         }
 
-    override val tuningParameters: Flow<Map<TuningParameter, Double>>
+    override val chatTuningParameters: Flow<Map<TuningParameter, Double>>
         get() = dataStore.data.map { prefs ->
-            val raw = prefs[Keys.TUNING_PARAMETERS_JSON] ?: return@map emptyMap()
+            val raw = prefs[Keys.CHAT_TUNING_PARAMETERS_JSON] ?: return@map emptyMap()
             runCatching {
                 json.decodeFromString<Map<String, Double>>(raw)
                     .mapNotNull { (key, value) ->
                         TuningParameter.fromKey(key)?.let { it to value }
+                    }
+                    .toMap()
+            }.getOrDefault(emptyMap())
+        }
+
+    override val imageParameters: Flow<Map<ImageParameter, ImageParameterValue>>
+        get() = dataStore.data.map { prefs ->
+            val raw = prefs[Keys.IMAGE_PARAMETERS_JSON] ?: return@map emptyMap()
+            runCatching {
+                json.decodeFromString(imageParametersSerializer, raw)
+                    .mapNotNull { (key, value) ->
+                        ImageParameter.fromKey(key)?.let { it to value }
                     }
                     .toMap()
             }.getOrDefault(emptyMap())
@@ -64,10 +85,18 @@ internal class SessionRepositoryImpl(
         }
     }
 
-    override suspend fun setTuningParameters(parameters: Map<TuningParameter, Double>) {
+    override suspend fun setChatTuningParameters(parameters: Map<TuningParameter, Double>) {
         val serializable = parameters.mapKeys { (param, _) -> param.name }
         dataStore.edit { prefs ->
-            prefs[Keys.TUNING_PARAMETERS_JSON] = json.encodeToString(serializable)
+            prefs[Keys.CHAT_TUNING_PARAMETERS_JSON] = json.encodeToString(serializable)
+        }
+    }
+
+    override suspend fun setImageParameters(parameters: Map<ImageParameter, ImageParameterValue>) {
+        val serializable = parameters.mapKeys { (param, _) -> param.name }
+        dataStore.edit { prefs ->
+            prefs[Keys.IMAGE_PARAMETERS_JSON] =
+                json.encodeToString(imageParametersSerializer, serializable)
         }
     }
 
