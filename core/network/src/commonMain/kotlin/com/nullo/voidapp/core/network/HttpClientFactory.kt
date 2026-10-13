@@ -18,11 +18,12 @@ import kotlinx.serialization.json.Json
 
 internal class HttpClientFactory(
     private val apiKeyStorage: ApiKeyStorage,
+    private val json: Json,
 ) {
 
     fun create(): HttpClient = HttpClient {
         install(ContentNegotiation) {
-            json(json = Json { ignoreUnknownKeys = true })
+            json(json = json)
         }
 
         install(Logging) {
