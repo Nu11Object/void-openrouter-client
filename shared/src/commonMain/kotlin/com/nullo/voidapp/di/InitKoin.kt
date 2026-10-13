@@ -2,6 +2,7 @@ package com.nullo.voidapp.di
 
 import com.nullo.voidapp.core.auth.di.coreAuthModule
 import com.nullo.voidapp.core.data.catalog.di.catalogModule
+import com.nullo.voidapp.core.data.chat.di.chatModule
 import com.nullo.voidapp.core.data.session.di.sessionModule
 import com.nullo.voidapp.core.data.settings.di.settingsModule
 import com.nullo.voidapp.core.database.di.databaseModule
@@ -19,6 +20,7 @@ fun initKoin(config: KoinAppDeclaration? = null) {
     startKoin {
         config?.invoke(this)
         modules(
+            appModule,
             rootModule,
             networkModule,
             coreAuthModule,
@@ -27,6 +29,7 @@ fun initKoin(config: KoinAppDeclaration? = null) {
             settingsModule,
             sessionModule,
             catalogModule,
+            chatModule,
             securityModule,
             authFeatureModule,
             settingsFeatureModule,

@@ -43,6 +43,7 @@ include(":core:auth")
 include(":core:data:settings")
 include(":core:data:catalog")
 include(":core:data:session")
+include(":core:data:chat")
 
 include(":core:security")
 include(":core:utils")

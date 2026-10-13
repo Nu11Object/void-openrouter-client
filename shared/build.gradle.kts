@@ -43,6 +43,7 @@ kotlin {
             implementation(projects.core.auth)
             implementation(projects.core.data.settings)
             implementation(projects.core.data.catalog)
+            implementation(projects.core.data.chat)
             implementation(projects.core.data.session)
             implementation(projects.core.security)
             implementation(projects.core.datastore)
