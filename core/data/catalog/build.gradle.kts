@@ -28,6 +28,7 @@ kotlin {
             implementation(projects.core.network)
             implementation(projects.core.database)
             implementation(projects.core.data.session)
+            implementation(projects.core.utils)
 
             api(projects.core.model)
             implementation(libs.koin.core)

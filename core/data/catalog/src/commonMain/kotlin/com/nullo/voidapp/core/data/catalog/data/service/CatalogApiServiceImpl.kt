@@ -77,7 +77,7 @@ internal class CatalogApiServiceImpl(
 
     companion object {
 
-        const val LIST_AI_MODELS_ENDPOINT = "models"
-        const val LIST_IMAGE_MODELS_ENDPOINT = "images/models"
+        private const val LIST_AI_MODELS_ENDPOINT = "models"
+        private const val LIST_IMAGE_MODELS_ENDPOINT = "images/models"
     }
 }

@@ -9,6 +9,7 @@ import com.nullo.voidapp.core.model.ModelType
 import com.nullo.voidapp.core.model.chatmodel.ChatModel
 import com.nullo.voidapp.core.model.imagemodel.ImageModel
 import com.nullo.voidapp.core.data.catalog.domain.CatalogRepository
+import com.nullo.voidapp.core.utils.kotlin.mapItems
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.async
@@ -53,8 +54,4 @@ internal class CatalogRepositoryImpl(
             }
         }
     }
-
-    private inline fun <T, R> Flow<List<T>>.mapItems(
-        crossinline transform: (T) -> R
-    ) = map { list -> list.map(transform) }
 }
