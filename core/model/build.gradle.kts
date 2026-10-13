@@ -25,6 +25,8 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            implementation(projects.core.utils)
+
             api(libs.ionspin.bignum)
             implementation(libs.compose.runtime)
             implementation(libs.ktor.serialization.kotlinx.json)

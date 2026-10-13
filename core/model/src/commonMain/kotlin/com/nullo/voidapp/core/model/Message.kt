@@ -28,20 +28,17 @@ sealed class Message(open val id: Long?) {
     /** Represents an error returned while processing a request. */
     data class Error(
         override val id: Long,
-        val text: String
+        val reason: ErrorReason,
     ) : Message(id)
 
     /**
      * Indicates that an AI response was interrupted before completion.
-     * @param promptId prompt id for retry.
-     * */
+     * @param text Text generated before interruption, or `null` if none was generated.
+     */
     data class Interrupted(
         override val id: Long,
-        val promptId: Long,
+        val text: String?
     ) : Message(id)
-
-    /** Indicates that an AI response is currently being generated. */
-    data object Loading : Message(id = null)
 
     /** Indicates that images are currently being generated. */
     data object ImageLoading : Message(id = null)
@@ -49,7 +46,7 @@ sealed class Message(open val id: Long?) {
 
 /** Represents an image attached to a user prompt. */
 data class ImageAttachment(
-    val fileUri: String,
+    val relativePath: String,
     val mimeType: String
 )
 
@@ -58,3 +55,15 @@ data class GeneratedImage(
     val base64Data: String,
     val mimeType: String = "image/png",
 )
+
+/** Represents a type of error returned while processing a request. */
+enum class ErrorReason {
+    NETWORK, SERVER_INTERNAL, UNEXPECTED;
+
+    companion object {
+
+        fun fromKey(key: String?) = entries
+            .firstOrNull { it.name == key }
+            ?: UNEXPECTED
+    }
+}
