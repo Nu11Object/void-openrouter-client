@@ -8,6 +8,7 @@ import com.arkivanov.decompose.router.stack.pop
 import com.arkivanov.decompose.router.stack.replaceAll
 import com.arkivanov.decompose.router.stack.replaceCurrent
 import com.arkivanov.decompose.value.Value
+import com.nullo.voidapp.core.data.chat.domain.ConversationRepository
 import com.nullo.voidapp.core.data.settings.domain.SettingsRepository
 import com.nullo.voidapp.core.designsystem.theme.AppTheme
 import com.nullo.voidapp.core.security.ApiKeyStorage
@@ -28,6 +29,7 @@ internal class DefaultRootComponent(
     private val settingsComponentFactory: SettingsComponent.Factory,
     private val catalogComponentFactory: CatalogComponent.Factory,
     private val settingsRepository: SettingsRepository,
+    private val conversationRepository: ConversationRepository,
     private val apiKeyStorage: ApiKeyStorage,
 ) : RootComponent, ComponentContext by componentContext {
 
@@ -51,13 +53,8 @@ internal class DefaultRootComponent(
     )
 
     init {
-        if (stack.value.active.configuration == Config.Initial) {
-            scope.launch {
-                val hasKey = apiKeyStorage.hasApiKey().first()
-                val target = if (hasKey) Config.Catalog else Config.Auth
-                navigation.replaceCurrent(target)
-            }
-        }
+        cleanUpAfterPreviousSession()
+        navigateToStartDestination()
     }
 
     fun child(
@@ -111,5 +108,19 @@ internal class DefaultRootComponent(
 
         @Serializable
         data object Catalog : Config
+    }
+
+    private fun cleanUpAfterPreviousSession() {
+        scope.launch { conversationRepository.cleanUpAfterPreviousSession() }
+    }
+
+    private fun navigateToStartDestination() {
+        if (stack.value.active.configuration == Config.Initial) {
+            scope.launch {
+                val hasKey = apiKeyStorage.hasApiKey().first()
+                val target = if (hasKey) Config.Catalog else Config.Auth
+                navigation.replaceCurrent(target)
+            }
+        }
     }
 }

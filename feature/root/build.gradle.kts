@@ -36,6 +36,7 @@ kotlin {
 
             api(projects.core.designsystem)
             implementation(projects.core.data.settings)
+            implementation(projects.core.data.chat)
             implementation(projects.core.security)
             implementation(projects.core.utils)
 

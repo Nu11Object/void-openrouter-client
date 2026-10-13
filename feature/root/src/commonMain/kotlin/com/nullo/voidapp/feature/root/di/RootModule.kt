@@ -18,6 +18,7 @@ val rootModule = module {
             catalogComponentFactory = get(),
             settingsRepository = get(),
             apiKeyStorage = get(),
+            conversationRepository = get(),
         )
     }
 }
