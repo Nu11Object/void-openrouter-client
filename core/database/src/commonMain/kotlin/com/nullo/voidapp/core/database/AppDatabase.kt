@@ -17,7 +17,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 
 internal const val DATABASE_NAME = "void_app.db"
-private const val DATABASE_VERSION = 2
+private const val DATABASE_VERSION = 4
 
 @Database(
     entities = [

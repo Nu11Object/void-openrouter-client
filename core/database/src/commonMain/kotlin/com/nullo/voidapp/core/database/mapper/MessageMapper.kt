@@ -29,6 +29,7 @@ fun MessageEntity.toDomain(): Message = when (this.messageType) {
     MessageType.ERROR -> Message.Error(
         id = id,
         reason = ErrorReason.fromKey(errorReason),
+        rawMessage = errorRawMessage
     )
 
     MessageType.INTERRUPTED -> Message.Interrupted(

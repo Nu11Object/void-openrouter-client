@@ -28,8 +28,10 @@ data class MessageEntity(
     val reasoning: String? = null,
     val isGenerating: Boolean = false,
     val errorReason: String? = null,
+    val errorRawMessage: String? = null,
     val modelId: String? = null,
-    val createdAt: Long? = null
+    val createdAt: Long? = null,
+    val searchText: String? = null,
 )
 
 enum class MessageType {

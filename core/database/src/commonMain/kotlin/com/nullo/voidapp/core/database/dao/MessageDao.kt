@@ -20,38 +20,107 @@ interface MessageDao {
     @Insert
     suspend fun insert(message: MessageEntity): Long
 
-    @Query("SELECT * FROM messages WHERE conversationId = :conversationId ORDER BY id DESC")
+    @Query(
+        """
+        SELECT * FROM messages 
+        WHERE conversationId = :conversationId 
+        ORDER BY id ASC
+        """
+    )
     fun observeByConversation(conversationId: Long): Flow<List<MessageEntity>>
 
-    @Query("SELECT * FROM messages WHERE conversationId = :conversationId AND id < :messageId ORDER BY id ASC")
+    @Query(
+        """
+        SELECT * FROM messages 
+        WHERE conversationId = :conversationId AND id < :messageId 
+        ORDER BY id ASC
+        """
+    )
     suspend fun getMessagesBefore(conversationId: Long, messageId: Long): List<MessageEntity>
 
-    @Query("SELECT * FROM messages WHERE conversationId = :conversationId AND messageType = 'PROMPT' ORDER BY id DESC LIMIT 1")
+    @Query(
+        """
+        SELECT * FROM messages 
+        WHERE conversationId = :conversationId AND messageType = 'PROMPT' 
+        ORDER BY id DESC 
+        LIMIT 1
+        """
+    )
     suspend fun getLastPrompt(conversationId: Long): MessageEntity?
 
     /** Overwrites the content with a cumulative snapshot; pass `isGenerating = false` for the final write. */
-    @Query("UPDATE messages SET text = :text, reasoning = :reasoning, isGenerating = :isGenerating WHERE id = :messageId")
+    @Query(
+        """
+        UPDATE messages
+        SET 
+            text = :text, 
+            searchText = :searchText, 
+            reasoning = :reasoning, 
+            isGenerating = :isGenerating 
+        WHERE id = :messageId
+        """
+    )
     suspend fun updateContent(
         messageId: Long,
         text: String?,
+        searchText: String?,
         reasoning: String?,
-        isGenerating: Boolean
+        isGenerating: Boolean,
     )
 
+    @Query(
+        """
+        SELECT DISTINCT conversationId FROM messages
+        WHERE searchText LIKE '%' || :escapedQuery || '%' ESCAPE '\'
+        """
+    )
+    suspend fun findConversationIdsByText(escapedQuery: String): List<Long>
+
     /** Turns an unfinished response into an interrupted one (e.g. the user pressed stop). */
-    @Query("UPDATE messages SET messageType = 'INTERRUPTED', isGenerating = 0 WHERE id = :messageId")
+    @Query(
+        """
+        UPDATE messages 
+        SET 
+            messageType = 'INTERRUPTED', 
+            isGenerating = 0 
+        WHERE id = :messageId
+        """
+    )
     suspend fun markInterrupted(messageId: Long)
 
-    @Query("UPDATE messages SET messageType = 'INTERRUPTED', isGenerating = 0 WHERE isGenerating = 1")
+    @Query(
+        """
+        UPDATE messages 
+        SET 
+            messageType = 'INTERRUPTED', 
+            isGenerating = 0 
+        WHERE isGenerating = 1
+        """
+    )
     suspend fun closeInterruptedGenerations()
 
-    @Query("DELETE FROM messages WHERE promptId = :promptId")
+    @Query(
+        """
+        DELETE FROM messages 
+        WHERE promptId = :promptId
+        """
+    )
     suspend fun deleteResponsesOf(promptId: Long)
 
-    @Query("DELETE FROM messages WHERE id = :messageId AND messageType = 'ERROR'")
+    @Query(
+        """
+        DELETE FROM messages 
+        WHERE id = :messageId AND messageType = 'ERROR'
+        """
+    )
     suspend fun deleteErrorMessage(messageId: Long)
 
-    @Query("DELETE FROM messages WHERE id = :messageId AND text IS NULL")
+    @Query(
+        """
+        DELETE FROM messages 
+        WHERE id = :messageId AND text IS NULL
+        """
+    )
     suspend fun deleteIfEmpty(messageId: Long)
 
     /**
@@ -81,6 +150,7 @@ interface MessageDao {
                 conversationId = conversationId,
                 messageType = MessageType.PROMPT,
                 text = query,
+                searchText = query?.lowercase(),
                 createdAt = now,
             )
         )
