@@ -1,6 +1,6 @@
 package com.nullo.voidapp.core.utils.compose
 
-import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 
@@ -12,7 +12,7 @@ import androidx.compose.runtime.remember
  */
 @Composable
 fun rememberDeviceConfiguration(): DeviceConfiguration {
-    val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
+    val windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass
     return remember(windowSizeClass) {
         DeviceConfiguration.fromWindowSizeClass(windowSizeClass)
     }

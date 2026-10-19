@@ -49,7 +49,6 @@ data class VoidDialogButton(
  * @param message Optional supporting text to display below the title.
  * @param dismissButton Optional secondary action button (displayed on the left).
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VoidAlertDialog(
     title: String,
