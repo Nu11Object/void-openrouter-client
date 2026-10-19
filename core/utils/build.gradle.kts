@@ -34,6 +34,7 @@ kotlin {
             implementation(libs.mvikotlin.core)
             implementation(libs.decompose.core)
 
+            implementation(libs.compose.ui)
             implementation(libs.compose.material3.adaptive)
             implementation(libs.compose.components.resources)
 
