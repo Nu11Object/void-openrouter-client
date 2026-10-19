@@ -11,10 +11,16 @@ interface ConversationRepository {
     fun observeConversations(): Flow<List<Conversation>>
 
     /** Observes a conversation by [conversationId], or `null` if it does not exist. */
-    fun observeConversation(conversationId: Long): Flow<Conversation?>
+    fun observeConversationById(conversationId: Long): Flow<Conversation?>
 
     /** Observes messages in the specified conversation. */
     fun observeMessages(conversationId: Long): Flow<List<Message>>
+
+    /**
+     * Returns IDs of conversations whose messages contain [query] (case-insensitive).
+     * Returns an empty set if [query] is blank.
+     */
+    suspend fun findConversationIdsByText(query: String): Set<Long>
 
     /** Creates a conversation titled after [firstQuery] and returns its ID. */
     suspend fun createConversation(firstQuery: String): Long

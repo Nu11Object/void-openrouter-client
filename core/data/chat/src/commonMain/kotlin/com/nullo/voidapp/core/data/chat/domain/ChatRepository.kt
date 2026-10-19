@@ -17,7 +17,7 @@ interface ChatRepository {
      * Regenerates the response to the last prompt in the specified conversation,
      * replacing its previous response.
      */
-    suspend fun regenerateLastPrompt(conversationId: Long, activeModel: ActiveModelRef)
+    suspend fun regenerateLastResponse(conversationId: Long, activeModel: ActiveModelRef)
 
     /**
      * Dismisses the error message identified by [messageId] by deleting it.

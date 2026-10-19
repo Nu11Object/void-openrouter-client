@@ -23,13 +23,20 @@ internal class ConversationRepositoryImpl(
         .observeAll()
         .mapItems { it.toDomain() }
 
-    override fun observeConversation(conversationId: Long): Flow<Conversation?> = conversationDao
-        .observeById(conversationId)
-        .map { it?.toDomain() }
+    override fun observeConversationById(conversationId: Long): Flow<Conversation?> =
+        conversationDao
+            .observeById(conversationId)
+            .map { it?.toDomain() }
 
     override fun observeMessages(conversationId: Long): Flow<List<Message>> = messageDao
         .observeByConversation(conversationId)
         .mapItems { it.toDomain() }
+
+    override suspend fun findConversationIdsByText(query: String): Set<Long> {
+        val normalized = query.trim().lowercase()
+        if (normalized.isEmpty()) return emptySet()
+        return messageDao.findConversationIdsByText(normalized.escapeLike()).toSet()
+    }
 
     override suspend fun createConversation(firstQuery: String): Long {
         val now = clock.now().toEpochMilliseconds()
@@ -69,6 +76,11 @@ internal class ConversationRepositoryImpl(
         .dropLastWhile { it.isHighSurrogate() }
         .trimEnd()
         .takeIf { it.isNotBlank() }
+
+    private fun String.escapeLike() = this
+        .replace("\\", "\\\\")
+        .replace("%", "\\%")
+        .replace("_", "\\_")
 
     companion object {
 
