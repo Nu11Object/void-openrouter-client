@@ -1,4 +1,5 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import org.jetbrains.compose.reload.gradle.ComposeHotRun
 
 plugins {
     alias(libs.plugins.kotlinJvm)
@@ -13,11 +14,11 @@ dependencies {
 
     implementation(libs.decompose.core)
     implementation(libs.decompose.compose)
+    implementation(libs.mvikotlin.core)
 
     implementation(libs.compose.material3)
     implementation(libs.compose.material3.adaptive)
 
-    implementation(compose.desktop.currentOs)
     implementation(libs.kotlinx.coroutinesSwing)
     implementation(libs.compose.uiToolingPreview)
     implementation(libs.compose.components.resources)
@@ -26,6 +27,7 @@ dependencies {
 compose.desktop {
     application {
         mainClass = "com.nullo.voidapp.MainKt"
+        jvmArgs += "--enable-native-access=ALL-UNNAMED"
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
@@ -33,4 +35,8 @@ compose.desktop {
             packageVersion = "1.0.0"
         }
     }
+}
+
+tasks.withType<ComposeHotRun>().configureEach {
+    jvmArgs("--enable-native-access=ALL-UNNAMED")
 }

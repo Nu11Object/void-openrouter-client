@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.window.WindowDraggableArea
 import androidx.compose.material3.HorizontalDivider
@@ -34,9 +35,11 @@ import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_EXPANDED_L
 import com.arkivanov.decompose.DefaultComponentContext
 import com.arkivanov.decompose.extensions.compose.lifecycle.LifecycleController
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
+import com.arkivanov.mvikotlin.core.utils.setMainThreadId
 import com.nullo.voidapp.core.designsystem.icon.Icons
 import com.nullo.voidapp.core.designsystem.icon.default.Close
 import com.nullo.voidapp.core.designsystem.icon.default.Fullscreen
+import com.nullo.voidapp.core.designsystem.icon.default.Logo
 import com.nullo.voidapp.core.designsystem.icon.default.Minimize
 import com.nullo.voidapp.di.initKoin
 import com.nullo.voidapp.feature.root.component.RootComponent
@@ -49,11 +52,13 @@ import voidapp.desktopapp.generated.resources.desc_maximize_window
 import voidapp.desktopapp.generated.resources.desc_minimize_window
 import voidapp.desktopapp.generated.resources.desc_restore_window
 import java.awt.Dimension
+import javax.swing.SwingUtilities.invokeAndWait
 
 private const val WINDOW_TITLE = "Void"
 private val windowCornerRadius = 16.dp
 
 fun main() {
+    invokeAndWait { setMainThreadId(Thread.currentThread().threadId()) }
     initKoin()
 
     application {
@@ -119,6 +124,13 @@ private fun CustomTitleBar(
             .padding(start = 16.dp, end = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        Icon(
+            imageVector = Icons.Default.Logo,
+            contentDescription = null,
+            modifier = Modifier.size(16.dp),
+            tint = MaterialTheme.colorScheme.primary,
+        )
+        Spacer(Modifier.width(8.dp))
         Text(
             text = WINDOW_TITLE,
             color = MaterialTheme.colorScheme.onSurface,
