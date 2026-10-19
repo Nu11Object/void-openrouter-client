@@ -21,6 +21,7 @@ interface CatalogStore : Store<CatalogStore.Intent, CatalogStore.State, CatalogS
         val error: UiText? = null,
         val message: UiText? = null,
         val isDbEmpty: Boolean = false,
+        val messageDismissalTimer: Int = 0
     ) {
 
         @Immutable

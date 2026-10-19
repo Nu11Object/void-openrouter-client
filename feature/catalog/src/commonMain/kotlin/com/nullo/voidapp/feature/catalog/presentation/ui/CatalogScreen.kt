@@ -4,8 +4,6 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -28,15 +26,12 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FloatingToolbarDefaults
 import androidx.compose.material3.HorizontalFloatingToolbar
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -54,7 +49,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
@@ -64,18 +58,16 @@ import com.ionspin.kotlin.bignum.decimal.toBigDecimal
 import com.nullo.voidapp.core.designsystem.component.BackTopAppBar
 import com.nullo.voidapp.core.designsystem.component.VoidAlertDialog
 import com.nullo.voidapp.core.designsystem.component.VoidDialogButton
+import com.nullo.voidapp.core.designsystem.component.VoidSearchBar
 import com.nullo.voidapp.core.designsystem.component.VoidSnackbarHost
-import com.nullo.voidapp.core.designsystem.component.VoidTextField
 import com.nullo.voidapp.core.designsystem.icon.Icons
 import com.nullo.voidapp.core.designsystem.icon.default.Chat
 import com.nullo.voidapp.core.designsystem.icon.default.Check
-import com.nullo.voidapp.core.designsystem.icon.default.Close
 import com.nullo.voidapp.core.designsystem.icon.default.CloudSync
 import com.nullo.voidapp.core.designsystem.icon.default.Image
 import com.nullo.voidapp.core.designsystem.icon.default.Keep
 import com.nullo.voidapp.core.designsystem.icon.default.Lightbulb
 import com.nullo.voidapp.core.designsystem.icon.default.Robot
-import com.nullo.voidapp.core.designsystem.icon.default.Search
 import com.nullo.voidapp.core.designsystem.icon.default.Stylus
 import com.nullo.voidapp.core.designsystem.icon.default.Vision
 import com.nullo.voidapp.core.designsystem.theme.VoidTheme
@@ -97,10 +89,10 @@ import org.jetbrains.compose.resources.stringResource
 import voidapp.core.utils.generated.resources.dismiss
 import voidapp.core.utils.generated.resources.ok
 import voidapp.core.utils.generated.resources.oops
+import voidapp.core.utils.generated.resources.template_dismiss_with_timer
 import voidapp.feature.catalog.generated.resources.Res
 import voidapp.feature.catalog.generated.resources.auto_sync_description
 import voidapp.feature.catalog.generated.resources.chat_models
-import voidapp.feature.catalog.generated.resources.desc_clear_search_query
 import voidapp.feature.catalog.generated.resources.image_models
 import voidapp.feature.catalog.generated.resources.model_catalog
 import voidapp.feature.catalog.generated.resources.no_models_found
@@ -142,7 +134,6 @@ fun CatalogScreen(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun CatalogScreenContent(
     state: CatalogStore.State,
@@ -195,7 +186,12 @@ private fun CatalogScreenContent(
                             .padding(vertical = 8.dp)
                             .pointerHoverIcon(PointerIcon.Hand)
                     ) {
-                        Text(text = stringResource(CoreRes.string.dismiss))
+                        Text(
+                            text = stringResource(
+                                CoreRes.string.template_dismiss_with_timer,
+                                state.messageDismissalTimer
+                            )
+                        )
                     }
                 },
             )
@@ -211,13 +207,12 @@ private fun CatalogScreenContent(
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    ModelSearchBar(
+                    VoidSearchBar(
                         query = state.searchQuery,
                         onQueryChange = onSearchQueryChange,
                         onClearQuery = onClearSearchQuery,
-                        modifier = Modifier
-                            .padding(horizontal = innerContentPadding)
-                            .height(64.dp)
+                        placeholder = stringResource(Res.string.search_models),
+                        modifier = Modifier.padding(horizontal = innerContentPadding)
                     )
 
                     ControlsSection(
@@ -255,13 +250,12 @@ private fun CatalogScreenContent(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.weight(2f)
                 ) {
-                    ModelSearchBar(
+                    VoidSearchBar(
                         query = state.searchQuery,
                         onQueryChange = onSearchQueryChange,
                         onClearQuery = onClearSearchQuery,
-                        modifier = Modifier
-                            .padding(horizontal = innerContentPadding)
-                            .height(64.dp)
+                        placeholder = stringResource(Res.string.search_models),
+                        modifier = Modifier.padding(horizontal = innerContentPadding)
                     )
 
                     ControlsSection(
@@ -304,8 +298,8 @@ private fun ModelsListSection(
     state: CatalogStore.State,
     onUseModelClick: (ActiveModelRef) -> Unit,
     onPinModelClick: (modelId: String, ModelType, pin: Boolean) -> Unit,
+    modifier: Modifier = Modifier,
     bottomFadeFraction: Float = 0.2f,
-    modifier: Modifier = Modifier
 ) {
     val isListEmpty = when (state.selectedTab) {
         is CatalogTab.ChatModels -> state.chatModels.isEmpty()
@@ -653,7 +647,7 @@ private fun CatalogFloatingToolbar(
                 checkedShape = CircleShape
             )
         }
-        val colors = ToggleButtonDefaults.toggleButtonColors(
+        val colors = ToggleButtonDefaults.colors(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
             contentColor = MaterialTheme.colorScheme.primary
         )
@@ -747,54 +741,7 @@ private fun CatalogTabSwitcher(
     }
 }
 
-@Composable
-private fun ModelSearchBar(
-    query: String,
-    onQueryChange: (String) -> Unit,
-    onClearQuery: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val secondaryOnSurfaceColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-
-    VoidTextField(
-        modifier = modifier,
-        value = query,
-        onValueChange = onQueryChange,
-        placeholder = {
-            Text(
-                text = stringResource(Res.string.search_models),
-                color = secondaryOnSurfaceColor
-            )
-        },
-        leadingIcon = {
-            Icon(
-                imageVector = Icons.Default.Search,
-                tint = secondaryOnSurfaceColor,
-                contentDescription = null
-            )
-        },
-        trailingIcon = {
-            AnimatedVisibility(
-                visible = query.isNotEmpty(),
-                enter = fadeIn(),
-                exit = fadeOut()
-            ) {
-                IconButton(
-                    onClick = onClearQuery,
-                    modifier = Modifier.pointerHoverIcon(PointerIcon.Hand)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        tint = secondaryOnSurfaceColor,
-                        contentDescription = stringResource(Res.string.desc_clear_search_query)
-                    )
-                }
-            }
-        },
-        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done)
-    )
-}
-
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun ControlsSection(
     showVerboseInfo: Boolean,
@@ -866,8 +813,8 @@ private fun ControlsSection(
 @Composable
 private fun OutlineTag(
     text: String,
-    icon: ImageVector? = null,
     modifier: Modifier = Modifier,
+    icon: ImageVector? = null,
 ) {
     Row(
         modifier = modifier

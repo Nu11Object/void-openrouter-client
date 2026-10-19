@@ -14,7 +14,6 @@
     <string name="chat_models">Chat Models</string>
     <string name="image_models">Image Models</string>
     <string name="search_models">Search models</string>
-    <string name="desc_clear_search_query">Clear search query</string>
     <string name="syncing">Syncing...</string>
     <string name="refresh">Refresh</string>
     <string name="verbose">Verbose</string>

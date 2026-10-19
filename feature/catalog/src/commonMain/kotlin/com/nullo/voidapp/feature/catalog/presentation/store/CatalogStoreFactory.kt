@@ -14,16 +14,16 @@ import com.nullo.voidapp.core.data.catalog.domain.SetPinStatusUseCase
 import com.nullo.voidapp.core.data.catalog.domain.UseModelUseCase
 import com.nullo.voidapp.core.model.chatmodel.ChatModel
 import com.nullo.voidapp.core.model.imagemodel.ImageModel
+import com.nullo.voidapp.core.utils.kotlin.debouncedQuery
+import com.nullo.voidapp.core.utils.kotlin.filterWithQuery
 import com.nullo.voidapp.core.utils.resources.UiText
 import com.nullo.voidapp.core.utils.resources.toUiText
 import com.nullo.voidapp.feature.catalog.presentation.store.CatalogStore.State
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
@@ -35,6 +35,7 @@ import voidapp.feature.catalog.generated.resources.message_catalog_refreshed
 import voidapp.feature.catalog.generated.resources.message_using_model
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 import voidapp.core.utils.generated.resources.Res as CoreRes
 
 internal class CatalogStoreFactory(
@@ -77,8 +78,9 @@ internal class CatalogStoreFactory(
             val isDbEmpty: Boolean,
         ) : Message
 
-        data class ErrorOccurred(val uiText: UiText) : Message
-        data class MessageReceived(val uiText: UiText) : Message
+        data class ErrorOccurred(val text: UiText) : Message
+        data class MessageReceived(val text: UiText) : Message
+        data class MessageDismissalTimerChanged(val newValue: Int) : Message
 
         data object ErrorDismissed : Message
         data object MessageDismissed : Message
@@ -99,22 +101,13 @@ internal class CatalogStoreFactory(
         private val searchQuery: Flow<String>
     ) : CoroutineBootstrapper<Action>() {
 
-        @OptIn(FlowPreview::class)
         override fun invoke() {
             var isFirstEmission = true
-
-            val debouncedQuery = searchQuery.debounce { query ->
-                if (query.isEmpty()) {
-                    0.milliseconds
-                } else {
-                    SEARCH_QUERY_DEBOUNCE_MS.milliseconds
-                }
-            }
 
             combine(
                 observeChatModelsUseCase(),
                 observeImageModelsUseCase(),
-                debouncedQuery
+                searchQuery.debouncedQuery(SEARCH_QUERY_DEBOUNCE)
             ) { chatModels, imageModels, query ->
                 val isDbEmpty = chatModels.isEmpty() && imageModels.isEmpty()
 
@@ -230,7 +223,15 @@ internal class CatalogStoreFactory(
             dispatch(Message.MessageReceived(uiText))
 
             dismissMessageJob = scope.launch {
-                delay(DISMISS_MESSAGE_DELAY_MS.milliseconds)
+                repeat(DISMISSAL_MESSAGE_SECONDS) { elapsedSeconds ->
+                    dispatch(
+                        Message.MessageDismissalTimerChanged(
+                            DISMISSAL_MESSAGE_SECONDS - elapsedSeconds
+                        )
+                    )
+                    delay(1.seconds)
+                }
+
                 dispatch(Message.MessageDismissed)
             }
         }
@@ -263,9 +264,13 @@ internal class CatalogStoreFactory(
                     isDbEmpty = msg.isDbEmpty
                 )
 
-                is Message.MessageReceived -> copy(message = msg.uiText)
+                is Message.MessageReceived -> copy(message = msg.text)
                 Message.MessageDismissed -> copy(message = null)
-                is Message.ErrorOccurred -> copy(error = msg.uiText, isLoading = false)
+                is Message.MessageDismissalTimerChanged -> copy(
+                    messageDismissalTimer = msg.newValue
+                )
+
+                is Message.ErrorOccurred -> copy(error = msg.text, isLoading = false)
                 Message.ErrorDismissed -> copy(error = null)
 
                 is Message.SearchQueryChanged -> copy(searchQuery = msg.query)
@@ -275,18 +280,9 @@ internal class CatalogStoreFactory(
         }
     }
 
-    private inline fun <T> List<T>.filterWithQuery(
-        query: String,
-        crossinline filterBy: (T) -> String,
-    ) = if (query.isBlank()) {
-        this
-    } else {
-        filter { filterBy(it).contains(query, ignoreCase = true) }
-    }
-
     companion object {
 
-        private const val DISMISS_MESSAGE_DELAY_MS = 5_000
-        private const val SEARCH_QUERY_DEBOUNCE_MS = 300
+        private const val DISMISSAL_MESSAGE_SECONDS = 5
+        private val SEARCH_QUERY_DEBOUNCE = 300.milliseconds
     }
 }
