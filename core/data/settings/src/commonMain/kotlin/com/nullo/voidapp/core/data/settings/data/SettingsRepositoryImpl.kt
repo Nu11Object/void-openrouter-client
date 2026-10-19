@@ -28,4 +28,8 @@ internal class SettingsRepositoryImpl(
             prefs[PreferencesKeys.APP_THEME] = theme.name
         }
     }
+
+    override suspend fun clear() {
+        dataStore.edit { it.clear() }
+    }
 }

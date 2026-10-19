@@ -67,4 +67,7 @@ interface CatalogRepository {
         modelType: ModelType,
         pinned: Boolean
     )
+
+    /** Deletes all Chat and Image models. */
+    suspend fun deleteAll()
 }

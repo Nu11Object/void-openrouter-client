@@ -15,4 +15,8 @@ interface SettingsRepository {
 
     /** Updates and persists the user's preferred [AppTheme]. */
     suspend fun setAppTheme(theme: AppTheme)
+
+    /** Clears all persisted settings. */
+    suspend fun clear()
 }
+

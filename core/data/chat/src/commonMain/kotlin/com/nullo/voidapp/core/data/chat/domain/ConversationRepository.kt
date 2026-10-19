@@ -35,6 +35,9 @@ interface ConversationRepository {
     /** Deletes the specified conversation. */
     suspend fun delete(conversationId: Long)
 
+    /** Deletes all conversations and messages. */
+    suspend fun deleteAll()
+
     /**
      * Closes generations interrupted by a process termination
      * and deletes empty conversations.

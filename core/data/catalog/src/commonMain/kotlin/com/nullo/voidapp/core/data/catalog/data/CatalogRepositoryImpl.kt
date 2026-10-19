@@ -62,4 +62,9 @@ internal class CatalogRepositoryImpl(
             }
         }
     }
+
+    override suspend fun deleteAll() {
+        chatModelDao.deleteAll()
+        imageModelDao.deleteAll()
+    }
 }

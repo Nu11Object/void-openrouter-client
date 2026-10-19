@@ -57,6 +57,11 @@ internal class ConversationRepositoryImpl(
         conversationDao.delete(conversationId)
     }
 
+    override suspend fun deleteAll() {
+        conversationDao.clearAll()
+        messageDao.clearAll()
+    }
+
     override suspend fun cleanUpAfterPreviousSession() {
         ignoreFail { messageDao.closeInterruptedGenerations() }
         ignoreFail { conversationDao.deleteEmpty() }

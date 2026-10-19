@@ -99,6 +99,9 @@ interface MessageDao {
     )
     suspend fun closeInterruptedGenerations()
 
+    @Query("DELETE FROM messages")
+    suspend fun clearAll()
+
     @Query(
         """
         DELETE FROM messages 

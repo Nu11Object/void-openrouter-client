@@ -22,4 +22,5 @@ interface SessionRepository {
     suspend fun setImageParameters(parameters: Map<ImageParameter, ImageParameterValue>)
     suspend fun setThinkingEnabled(enabled: Boolean)
     suspend fun setWebSearchEnabled(enabled: Boolean)
+    suspend fun clear()
 }

@@ -29,4 +29,7 @@ interface ConversationDao {
 
     @Query("DELETE FROM conversations WHERE NOT EXISTS (SELECT 1 FROM messages WHERE messages.conversationId = conversations.id)")
     suspend fun deleteEmpty()
+
+    @Query("DELETE FROM conversations")
+    suspend fun clearAll()
 }

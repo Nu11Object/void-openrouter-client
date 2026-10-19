@@ -108,6 +108,10 @@ internal class SessionRepositoryImpl(
         dataStore.edit { it[Keys.WEB_SEARCH_ENABLED] = enabled }
     }
 
+    override suspend fun clear() {
+        dataStore.edit { it.clear() }
+    }
+
     companion object {
 
         private const val MODEL_TYPE_CHAT = "CHAT"
