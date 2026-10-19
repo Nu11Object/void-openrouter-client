@@ -5,6 +5,7 @@ import com.arkivanov.decompose.value.Value
 import com.nullo.voidapp.core.designsystem.theme.AppTheme
 import com.nullo.voidapp.feature.auth.presentation.component.AuthComponent
 import com.nullo.voidapp.feature.catalog.presentation.component.CatalogComponent
+import com.nullo.voidapp.feature.chat.presentation.component.ChatComponent
 import com.nullo.voidapp.feature.settings.presentation.component.SettingsComponent
 import kotlinx.coroutines.flow.StateFlow
 
@@ -23,5 +24,7 @@ interface RootComponent {
         data class Settings(val component: SettingsComponent) : Child
 
         data class Catalog(val component: CatalogComponent) : Child
+
+        data class Chat(val component: ChatComponent) : Child
     }
 }

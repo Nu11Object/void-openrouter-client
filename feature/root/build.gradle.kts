@@ -33,6 +33,7 @@ kotlin {
             implementation(projects.feature.auth)
             implementation(projects.feature.settings)
             implementation(projects.feature.catalog)
+            implementation(projects.feature.chat)
 
             api(projects.core.designsystem)
             implementation(projects.core.data.settings)

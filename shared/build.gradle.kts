@@ -53,6 +53,7 @@ kotlin {
             api(projects.feature.root)
             implementation(projects.feature.settings)
             implementation(projects.feature.catalog)
+            implementation(projects.feature.chat)
 
             implementation(libs.koin.compose)
 

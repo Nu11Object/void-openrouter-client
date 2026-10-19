@@ -1,7 +1,9 @@
 package com.nullo.voidapp.feature.root.component
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -13,8 +15,8 @@ import com.arkivanov.decompose.extensions.compose.stack.animation.scale
 import com.arkivanov.decompose.extensions.compose.stack.animation.stackAnimation
 import com.nullo.voidapp.core.designsystem.theme.VoidTheme
 import com.nullo.voidapp.feature.auth.presentation.ui.AuthScreen
-import com.nullo.voidapp.feature.catalog.presentation.store.CatalogStore
 import com.nullo.voidapp.feature.catalog.presentation.ui.CatalogScreen
+import com.nullo.voidapp.feature.chat.presentation.ui.ChatScreen
 import com.nullo.voidapp.feature.settings.presentation.ui.SettingsScreen
 
 @Composable
@@ -24,15 +26,18 @@ fun RootContent(
     windowTitleBar: (@Composable () -> Unit)? = null
 ) {
     val appTheme by rootComponent.appTheme.collectAsStateWithLifecycle()
-    val theme = appTheme ?: return
 
-    VoidTheme(appTheme = theme) {
-        Column(modifier = modifier.fillMaxSize()) {
+    VoidTheme(appTheme = appTheme ?: return) {
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .background(color = MaterialTheme.colorScheme.background)
+        ) {
             windowTitleBar?.invoke()
 
             Children(
                 stack = rootComponent.stack,
-                animation = stackAnimation(fade() + scale()),
+                animation = stackAnimation(scale(frontFactor = 0.95f, backFactor = 1.05f) + fade()),
                 modifier = Modifier.weight(1f)
             ) { child ->
                 when (val instance = child.instance) {
@@ -40,6 +45,7 @@ fun RootContent(
                     is RootComponent.Child.Auth -> AuthScreen(instance.component)
                     is RootComponent.Child.Settings -> SettingsScreen(instance.component)
                     is RootComponent.Child.Catalog -> CatalogScreen(instance.component)
+                    is RootComponent.Child.Chat -> ChatScreen(instance.component)
                 }
             }
         }

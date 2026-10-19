@@ -11,6 +11,7 @@ import com.nullo.voidapp.core.network.networkModule
 import com.nullo.voidapp.core.security.di.securityModule
 import com.nullo.voidapp.feature.auth.di.authFeatureModule
 import com.nullo.voidapp.feature.catalog.di.catalogFeatureModule
+import com.nullo.voidapp.feature.chat.di.chatFeatureModule
 import com.nullo.voidapp.feature.root.di.rootModule
 import com.nullo.voidapp.feature.settings.di.settingsFeatureModule
 import org.koin.core.context.startKoin
@@ -34,6 +35,7 @@ fun initKoin(config: KoinAppDeclaration? = null) {
             authFeatureModule,
             settingsFeatureModule,
             catalogFeatureModule,
+            chatFeatureModule,
         )
     }
 }

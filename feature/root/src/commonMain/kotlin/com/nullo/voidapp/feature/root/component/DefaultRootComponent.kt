@@ -5,6 +5,8 @@ import com.arkivanov.decompose.router.stack.ChildStack
 import com.arkivanov.decompose.router.stack.StackNavigation
 import com.arkivanov.decompose.router.stack.childStack
 import com.arkivanov.decompose.router.stack.pop
+import com.arkivanov.decompose.router.stack.push
+import com.arkivanov.decompose.router.stack.pushNew
 import com.arkivanov.decompose.router.stack.replaceAll
 import com.arkivanov.decompose.router.stack.replaceCurrent
 import com.arkivanov.decompose.value.Value
@@ -15,6 +17,7 @@ import com.nullo.voidapp.core.security.ApiKeyStorage
 import com.nullo.voidapp.core.utils.decompose.componentScope
 import com.nullo.voidapp.feature.auth.presentation.component.AuthComponent
 import com.nullo.voidapp.feature.catalog.presentation.component.CatalogComponent
+import com.nullo.voidapp.feature.chat.presentation.component.ChatComponent
 import com.nullo.voidapp.feature.settings.presentation.component.SettingsComponent
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -28,6 +31,7 @@ internal class DefaultRootComponent(
     private val authComponentFactory: AuthComponent.Factory,
     private val settingsComponentFactory: SettingsComponent.Factory,
     private val catalogComponentFactory: CatalogComponent.Factory,
+    private val chatComponentFactory: ChatComponent.Factory,
     private val settingsRepository: SettingsRepository,
     private val conversationRepository: ConversationRepository,
     private val apiKeyStorage: ApiKeyStorage,
@@ -64,10 +68,7 @@ internal class DefaultRootComponent(
         return when (config) {
             Config.Auth -> {
                 val component = authComponentFactory.create(
-                    onAuthFinished = {
-                        // todo: navigate to main screen
-                        navigation.replaceCurrent(Config.Catalog)
-                    },
+                    onAuthFinished = { navigation.replaceCurrent(Config.Chat) },
                     componentContext = componentContext
                 )
                 RootComponent.Child.Auth(component)
@@ -90,6 +91,15 @@ internal class DefaultRootComponent(
                 RootComponent.Child.Catalog(component)
             }
 
+            Config.Chat -> {
+                val component = chatComponentFactory.create(
+                    onNavigateToModelCatalog = { navigation.pushNew(Config.Catalog) },
+                    onNavigateToAppSettings = { navigation.pushNew(Config.Settings) },
+                    componentContext = componentContext,
+                )
+                RootComponent.Child.Chat(component)
+            }
+
             Config.Initial -> RootComponent.Child.Initial
         }
     }
@@ -108,6 +118,9 @@ internal class DefaultRootComponent(
 
         @Serializable
         data object Catalog : Config
+
+        @Serializable
+        data object Chat : Config
     }
 
     private fun cleanUpAfterPreviousSession() {
@@ -118,7 +131,7 @@ internal class DefaultRootComponent(
         if (stack.value.active.configuration == Config.Initial) {
             scope.launch {
                 val hasKey = apiKeyStorage.hasApiKey().first()
-                val target = if (hasKey) Config.Catalog else Config.Auth
+                val target = if (hasKey) Config.Chat else Config.Auth
                 navigation.replaceCurrent(target)
             }
         }
