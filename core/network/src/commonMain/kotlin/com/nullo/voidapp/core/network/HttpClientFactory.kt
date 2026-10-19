@@ -9,6 +9,7 @@ import io.ktor.client.plugins.api.createClientPlugin
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
+import io.ktor.client.plugins.sse.SSE
 import io.ktor.client.request.header
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
@@ -25,6 +26,8 @@ internal class HttpClientFactory(
         install(ContentNegotiation) {
             json(json = json)
         }
+
+        install(SSE)
 
         install(Logging) {
             level = LogLevel.ALL
