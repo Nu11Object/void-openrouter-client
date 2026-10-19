@@ -34,9 +34,17 @@ internal class CatalogRepositoryImpl(
         .observeAll()
         .mapItems { it.toDomain() }
 
+    override fun observeChatModelById(modelId: String) : Flow<ChatModel?> = chatModelDao
+        .observeById(modelId)
+        .map { it?.toDomain() }
+
     override fun observeImageModels(): Flow<List<ImageModel>> = imageModelDao
         .observeAll()
         .mapItems { it.toDomain() }
+
+    override fun observeImageModelById(modelId: String) : Flow<ImageModel?> = imageModelDao
+        .observeById(modelId)
+        .map { it?.toDomain() }
 
     override fun observePinnedChatModels(): Flow<List<ChatModel>> = chatModelDao
         .observePinned()

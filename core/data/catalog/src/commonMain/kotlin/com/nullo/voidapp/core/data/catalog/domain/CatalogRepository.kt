@@ -31,6 +31,11 @@ interface CatalogRepository {
     fun observeChatModels(): Flow<List<ChatModel>>
 
     /**
+     * Observes chat model by ID.
+     */
+    fun observeChatModelById(modelId: String) : Flow<ChatModel?>
+
+    /**
      * Observes pinned chat models.
      */
     fun observePinnedChatModels(): Flow<List<ChatModel>>
@@ -40,6 +45,11 @@ interface CatalogRepository {
      * @see [refreshCatalog]
      */
     fun observeImageModels(): Flow<List<ImageModel>>
+
+    /**
+     * Observes image model by ID.
+     */
+    fun observeImageModelById(modelId: String) : Flow<ImageModel?>
 
     /**
      * Observes pinned image models.
