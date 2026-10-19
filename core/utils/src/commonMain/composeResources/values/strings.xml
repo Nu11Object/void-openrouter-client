@@ -4,8 +4,10 @@
     <string name="ok">Ok</string>
     <string name="cancel">Cancel</string>
     <string name="dismiss">Dismiss</string>
+    <string name="template_dismiss_with_timer">Dismiss %1$d</string>
 
     <string name="desc_go_back">Go back</string>
+    <string name="desc_clear_search_query">Clear search query</string>
 
     <string name="exception_invalid_api_key">The provided API key is invalid or expired. Please check it and try again.</string>
     <string name="exception_internal">An unexpected server error occurred on OpenRouter's side. Please try again.</string>
