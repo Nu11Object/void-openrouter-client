@@ -1,5 +1,6 @@
 package com.nullo.voidapp.core.designsystem.theme
 
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -8,6 +9,8 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
+import com.mikepenz.markdown.m3.markdownTypography
+import com.mikepenz.markdown.model.MarkdownTypography
 import org.jetbrains.compose.resources.Font
 import voidapp.core.designsystem.generated.resources.Res
 import voidapp.core.designsystem.generated.resources.google_sans_flex
@@ -45,6 +48,21 @@ fun googleSansFlexTypography(): Typography {
             labelSmall = base.labelSmall.copy(fontFamily = labelFamily)
         )
     }
+}
+
+@Composable
+fun chatMarkdownTypography(): MarkdownTypography {
+    val t = MaterialTheme.typography
+    return markdownTypography(
+        h1 = t.titleLarge.copy(fontWeight = FontWeight.Bold),
+        h2 = t.titleMedium.copy(fontWeight = FontWeight.Bold),
+        h3 = t.titleSmall.copy(fontWeight = FontWeight.Bold),
+        h4 = t.bodyLarge.copy(fontWeight = FontWeight.Bold),
+        h5 = t.bodyMedium.copy(fontWeight = FontWeight.Bold),
+        h6 = t.bodyMedium.copy(fontWeight = FontWeight.Bold),
+        text = t.bodyMedium,
+        paragraph = t.bodyMedium,
+    )
 }
 
 private val GoogleSansWeights = listOf(
