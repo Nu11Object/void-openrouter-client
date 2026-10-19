@@ -7,8 +7,6 @@ import com.nullo.voidapp.core.data.chat.data.dto.image.ImageGenerationResponseDt
 import com.nullo.voidapp.core.data.chat.data.mapper.buildChatCompletionRequest
 import com.nullo.voidapp.core.data.chat.data.mapper.buildImageGenerationRequest
 import com.nullo.voidapp.core.data.chat.data.mapper.toCompletionMessageFlow
-import com.nullo.voidapp.core.data.chat.data.service.exception.InternalServerException
-import com.nullo.voidapp.core.data.chat.data.service.exception.NetworkException
 import kotlinx.coroutines.flow.Flow
 
 interface ChatApiService {
@@ -17,7 +15,10 @@ interface ChatApiService {
      * Streams a chat completion over SSE. Each element is a raw chunk; accumulating
      * chunks into message text is up to the caller (see [toCompletionMessageFlow]).
      *
-     * @throws InternalServerException if the server returned an internal error.
+     * @throws UnauthorizedException if the API key is invalid or missing
+     * @throws InsufficientCreditsException if the account has insufficient credits.
+     * @throws RateLimitedException if the request was rate limited.
+     * @throws InternalServerException if the server or the upstream provider failed.
      * @throws NetworkException if the request failed for any other reason.
      * @see [buildChatCompletionRequest]
      */
@@ -26,7 +27,10 @@ interface ChatApiService {
     /**
      * Generates images in a single buffered request.
      *
-     * @throws InternalServerException if the server returned an internal error.
+     * @throws UnauthorizedException if the API key is invalid or missing
+     * @throws InsufficientCreditsException if the account has insufficient credits.
+     * @throws RateLimitedException if the request was rate limited.
+     * @throws InternalServerException if the server or the upstream provider failed.
      * @throws NetworkException if the request failed for any other reason.
      * @see [buildImageGenerationRequest]
      */

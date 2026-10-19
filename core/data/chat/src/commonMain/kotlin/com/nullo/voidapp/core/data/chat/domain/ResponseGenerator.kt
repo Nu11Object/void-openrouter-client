@@ -1,7 +1,10 @@
 package com.nullo.voidapp.core.data.chat.domain
 
-import com.nullo.voidapp.core.data.chat.data.service.exception.InternalServerException
-import com.nullo.voidapp.core.data.chat.data.service.exception.NetworkException
+import com.nullo.voidapp.core.data.chat.data.service.InsufficientCreditsException
+import com.nullo.voidapp.core.data.chat.data.service.InternalServerException
+import com.nullo.voidapp.core.data.chat.data.service.NetworkException
+import com.nullo.voidapp.core.data.chat.data.service.RateLimitedException
+import com.nullo.voidapp.core.data.chat.data.service.UnauthorizedException
 import com.nullo.voidapp.core.model.ActiveModelRef
 import com.nullo.voidapp.core.model.Message
 import kotlinx.coroutines.flow.Flow
@@ -24,7 +27,10 @@ interface ResponseGenerator {
      * @param responseMessageId ID of the response message
      * @param activeModel currently active model
      * @return a flow of generated response messages
-     * @throws InternalServerException if the server returns an internal error
+     * @throws UnauthorizedException if the API key is invalid or missing
+     * @throws InsufficientCreditsException if the account has insufficient credits
+     * @throws RateLimitedException if the request was rate limited
+     * @throws InternalServerException if the server or the upstream provider failed
      * @throws NetworkException if the request fails for another reason
      */
     fun generateResponse(

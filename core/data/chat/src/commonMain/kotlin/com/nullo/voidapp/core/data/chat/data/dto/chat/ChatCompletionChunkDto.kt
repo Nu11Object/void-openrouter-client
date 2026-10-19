@@ -12,7 +12,7 @@ data class ChatCompletionChunkDto(
     @SerialName("usage")
     val usage: ChatUsageDto? = null,
     @SerialName("error")
-    val error: ChatStreamErrorDto? = null,
+    val error: ApiErrorDto? = null,
 )
 
 @Serializable
@@ -45,12 +45,4 @@ data class ChatUsageDto(
     val totalTokens: Int = 0,
     @SerialName("cost")
     val cost: Double? = null,
-)
-
-@Serializable
-data class ChatStreamErrorDto(
-    @SerialName("code")
-    val code: Int,
-    @SerialName("message")
-    val message: String,
 )
