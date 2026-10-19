@@ -63,5 +63,5 @@ private suspend fun Message.toChatMessageDtoOrNull(
     is Message.Images,
     is Message.Error,
     is Message.Interrupted,
-    Message.ImageLoading -> null
+    is Message.ImageLoading -> null
 }

@@ -1,4 +1,4 @@
-package com.nullo.voidapp.core.data.chat.data.repository
+package com.nullo.voidapp.core.data.chat.data
 
 import com.nullo.voidapp.core.data.chat.data.mapper.buildChatCompletionRequest
 import com.nullo.voidapp.core.data.chat.data.mapper.buildImageGenerationRequest
@@ -47,7 +47,7 @@ internal class ResponseGeneratorImpl(
             }
 
             is ActiveModelRef.Image -> {
-                emit(Message.ImageLoading)
+                emit(Message.ImageLoading())
 
                 val referenceImages = prompt.images.map {
                     imageEncoder.encodeAsDataUrl(it.relativePath, it.mimeType)

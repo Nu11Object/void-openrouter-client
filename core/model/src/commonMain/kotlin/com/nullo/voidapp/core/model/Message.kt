@@ -1,7 +1,10 @@
 package com.nullo.voidapp.core.model
 
+import androidx.compose.runtime.Immutable
+
 /** Represents a message in a conversation. */
-sealed class Message(open val id: Long?) {
+@Immutable
+sealed class Message(open val id: Long) {
 
     /** A message sent by the user to the AI. */
     data class Prompt(
@@ -29,6 +32,7 @@ sealed class Message(open val id: Long?) {
     data class Error(
         override val id: Long,
         val reason: ErrorReason,
+        val rawMessage: String?
     ) : Message(id)
 
     /**
@@ -41,7 +45,9 @@ sealed class Message(open val id: Long?) {
     ) : Message(id)
 
     /** Indicates that images are currently being generated. */
-    data object ImageLoading : Message(id = null)
+    data class ImageLoading(
+        override val id: Long = 0,
+    ) : Message(id)
 }
 
 /** Represents an image attached to a user prompt. */
@@ -58,7 +64,12 @@ data class GeneratedImage(
 
 /** Represents a type of error returned while processing a request. */
 enum class ErrorReason {
-    NETWORK, SERVER_INTERNAL, UNEXPECTED;
+    NETWORK,
+    SERVER_INTERNAL,
+    INSUFFICIENT_CREDITS,
+    RATE_LIMITED,
+    UNAUTHORIZED,
+    UNEXPECTED;
 
     companion object {
 
