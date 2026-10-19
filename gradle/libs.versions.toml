@@ -1,29 +1,30 @@
 [versions]
-agp = "9.2.1"
+agp = "9.4.1"
 android-compileSdk = "37"
+android-compileSdkMinor = "1"
 android-minSdk = "26"
 android-targetSdk = "37"
 androidx-activity = "1.13.0"
-androidx-appcompat = "1.7.1"
-androidx-core = "1.19.0"
+androidx-appcompat = "1.8.0"
+androidx-core = "1.19.1"
 androidx-espresso = "3.7.0"
 androidx-lifecycle = "2.11.0"
 androidx-testExt = "1.3.0"
 androidx-splashScreen = "1.2.0"
-composeMultiplatform = "1.11.1"
+composeMultiplatform = "1.13.0-alpha02"
 junit = "4.13.2"
-kotlin = "2.4.10"
+kotlin = "2.4.21"
 kotlinx-coroutines = "1.11.0"
-material3 = "1.11.0-alpha07"
+material3 = "1.13.0-alpha02"
 
 decompose = "3.5.0"
 mvi-kotlin = "4.4.0"
 koin = "4.2.2"
-ktor = "3.5.2"
+ktor = "3.6.0"
 
-room = "3.0.1"
-sqlite = "2.7.0"
-ksp = "2.3.10"
+room = "3.0.3"
+sqlite = "2.7.1"
+ksp = "2.3.12"
 
 datastore = "1.2.1"
 tink = "1.23.0"
@@ -31,13 +32,15 @@ java-keyring = "1.0.4"
 
 browser = "1.10.0"
 lifecycleRuntimeKtx = "2.11.0"
-composeBom = "2026.06.01"
-adaptive = "1.2.0"
+composeBom = "2026.09.00"
+adaptive = "1.3.0"
 
 valkyrie = "0.5.2"
 bigNum = "0.3.10"
 
 fileKit = "0.16.0"
+markdown = "0.46.0"
+coil = "3.6.3"
 
 [libraries]
 decompose-core = { module = "com.arkivanov.decompose:decompose", version.ref = "decompose" }
@@ -57,6 +60,7 @@ ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "kto
 ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
 ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
+coil-ktor3 = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coil" }
 
 androidx-sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
 androidx-room3-runtime = { module = "androidx.room3:room3-runtime", version.ref = "room" }
@@ -73,6 +77,11 @@ file-kit-core = { module = "io.github.vinceglb:filekit-core", version.ref = "fil
 file-kit-dialogs = { module = "io.github.vinceglb:filekit-dialogs", version.ref = "fileKit" }
 file-kit-dialogs-compose = { module = "io.github.vinceglb:filekit-dialogs-compose", version.ref = "fileKit" }
 file-kit-coil = { module = "io.github.vinceglb:filekit-coil", version.ref = "fileKit" }
+
+markdown-core = { module = "com.mikepenz:multiplatform-markdown-renderer", version.ref = "markdown" }
+markdown-m3 = { module = "com.mikepenz:multiplatform-markdown-renderer-m3", version.ref = "markdown" }
+markdown-code = { module = "com.mikepenz:multiplatform-markdown-renderer-code", version.ref = "markdown" }
+markdown-coil = { module = "com.mikepenz:multiplatform-markdown-renderer-coil3", version.ref = "markdown" }
 
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutinesSwing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "kotlinx-coroutines" }
