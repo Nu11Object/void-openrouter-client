@@ -183,7 +183,6 @@ import org.jetbrains.compose.resources.stringResource
 import voidapp.core.utils.generated.resources.ok
 import voidapp.core.utils.generated.resources.oops
 import voidapp.feature.chat.generated.resources.Res
-import voidapp.feature.chat.generated.resources.open_model_catalog
 import voidapp.feature.chat.generated.resources.cancel
 import voidapp.feature.chat.generated.resources.chat_models
 import voidapp.feature.chat.generated.resources.delete
@@ -211,6 +210,7 @@ import voidapp.feature.chat.generated.resources.new_chat
 import voidapp.feature.chat.generated.resources.no_models_found
 import voidapp.feature.chat.generated.resources.no_pinned_models
 import voidapp.feature.chat.generated.resources.no_text_was_generated
+import voidapp.feature.chat.generated.resources.open_model_catalog
 import voidapp.feature.chat.generated.resources.option_search
 import voidapp.feature.chat.generated.resources.option_think
 import voidapp.feature.chat.generated.resources.placeholder_empty_prompt
@@ -1582,7 +1582,7 @@ private fun SideMenuContent(
         if (showHeader) {
             item(key = "Header") {
                 SideMenuHeader(
-                    modifier = Modifier.padding(start = 8.dp),
+                    modifier = Modifier.padding(start = 16.dp),
                     onCloseSideMenuClicked = onCloseSideMenuClicked
                 )
                 Spacer(Modifier.height(16.dp))
