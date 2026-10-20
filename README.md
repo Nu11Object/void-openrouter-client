@@ -1,116 +1,265 @@
-> [!CAUTION]
-> **WORK IN PROGRESS — NOT PRODUCTION READY**
->
-> This project is an early-stage (WIP) Kotlin Multiplatform application and is **not finished**.
-> Many planned features are missing. The code is published primarily
-> to showcase the architecture, tech stack, and engineering practices - it is used as a
-> portfolio project rather than a shippable product.
+![Void banner logo](./assets/banner_logo.png)
+![About Header](./assets/header_about.png)
 
-**Void** is a cross-platform client for [OpenRouter](https://openrouter.ai), built with
-Kotlin Multiplatform and Compose Multiplatform. The goal is a clean app to
-browse AI models and chat with them from a single codebase across Android, iOS, and Desktop.
+Void is a chat client for the [OpenRouter](https://openrouter.ai) API: browse the full model
+catalog, pin your favorites, and talk to any of them: all from a single app that runs on
+**Android**, **iOS** and **Desktop** (Windows, macOS, Linux) from one shared codebase.
 
-## Screenshots
-![Phone Showcase](./assets/phone-showcase.png)
-![Desktop Auth Screen](./assets/desktop-auth.png)
-![Desktop Catalog Screen](./assets/desktop-catalog.png)
-![Desktop Settings Screen](./assets/desktop-settings.png)
+<br>
 
-## What is done
+![Important Header](./assets/header_important.png)
+**This is a learning / portfolio project.** It is not an actively maintained product. You are very
+welcome to **fork or clone** the repository and take it in your own direction.
 
-- **Multiplatform foundation** targeting **Android**, **iOS**, and **Desktop (JVM)** from a
-  single Kotlin codebase (Compose Multiplatform UI).
-- **Authentication** via two methods:
-  - **OAuth 2.0 Authorization Code with PKCE**.
-  - **Manual API key** entry with validation.
-  - Secure, platform-specific storage.
-- **Model catalog**
-  - Fetches the list of available models from **OpenRouter**.
-  - Separate tabs for **Chat models** and **Image models**.
-  - Models can be selected for use or pinned for quick access.
-- **App settings**:
-  - Theme selection (**Light / Dark / System**) persisted across sessions.
-  - Change API key, sign out (clears stored credentials).
-- **Design system** with a custom Material 3 color scheme, typography (Google Sans Flex),
-  reusable composable components, and Valkyrie-managed vector assets.
-- **Navigation & state architecture** - Decompose + MVIKotlin.
-- **Local persistence layer** set up for key-value preferences (DataStore).
+<br>
 
-## What is NOT done yet
+![Features Header](./assets/header_features.png)
 
-The following core product features are **planned but not implemented**:
+#### Chat
 
-- **Chat** experience with models (messaging, streaming responses).
-- **Conversation management** (history, persistence, switching between chats).
-- **Model tuning** - exposing parameters such as `temperature`, `top_p`, `max_tokens`,
-  `frequency_penalty`, `presence_penalty`, `seed`.
+- Conversations and messages are stored locally
+- Streaming responses
+- Thinking (reasoning) and web search support
+- Regenerate the last response
+- Graceful error handling: failed generations are kept in the conversation and can be retried
+- Pin your favorite models and switch between them quickly
 
-## Tech stack
+#### Model Catalog
 
-| Area            | Technology                                                                 |
-|-----------------|----------------------------------------------------------------------------|
-| Language        | Kotlin 2.4.10                                                              |
-| UI              | Compose Multiplatform, Material 3                                          |
-| Architecture    | Decompose (navigation & components), MVIKotlin (MVI stores)                |
-| DI              | Koin 4.2.2                                                                 |
-| Networking      | Ktor 3.5.2 (client, content negotiation, logging)                          |
-| Serialization   | kotlinx.serialization                                                      |
-| Local storage   | Jetpack DataStore (preferences), Room 3 (database)                         |
-| Secure storage  | Android Keystore / Tink, iOS Keychain, Java Keyring (Desktop)              |
-| Async           | kotlinx.coroutines                                                         |
-| Assets          | Valkyrie (vector icons)                                                    |
-| Build           | Gradle Kotlin DSL, KSP, Android Gradle Plugin 9                            |
+- Loads all OpenRouter models: both **Chat** and **Image** models
+- Search for a model, then use it right away or pin it for later
+- Shows each model's name, context window and price per 1M tokens
 
-## Architecture overview
+#### Settings
 
-The project follows a **strictly multi-module** structure that separates reusable
-infrastructure (`core:*`) from feature modules (`feature:*`):
+- Theme: **Light**, **Dark** or **System** (default)
+- Change the API key
+- Log out: wipes all chats, models and the API key from the device
+
+#### Auth
+
+The entry point on first launch. Two ways to sign in:
+
+- **OAuth 2.0 with PKCE:** you authorize in the browser, no copy-pasting needed.
+- **Manual API key:** paste your own key. It goes straight into secure storage and no third-party
+  page is involved.
+
+<details>
+<summary><b>How the OAuth flow works (and why it's safe)</b></summary>
+
+<br>
+
+1. The app opens OpenRouter's authorization page in your browser.
+2. After you approve, OpenRouter redirects to a tiny
+   static [callback page](https://nu11object.github.io/void-oauth/oauth-callback.html) hosted on
+   GitHub Pages. The redirect carries a one-time authorization `code`, **not** the API key.
+3. That page immediately forwards the request to the app through a deep link
+   (`voidapp://oauth/callback`).
+4. The app exchanges the `code` (together with the PKCE `code_verifier`, which never leaves the app)
+   for the API key and saves it to secure storage.
+
+So the API key itself never passes through the callback page, and the code it does see is useless
+without the verifier held by the app. The page is a single HTML file with a short script that only
+forwards the query string to the deep link. It has no backend, stores nothing, and makes no network
+requests. The source is public in [Nu11Object/void-oauth](https://github.com/Nu11Object/void-oauth),
+so you can check it yourself.
+
+Still not comfortable with it? Sign in with an API key instead. That path never touches the callback
+page.
+
+</details>
+
+Either way, the key never leaves your device and is stored **encrypted** in the platform's secure
+storage:
+
+| Platform | Storage                       |
+|----------|-------------------------------|
+| Android  | Android Keystore (via Tink)   |
+| iOS      | Keychain                      |
+| Desktop  | System keyring (Java Keyring) |
+
+<br>
+
+![Mobile Showcase Header](./assets/header_mobile_showcase.png)
+![Mobile Screenshots](./assets/screenshots_mobile.png)
+
+<br>
+
+![Desktop Showcase Header](./assets/header_desktop_showcase.png)
+![Desktop Screenshots](./assets/screenshots_desktop.png)
+
+<br>
+
+![Build & Run Header](./assets/header_build_run.png)
+
+Clone the repository and build the project:
 
 ```
-core:network          Ktor HttpClient factory & network DI
-core:auth             Auth domain: repository, DTOs, OAuth API service, use cases
-core:security         Platform-agnostic secure API-key storage (Android/iOS/JVM)
-core:datastore        DataStore setup with platform factories
-core:data:settings    Settings repository (theme, etc.)
-core:data:session     Session repository (active model and params)
-core:data:catalog     Catalog API service
-core:designsystem     Theme, colors, typography, reusable Compose components
-core:utils            UiText, resource helpers, Decompose/MVIKotlin extensions
-
-feature:root          Root component & navigation graph
-feature:auth          Auth screen (OAuth PKCE + API key)
-feature:settings      Settings screen (theme, credentials)
-feature:catalog       Catalog screen (Chat & Image models)
-
-shared                Common App entry, Koin initialization
-androidApp            Android application entry point
-iosApp                iOS application entry point (Swift)
-desktopApp            JVM/Desktop application entry point
+git clone https://github.com/Nu11Object/void-openrouter-client.git
 ```
 
-Key patterns:
+Open it in Android Studio (or another IDE with Kotlin Multiplatform support) and pick the run
+configuration for the platform you want.
 
-- **Decompose** drives navigation via serialized `Config` stacks and lifecycle-aware
-  components (`RootComponent`, `AuthComponent`, `SettingsComponent`).
-- **MVIKotlin** implements unidirectional state flow per feature (`AuthStore`,
-  `SettingsStore`) with `Intent`/`State`/`Message`/`Action`/`Label` separation.
-- **Koin** wires everything with per-layer modules (`initKoin`).
-- **Platform source sets** (`androidMain`, `iosMain`, `jvmMain`, `commonMain`) isolate
-  platform-specific implementations behind shared interfaces (e.g. `ApiKeyStorage`,
-  DataStore factories).
+<br>
 
-> Note: OAuth sign-in relies on a custom redirect page hosted at
-> `https://nu11object.github.io/void-oauth/oauth-callback.html` and the
-> `voidapp://oauth/callback` deep link scheme. Manual API-key auth works without it.
+![Tech Stack Header](./assets/header_tech_stack.png)
 
-## Roadmap
+The project is written in **Kotlin Multiplatform** with **Compose Multiplatform** for the UI.
 
-1. **Chat** - conversing with selected models (text, streaming).
-2. **Conversation management** - persist and browse chat history.
-3. **Model tuning** - expose generation parameters (`temperature`, `top_p`, `max_tokens`,
-   `frequency_penalty`, `presence_penalty`, `seed`).
-4. Polish: error handling, accessibility, platform-specific UX.
+| Area                 | Technology                                                                                     |
+|----------------------|------------------------------------------------------------------------------------------------|
+| Language             | Kotlin 2.4, Coroutines                                                                         |
+| UI                   | Compose Multiplatform, Material 3                                                              |
+| Navigation           | [Decompose](https://github.com/arkivanov/Decompose)                                            |
+| State management     | [MVIKotlin](https://github.com/arkivanov/MVIKotlin)                                            |
+| Dependency injection | [Koin](https://insert-koin.io)                                                                 |
+| Networking           | [Ktor](https://ktor.io) + kotlinx.serialization                                                |
+| Local database       | [Room](https://developer.android.com/kotlin/multiplatform/room) (KMP) with bundled SQLite      |
+| Preferences          | DataStore                                                                                      |
+| Secure storage       | Tink (Android), Keychain (iOS), java-keyring (Desktop)                                         |
+| Images               | [Coil 3](https://coil-kt.github.io/coil/)                                                      |
+| Markdown rendering   | [multiplatform-markdown-renderer](https://github.com/mikepenz/multiplatform-markdown-renderer) |
+| File picking         | [FileKit](https://github.com/vinceglb/FileKit)                                                 |
 
-## License
+Exact versions live in [`gradle/libs.versions.toml`](gradle/libs.versions.toml).
 
-This project is currently unlicensed and intended for portfolio/demonstration purposes.
+<br>
+
+![Architecture Header](./assets/header_architecture.png)
+
+Void is a Kotlin Multiplatform multi-module project with a strict `core` / `feature` split. `core`
+modules provide domain models, storage, networking, the design system and repository/use-case APIs;
+`feature` modules build screens on top of them, while `shared` registers every Koin module and
+exposes `App()` to the Android, Desktop and iOS entry points. Decompose owns navigation and
+component lifecycles, MVIKotlin owns screen state (State / Intent / Label), and Koin wires
+components, stores, repositories and use cases together. Platform-specific implementations
+(DataStore, Room database builder, secure storage, OAuth/PKCE) are provided through
+`expect`/`actual` declarations.
+
+Arrows point from a module to the modules it depends on. Common `core:utils` / `core:designsystem`
+dependencies of feature modules, and `shared`'s direct dependency on every module for Koin
+registration, are omitted for readability.
+
+```mermaid
+graph TD
+    subgraph Apps
+        androidApp[androidApp]
+        desktopApp[desktopApp]
+        iosApp[iosApp]
+    end
+
+    shared[shared]
+
+    subgraph Features
+        root[feature:root]
+        auth[feature:auth]
+        chat[feature:chat]
+        catalog[feature:catalog]
+        settings[feature:settings]
+    end
+
+    subgraph Data["Data layer"]
+        dataSettings[core:data:settings]
+        dataSession[core:data:session]
+        dataCatalog[core:data:catalog]
+        dataChat[core:data:chat]
+        coreAuth[core:auth]
+    end
+
+    subgraph Platform
+        network[core:network]
+        database[core:database]
+        security[core:security]
+        datastore[core:datastore]
+    end
+
+    subgraph Foundation
+        model[core:model]
+        designsystem[core:designsystem]
+        utils[core:utils]
+    end
+
+    androidApp --> shared
+    desktopApp --> shared
+    iosApp --> shared
+    shared --> root
+    shared --> auth
+    shared --> chat
+    shared --> catalog
+    shared --> settings
+    root --> auth
+    root --> chat
+    root --> catalog
+    root --> settings
+    root --> dataSettings
+    root --> dataChat
+    root --> security
+    auth --> coreAuth
+    auth --> security
+    catalog --> dataCatalog
+    chat --> dataChat
+    chat --> dataCatalog
+    chat --> dataSession
+    chat --> model
+    settings --> dataSettings
+    settings --> dataSession
+    settings --> dataCatalog
+    settings --> dataChat
+    settings --> coreAuth
+    settings --> security
+    dataChat --> database
+    dataChat --> dataSession
+    dataChat --> model
+    dataCatalog --> network
+    dataCatalog --> database
+    dataCatalog --> dataSession
+    dataCatalog --> model
+    dataSession --> datastore
+    dataSession --> model
+    dataSettings --> datastore
+    dataSettings --> designsystem
+    coreAuth --> security
+    network --> security
+    database --> model
+    security --> datastore
+    designsystem --> utils
+    model --> utils
+```
+
+#### Feature modules
+
+| Module             | Description                                                                                                    |
+|--------------------|----------------------------------------------------------------------------------------------------------------|
+| `feature:root`     | Application shell that owns the Decompose root, navigation stack, theme and startup routing between screens.   |
+| `feature:auth`     | Sign-in screen with browser-based OAuth 2.0 + PKCE and manual API key entry, plus platform-specific launchers. |
+| `feature:chat`     | Conversation screen with streaming chat, model selection, thinking/web search toggles and history management.  |
+| `feature:catalog`  | Model catalog with search, refresh, pinning and selection of chat or image models.                             |
+| `feature:settings` | Settings screen for theme, API key updates and sign-out with local data cleanup.                               |
+
+#### Core modules
+
+| Module               | Description                                                                                                   |
+|----------------------|---------------------------------------------------------------------------------------------------------------|
+| `core:utils`         | Shared `UiText` and localized-exception helpers, Compose/Decompose/MVIKotlin extensions and common resources. |
+| `core:model`         | Immutable domain models for chat/image models, conversations, messages, pricing and tuning parameters.        |
+| `core:designsystem`  | Material 3 theme, colors, typography, icons and reusable Compose components.                                  |
+| `core:datastore`     | DataStore factory and qualifiers for settings, session and API key preferences.                               |
+| `core:security`      | API key storage contract with Tink, Keychain and Java Keyring platform implementations.                       |
+| `core:network`       | Shared Ktor `HttpClient` with JSON, SSE, timeouts, bearer auth injection and logging.                         |
+| `core:database`      | Room database, DAOs, entities and mappers for cached models, conversations and messages.                      |
+| `core:auth`          | Auth API and repository for API key validation, OAuth code exchange and secure key persistence.               |
+| `core:data:settings` | DataStore-backed settings repository for the selected app theme.                                              |
+| `core:data:session`  | Persists the active model, tuning/image parameters and thinking/web search flags.                             |
+| `core:data:catalog`  | Syncs the OpenRouter catalog into Room and exposes use cases to observe, refresh and pin models.              |
+| `core:data:chat`     | Chat and conversation repositories, streaming response generation and image encoding.                         |
+
+<br>
+
+![Todo Header](./assets/header_todo.png)
+
+- Image generation
+- Model tuning (parameters)
+- Attach images to prompts
+- Model filtering in the catalog (by price, features, etc.)
+- Tests, starting with unit tests
