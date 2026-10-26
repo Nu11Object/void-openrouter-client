@@ -2,26 +2,16 @@ import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.compose.reload.gradle.ComposeHotRun
 
 plugins {
-    alias(libs.plugins.kotlinJvm)
-    alias(libs.plugins.composeMultiplatform)
-    alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.voidappDesktopApplication)
 }
 
 dependencies {
     implementation(projects.shared)
 
-    implementation(libs.koin.core)
+    implementation(projects.feature.root)
+    implementation(projects.core.designsystem)
 
-    implementation(libs.decompose.core)
-    implementation(libs.decompose.compose)
-    implementation(libs.mvikotlin.core)
-
-    implementation(libs.compose.material3)
-    implementation(libs.compose.material3.adaptive)
-
-    implementation(libs.kotlinx.coroutinesSwing)
-    implementation(libs.compose.uiToolingPreview)
-    implementation(libs.compose.components.resources)
+    implementation(libs.androidx.window.core)
 }
 
 compose.desktop {

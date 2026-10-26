@@ -1,35 +1,14 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-
 plugins {
-    alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.androidMultiplatformLibrary)
-    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.voidappKmpLibrary)
+    alias(libs.plugins.voidappKmpSerialization)
 }
 
 kotlin {
-
-    iosArm64()
-    iosSimulatorArm64()
-
-    jvm()
-
-    android {
-        namespace = "com.nullo.voidapp.core.model"
-        compileSdk = libs.versions.android.compileSdk.get().toInt()
-        minSdk = libs.versions.android.minSdk.get().toInt()
-
-        compilerOptions {
-            jvmTarget = JvmTarget.JVM_11
-        }
-    }
-
     sourceSets {
         commonMain.dependencies {
-            implementation(projects.core.utils)
-
             api(libs.ionspin.bignum)
+            api(libs.kotlinx.serialization.core)
             implementation(libs.compose.runtime)
-            implementation(libs.ktor.serialization.kotlinx.json)
         }
     }
 }

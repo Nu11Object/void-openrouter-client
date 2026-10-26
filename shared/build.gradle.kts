@@ -1,43 +1,11 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-
 plugins {
-    alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.androidMultiplatformLibrary)
-    alias(libs.plugins.composeMultiplatform)
-    alias(libs.plugins.composeCompiler)
-    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.voidappKmpLibrary)
+    alias(libs.plugins.voidappKmpCompose)
+    alias(libs.plugins.voidappIosFramework)
 }
 
 kotlin {
-    listOf(
-        iosArm64(),
-        iosSimulatorArm64()
-    ).forEach { iosTarget ->
-        iosTarget.binaries.framework {
-            baseName = "Shared"
-            isStatic = true
-        }
-    }
-    
-    jvm()
-    
-    android {
-       namespace = "com.nullo.voidapp.shared"
-       compileSdk = libs.versions.android.compileSdk.get().toInt()
-       minSdk = libs.versions.android.minSdk.get().toInt()
-    
-       compilerOptions {
-           jvmTarget = JvmTarget.JVM_11
-       }
-       androidResources {
-           enable = true
-       }
-    }
-    
     sourceSets {
-        androidMain.dependencies {
-            implementation(libs.compose.uiToolingPreview)
-        }
         commonMain.dependencies {
             implementation(projects.core.network)
             implementation(projects.core.auth)
@@ -49,26 +17,15 @@ kotlin {
             implementation(projects.core.datastore)
             implementation(projects.core.database)
 
-            api(projects.feature.auth)
             api(projects.feature.root)
+            implementation(projects.feature.auth)
             implementation(projects.feature.settings)
             implementation(projects.feature.catalog)
             implementation(projects.feature.chat)
 
-            implementation(libs.koin.compose)
-
-            implementation(libs.compose.runtime)
-            implementation(libs.compose.foundation)
-            implementation(libs.compose.material3)
-            implementation(libs.compose.ui)
-            implementation(libs.compose.components.resources)
-            implementation(libs.compose.uiToolingPreview)
-            implementation(libs.androidx.lifecycle.viewmodelCompose)
-            implementation(libs.androidx.lifecycle.runtimeCompose)
+            implementation(libs.koin.core)
+            implementation(libs.decompose.core)
+            implementation(libs.essenty.lifecycle)
         }
     }
-}
-
-dependencies {
-    androidRuntimeClasspath(libs.compose.uiTooling)
 }

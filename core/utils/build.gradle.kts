@@ -1,10 +1,6 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-
 plugins {
-    alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.androidMultiplatformLibrary)
-    alias(libs.plugins.composeMultiplatform)
-    alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.voidappKmpLibrary)
+    alias(libs.plugins.voidappKmpCompose)
 }
 
 compose.resources {
@@ -12,33 +8,15 @@ compose.resources {
 }
 
 kotlin {
-
-    iosArm64()
-    iosSimulatorArm64()
-
-    jvm()
-
-    android {
-        namespace = "com.nullo.voidapp.core.utils"
-        compileSdk = libs.versions.android.compileSdk.get().toInt()
-        minSdk = libs.versions.android.minSdk.get().toInt()
-        androidResources.enable = true
-
-        compilerOptions {
-            jvmTarget = JvmTarget.JVM_11
-        }
-    }
-
     sourceSets {
         commonMain.dependencies {
-            implementation(libs.mvikotlin.core)
-            implementation(libs.decompose.core)
+            api(libs.mvikotlin.core)
+            api(libs.decompose.core)
+            api(libs.kotlinx.coroutines.core)
 
-            implementation(libs.compose.ui)
+            implementation(libs.essenty.lifecycle)
             implementation(libs.compose.material3.adaptive)
-            implementation(libs.compose.components.resources)
-
-            implementation(libs.kotlinx.coroutines.core)
+            implementation(libs.androidx.window.core)
         }
     }
 }
