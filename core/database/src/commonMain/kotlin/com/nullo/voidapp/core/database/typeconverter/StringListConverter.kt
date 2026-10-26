@@ -8,9 +8,7 @@ internal object StringListConverter {
     private val json = Json { ignoreUnknownKeys = true }
 
     @ColumnTypeConverter
-    fun toString(list: List<String>): String {
-        return json.encodeToString(list)
-    }
+    fun toString(list: List<String>): String = json.encodeToString(list)
 
     @ColumnTypeConverter
     fun fromString(rawJson: String): List<String> {

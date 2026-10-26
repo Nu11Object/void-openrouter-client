@@ -10,7 +10,7 @@ import platform.Foundation.NSUserDomainMask
 internal fun getDatabaseBuilder(): RoomDatabase.Builder<AppDatabase> {
     val dbFilePath = documentDirectory() + "/$DATABASE_NAME"
     return Room.databaseBuilder<AppDatabase>(
-        name = dbFilePath,
+        name = dbFilePath
     )
 }
 
@@ -21,7 +21,7 @@ private fun documentDirectory(): String {
         inDomain = NSUserDomainMask,
         appropriateForURL = null,
         create = false,
-        error = null,
+        error = null
     )
     return requireNotNull(documentDirectory?.path)
 }

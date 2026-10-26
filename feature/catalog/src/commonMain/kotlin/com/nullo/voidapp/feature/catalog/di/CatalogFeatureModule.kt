@@ -14,7 +14,7 @@ val catalogFeatureModule = module {
             DefaultCatalogComponent(
                 onNavigateBack = onNavigateBack,
                 catalogStoreFactory = get(),
-                componentContext = componentContext,
+                componentContext = componentContext
             )
         }
     }

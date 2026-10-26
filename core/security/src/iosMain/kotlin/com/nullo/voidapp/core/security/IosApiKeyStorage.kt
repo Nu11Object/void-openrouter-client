@@ -126,8 +126,10 @@ internal class IosApiKeyStorage : ApiKeyStorage {
 
     private fun buildBaseQuery(): CFMutableDictionaryRef {
         val dict = CFDictionaryCreateMutable(
-            null, 0,
-            kCFTypeDictionaryKeyCallBacks.ptr, kCFTypeDictionaryValueCallBacks.ptr
+            null,
+            0,
+            kCFTypeDictionaryKeyCallBacks.ptr,
+            kCFTypeDictionaryValueCallBacks.ptr
         )!!
         CFDictionarySetValue(dict, kSecClass, kSecClassGenericPassword)
 

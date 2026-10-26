@@ -22,7 +22,7 @@ import kotlinx.coroutines.flow.map
 
 internal class AndroidApiKeyStorage(
     private val context: Context,
-    private val dataStore: DataStore<Preferences>
+    private val dataStore: DataStore<Preferences>,
 ) : ApiKeyStorage {
 
     private val aead: Aead by lazy {

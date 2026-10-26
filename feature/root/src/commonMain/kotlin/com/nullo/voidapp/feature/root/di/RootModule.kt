@@ -19,7 +19,7 @@ val rootModule = module {
             chatComponentFactory = get(),
             settingsRepository = get(),
             apiKeyStorage = get(),
-            conversationRepository = get(),
+            conversationRepository = get()
         )
     }
 }

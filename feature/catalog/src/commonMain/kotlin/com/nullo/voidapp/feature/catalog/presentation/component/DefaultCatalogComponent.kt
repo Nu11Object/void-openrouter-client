@@ -18,7 +18,8 @@ internal class DefaultCatalogComponent(
     private val onNavigateBack: () -> Unit,
     private val catalogStoreFactory: CatalogStoreFactory,
     private val componentContext: ComponentContext,
-) : CatalogComponent, ComponentContext by componentContext {
+) : CatalogComponent,
+    ComponentContext by componentContext {
 
     private val scope = componentScope()
     private val store = instanceKeeper.getStore { catalogStoreFactory.create() }
@@ -56,7 +57,7 @@ internal class DefaultCatalogComponent(
     override fun onPinModelClicked(
         modelId: String,
         modelType: ModelType,
-        pin: Boolean
+        pin: Boolean,
     ) {
         store.accept(Intent.SetPinState(modelId, modelType, pin))
     }

@@ -85,7 +85,7 @@ fun Modifier.edgeFades(vararg fades: EdgeFadeSpec): Modifier = this
                         brush = mask.brush,
                         topLeft = mask.topLeft,
                         size = mask.size,
-                        blendMode = BlendMode.DstIn,
+                        blendMode = BlendMode.DstIn
                     )
                 }
             }
@@ -126,11 +126,15 @@ fun Modifier.edgeFade(
         holdFraction = holdFraction,
         easing = easing,
         startAlpha = startAlpha,
-        endAlpha = endAlpha,
+        endAlpha = endAlpha
     )
 )
 
-private class FadeMask(val brush: Brush, val topLeft: Offset, val size: Size)
+private class FadeMask(
+    val brush: Brush,
+    val topLeft: Offset,
+    val size: Size,
+)
 
 private fun CacheDrawScope.createFadeMask(spec: EdgeFadeSpec): FadeMask {
     val hold = spec.holdFraction.coerceIn(0f, 0.99f)
@@ -156,19 +160,23 @@ private fun CacheDrawScope.createFadeMask(spec: EdgeFadeSpec): FadeMask {
             val startY = size.height - fadeLength
             FadeMask(
                 brush = Brush.verticalGradient(
-                    colorStops = edgeLast, startY = startY, endY = size.height,
+                    colorStops = edgeLast,
+                    startY = startY,
+                    endY = size.height
                 ),
                 topLeft = Offset(0f, startY),
-                size = Size(size.width, fadeLength),
+                size = Size(size.width, fadeLength)
             )
         }
 
         FadeDirection.Top -> FadeMask(
             brush = Brush.verticalGradient(
-                colorStops = edgeFirst, startY = 0f, endY = fadeLength,
+                colorStops = edgeFirst,
+                startY = 0f,
+                endY = fadeLength
             ),
             topLeft = Offset.Zero,
-            size = Size(size.width, fadeLength),
+            size = Size(size.width, fadeLength)
         )
 
         FadeDirection.Start, FadeDirection.End -> {
@@ -178,18 +186,22 @@ private fun CacheDrawScope.createFadeMask(spec: EdgeFadeSpec): FadeMask {
                 val startX = size.width - fadeLength
                 FadeMask(
                     brush = Brush.horizontalGradient(
-                        colorStops = edgeLast, startX = startX, endX = size.width,
+                        colorStops = edgeLast,
+                        startX = startX,
+                        endX = size.width
                     ),
                     topLeft = Offset(startX, 0f),
-                    size = Size(fadeLength, size.height),
+                    size = Size(fadeLength, size.height)
                 )
             } else {
                 FadeMask(
                     brush = Brush.horizontalGradient(
-                        colorStops = edgeFirst, startX = 0f, endX = fadeLength,
+                        colorStops = edgeFirst,
+                        startX = 0f,
+                        endX = fadeLength
                     ),
                     topLeft = Offset.Zero,
-                    size = Size(fadeLength, size.height),
+                    size = Size(fadeLength, size.height)
                 )
             }
         }
@@ -212,5 +224,5 @@ fun Modifier.bottomFade(
     direction = FadeDirection.Bottom,
     sizeFraction = heightFraction,
     startAlpha = startAlpha,
-    endAlpha = endAlpha,
+    endAlpha = endAlpha
 )

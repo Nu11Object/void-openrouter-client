@@ -1,6 +1,7 @@
 package com.nullo.voidapp.core.data.catalog.data
 
 import com.nullo.voidapp.core.data.catalog.data.service.CatalogApiService
+import com.nullo.voidapp.core.data.catalog.domain.CatalogRepository
 import com.nullo.voidapp.core.database.dao.ChatModelDao
 import com.nullo.voidapp.core.database.dao.ImageModelDao
 import com.nullo.voidapp.core.database.mapper.toDomain
@@ -8,7 +9,6 @@ import com.nullo.voidapp.core.database.mapper.toEntity
 import com.nullo.voidapp.core.model.ModelType
 import com.nullo.voidapp.core.model.chatmodel.ChatModel
 import com.nullo.voidapp.core.model.imagemodel.ImageModel
-import com.nullo.voidapp.core.data.catalog.domain.CatalogRepository
 import com.nullo.voidapp.core.utils.kotlin.mapItems
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -34,7 +34,7 @@ internal class CatalogRepositoryImpl(
         .observeAll()
         .mapItems { it.toDomain() }
 
-    override fun observeChatModelById(modelId: String) : Flow<ChatModel?> = chatModelDao
+    override fun observeChatModelById(modelId: String): Flow<ChatModel?> = chatModelDao
         .observeById(modelId)
         .map { it?.toDomain() }
 
@@ -42,7 +42,7 @@ internal class CatalogRepositoryImpl(
         .observeAll()
         .mapItems { it.toDomain() }
 
-    override fun observeImageModelById(modelId: String) : Flow<ImageModel?> = imageModelDao
+    override fun observeImageModelById(modelId: String): Flow<ImageModel?> = imageModelDao
         .observeById(modelId)
         .map { it?.toDomain() }
 

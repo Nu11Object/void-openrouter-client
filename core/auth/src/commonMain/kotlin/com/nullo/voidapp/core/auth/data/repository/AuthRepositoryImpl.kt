@@ -10,13 +10,9 @@ internal class AuthRepositoryImpl(
     private val authApiService: AuthApiService,
 ) : AuthRepository {
 
-    override suspend fun getApiKey(): String? {
-        return apiKeyStorage.getApiKey()
-    }
+    override suspend fun getApiKey(): String? = apiKeyStorage.getApiKey()
 
-    override fun hasApiKey(): Flow<Boolean> {
-        return apiKeyStorage.hasApiKey()
-    }
+    override fun hasApiKey(): Flow<Boolean> = apiKeyStorage.hasApiKey()
 
     override suspend fun saveApiKey(apiKey: String) {
         apiKeyStorage.saveApiKey(apiKey)
@@ -26,9 +22,8 @@ internal class AuthRepositoryImpl(
         authApiService.validateApiKey(apiKey)
     }
 
-    override suspend fun exchangeAuthCodeForApiKey(code: String?, codeVerifier: String): String {
-        return authApiService.exchangeCode(code, codeVerifier)
-    }
+    override suspend fun exchangeAuthCodeForApiKey(code: String?, codeVerifier: String): String =
+        authApiService.exchangeCode(code, codeVerifier)
 
     override suspend fun clearApiKey() {
         apiKeyStorage.clear()

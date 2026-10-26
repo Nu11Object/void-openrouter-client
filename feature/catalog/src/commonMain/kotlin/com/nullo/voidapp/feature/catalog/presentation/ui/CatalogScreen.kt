@@ -86,6 +86,7 @@ import com.nullo.voidapp.feature.catalog.presentation.component.CatalogComponent
 import com.nullo.voidapp.feature.catalog.presentation.store.CatalogStore
 import com.nullo.voidapp.feature.catalog.presentation.store.CatalogStore.State.CatalogTab
 import org.jetbrains.compose.resources.stringResource
+import voidapp.core.utils.generated.resources.Res as CoreRes
 import voidapp.core.utils.generated.resources.dismiss
 import voidapp.core.utils.generated.resources.ok
 import voidapp.core.utils.generated.resources.oops
@@ -107,7 +108,6 @@ import voidapp.feature.catalog.generated.resources.unpin
 import voidapp.feature.catalog.generated.resources.use_now
 import voidapp.feature.catalog.generated.resources.verbose
 import voidapp.feature.catalog.generated.resources.vision
-import voidapp.core.utils.generated.resources.Res as CoreRes
 
 private val innerContentPadding = 16.dp
 
@@ -147,12 +147,12 @@ private fun CatalogScreenContent(
     onPinModelClick: (modelId: String, ModelType, pin: Boolean) -> Unit,
     onDismissMessage: () -> Unit,
     onDismissError: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val deviceConfiguration = rememberDeviceConfiguration()
     val isPortrait = remember(deviceConfiguration) {
         deviceConfiguration == DeviceConfiguration.MOBILE_PORTRAIT ||
-                deviceConfiguration == DeviceConfiguration.TABLET_PORTRAIT
+            deviceConfiguration == DeviceConfiguration.TABLET_PORTRAIT
     }
 
     Scaffold(
@@ -193,7 +193,7 @@ private fun CatalogScreenContent(
                             )
                         )
                     }
-                },
+                }
             )
         }
     ) { innerPadding ->
@@ -228,7 +228,7 @@ private fun CatalogScreenContent(
                     ModelsListSection(
                         state = state,
                         onUseModelClick = onUseModelClick,
-                        onPinModelClick = onPinModelClick,
+                        onPinModelClick = onPinModelClick
                     )
                 }
 
@@ -274,7 +274,7 @@ private fun CatalogScreenContent(
                     onUseModelClick = onUseModelClick,
                     onPinModelClick = onPinModelClick,
                     bottomFadeFraction = 0.1f,
-                    modifier = Modifier.weight(4f),
+                    modifier = Modifier.weight(4f)
                 )
             }
         }
@@ -314,7 +314,7 @@ private fun ModelsListSection(
                 color = MaterialTheme.colorScheme.background,
                 shape = RoundedCornerShape(
                     topStart = 32.dp,
-                    topEnd = 32.dp,
+                    topEnd = 32.dp
                 )
             )
             .bottomFade(heightFraction = bottomFadeFraction),
@@ -325,7 +325,7 @@ private fun ModelsListSection(
             bottom = 128.dp
         ),
         verticalItemSpacing = 8.dp,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         if (isListEmpty) {
             item(span = StaggeredGridItemSpan.FullLine) {
@@ -377,7 +377,7 @@ private fun ModelsListSection(
 @Composable
 private fun EmptyCatalogItem(
     isDbEmpty: Boolean,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier,
@@ -425,7 +425,7 @@ private fun ChatModelItem(
     ) {
         AnimatedContent(
             targetState = verbose,
-            label = "ContextInfo",
+            label = "ContextInfo"
         ) { isVerbose ->
             if (isVerbose) {
                 Text(
@@ -470,7 +470,7 @@ private fun ChatModelItem(
     Spacer(Modifier.height(4.dp))
     AnimatedVisibility(visible = verbose) {
         Column(
-            verticalArrangement = Arrangement.spacedBy(6.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             chatModel.description.takeIf { it.isNotEmpty() }?.let { desc ->
                 Text(
@@ -550,7 +550,7 @@ private fun ImageModelItem(
 @Composable
 private fun ModelCard(
     modifier: Modifier = Modifier,
-    content: @Composable ColumnScope.() -> Unit
+    content: @Composable ColumnScope.() -> Unit,
 ) {
     Column(
         modifier = modifier
@@ -631,7 +631,7 @@ private fun ModelInteractionButtons(
 private fun CatalogFloatingToolbar(
     selectedTab: CatalogTab,
     onTabSelected: (CatalogTab) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     HorizontalFloatingToolbar(
         expanded = true,
@@ -698,7 +698,7 @@ private fun CatalogTabSwitcher(
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Text(
             text = stringResource(Res.string.chat_models),
@@ -717,7 +717,7 @@ private fun CatalogTabSwitcher(
                 checkedThumbColor = MaterialTheme.colorScheme.primary,
                 checkedBorderColor = MaterialTheme.colorScheme.outline,
                 uncheckedTrackColor = MaterialTheme.colorScheme.surface,
-                checkedTrackColor = MaterialTheme.colorScheme.surface,
+                checkedTrackColor = MaterialTheme.colorScheme.surface
             ),
             thumbContent = {
                 Icon(
@@ -728,7 +728,7 @@ private fun CatalogTabSwitcher(
                     },
                     contentDescription = null,
                     modifier = Modifier.size(SwitchDefaults.IconSize),
-                    tint = MaterialTheme.colorScheme.onPrimary,
+                    tint = MaterialTheme.colorScheme.onPrimary
                 )
             },
             modifier = Modifier.pointerHoverIcon(PointerIcon.Hand)
@@ -763,12 +763,12 @@ private fun ControlsSection(
                 if (loading) {
                     LoadingIndicator(
                         modifier = Modifier.size(24.dp),
-                        color = MaterialTheme.colorScheme.onPrimary,
+                        color = MaterialTheme.colorScheme.onPrimary
                     )
                 } else {
                     Icon(
                         imageVector = Icons.Default.CloudSync,
-                        contentDescription = null,
+                        contentDescription = null
                     )
                 }
             }
@@ -789,7 +789,7 @@ private fun ControlsSection(
             checked = showVerboseInfo,
             onCheckedChange = onToggleVerboseInfo,
             colors = SwitchDefaults.colors(
-                uncheckedTrackColor = MaterialTheme.colorScheme.surface,
+                uncheckedTrackColor = MaterialTheme.colorScheme.surface
             ),
             thumbContent = {
                 if (showVerboseInfo) {
@@ -825,7 +825,7 @@ private fun OutlineTag(
             )
             .padding(horizontal = 12.dp, vertical = 6.dp),
         horizontalArrangement = Arrangement.spacedBy(6.dp),
-        verticalAlignment = Alignment.CenterVertically,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         if (icon != null) {
             Icon(
@@ -851,12 +851,10 @@ private fun BigDecimal.toPriceString(): String {
     return "$" + trimmed.ifEmpty { "0" }
 }
 
-fun Int.toCompactString(): String {
-    return when {
-        this >= 1_000_000 -> formatCompact(this, 1_000_000, "M")
-        this >= 10_000 -> formatCompact(this, 1_000, "K")
-        else -> this.toString()
-    }
+fun Int.toCompactString(): String = when {
+    this >= 1_000_000 -> formatCompact(this, 1_000_000, "M")
+    this >= 10_000 -> formatCompact(this, 1_000, "K")
+    else -> this.toString()
 }
 
 private fun formatCompact(value: Int, divisor: Int, suffix: String): String {
@@ -893,7 +891,7 @@ private fun CatalogScreenPreview() {
                             defaultTuningParameters = DefaultTuningParameters(),
                             pricing = ModelPricing(
                                 promptPerMillion = 3.toBigDecimal(),
-                                completionPerMillion = (15.5).toBigDecimal(),
+                                completionPerMillion = (15.5).toBigDecimal()
                             ),
                             pinned = true
                         )

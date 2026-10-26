@@ -7,10 +7,10 @@ import com.nullo.voidapp.feature.auth.data.OAuthCallbackDispatcher
 import com.nullo.voidapp.feature.auth.data.network.AuthConfig
 import com.nullo.voidapp.feature.auth.exception.OAuthException
 import com.nullo.voidapp.feature.auth.presentation.AuthTabLauncherHolder
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.withTimeout
 import voidapp.feature.auth.generated.resources.Res
 import voidapp.feature.auth.generated.resources.exception_auth_launcher_not_ready
-import kotlin.time.Duration.Companion.milliseconds
 
 internal class AndroidOAuthWebLauncher(
     private val launcherHolder: AuthTabLauncherHolder,

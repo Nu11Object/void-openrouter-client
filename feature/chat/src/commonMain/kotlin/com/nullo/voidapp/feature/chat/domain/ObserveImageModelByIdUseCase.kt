@@ -5,11 +5,7 @@ import com.nullo.voidapp.core.model.imagemodel.ImageModel
 import kotlinx.coroutines.flow.Flow
 
 /** Use case responsible for observing image model by its ID. */
-internal class ObserveImageModelByIdUseCase(
-    private val catalogRepository: CatalogRepository
-) {
+internal class ObserveImageModelByIdUseCase(private val catalogRepository: CatalogRepository) {
 
-    operator fun invoke(modelId: String): Flow<ImageModel?> {
-        return catalogRepository.observeImageModelById(modelId)
-    }
+    operator fun invoke(modelId: String): Flow<ImageModel?> = catalogRepository.observeImageModelById(modelId)
 }

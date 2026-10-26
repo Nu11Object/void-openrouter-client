@@ -62,7 +62,7 @@ internal class TicketExitAnimationState(
                 targetValue = PullLiftOffset,
                 animationSpec = tween(
                     durationMillis = PULL_DURATION_MS,
-                    easing = LinearEasing,
+                    easing = LinearEasing
                 )
             )
             launch {
@@ -70,7 +70,7 @@ internal class TicketExitAnimationState(
                     targetValue = TopTearOffset,
                     animationSpec = spring(
                         dampingRatio = Spring.DampingRatioMediumBouncy,
-                        stiffness = Spring.StiffnessMediumLow,
+                        stiffness = Spring.StiffnessMediumLow
                     )
                 )
             }
@@ -84,14 +84,14 @@ internal class TicketExitAnimationState(
                 targetValue = PullLiftOffset,
                 animationSpec = tween(
                     durationMillis = PULL_DURATION_MS,
-                    easing = LinearEasing,
+                    easing = LinearEasing
                 )
             )
             bottomOffsetAnim.animateTo(
                 targetValue = BottomLiftOffset,
                 animationSpec = spring(
                     dampingRatio = Spring.DampingRatioMediumBouncy,
-                    stiffness = Spring.StiffnessMediumLow,
+                    stiffness = Spring.StiffnessMediumLow
                 )
             )
         }
@@ -100,7 +100,7 @@ internal class TicketExitAnimationState(
                 targetValue = 1f,
                 animationSpec = tween(
                     durationMillis = PULL_DURATION_MS,
-                    easing = EaseOut,
+                    easing = EaseOut
                 )
             )
         }

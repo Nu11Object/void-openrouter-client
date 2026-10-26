@@ -32,7 +32,7 @@ val chatFeatureModule = module {
                 onNavigateToModelCatalog = onNavigateToModelCatalog,
                 onNavigateToAppSettings = onNavigateToAppSettings,
                 chatStoreFactory = get(),
-                componentContext = componentContext,
+                componentContext = componentContext
             )
         }
     }

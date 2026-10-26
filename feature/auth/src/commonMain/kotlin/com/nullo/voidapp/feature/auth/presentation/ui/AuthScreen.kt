@@ -58,6 +58,7 @@ import com.nullo.voidapp.core.utils.compose.rememberDeviceConfiguration
 import com.nullo.voidapp.feature.auth.presentation.component.AuthComponent
 import com.nullo.voidapp.feature.auth.presentation.store.AuthStore
 import org.jetbrains.compose.resources.stringResource
+import voidapp.core.utils.generated.resources.Res as CoreRes
 import voidapp.core.utils.generated.resources.ok
 import voidapp.core.utils.generated.resources.oops
 import voidapp.feature.auth.generated.resources.Res
@@ -72,7 +73,6 @@ import voidapp.feature.auth.generated.resources.submit_api_key
 import voidapp.feature.auth.generated.resources.to_the
 import voidapp.feature.auth.generated.resources.void
 import voidapp.feature.auth.generated.resources.welcome
-import voidapp.core.utils.generated.resources.Res as CoreRes
 
 private val maxButtonAndTextFieldWidth = 350.dp
 
@@ -117,7 +117,7 @@ private fun AuthScreenContent(
         Brush.verticalGradient(
             colors = listOf(
                 Color.Transparent,
-                primaryColor,
+                primaryColor
             )
         )
     }
@@ -140,7 +140,7 @@ private fun AuthScreenContent(
             onCancelOAuthClick = onCancelOAuthClick,
             apiKey = state.apiKey,
             onApiKeyChanged = onApiKeyChange,
-            onApiKeySubmit = onApiKeySubmit,
+            onApiKeySubmit = onApiKeySubmit
         )
     }
 
@@ -156,12 +156,13 @@ private fun AuthScreenContent(
 
         when (deviceConfiguration) {
             DeviceConfiguration.MOBILE_PORTRAIT,
-            DeviceConfiguration.TABLET_PORTRAIT -> {
+            DeviceConfiguration.TABLET_PORTRAIT,
+            -> {
                 Column(
                     modifier = Modifier
                         .fillMaxHeight()
                         .then(rootModifier),
-                    verticalArrangement = Arrangement.Center,
+                    verticalArrangement = Arrangement.Center
                 ) {
                     WelcomeSection(
                         modifier = Modifier
@@ -188,7 +189,8 @@ private fun AuthScreenContent(
 
             DeviceConfiguration.MOBILE_LANDSCAPE,
             DeviceConfiguration.TABLET_LANDSCAPE,
-            DeviceConfiguration.DESKTOP -> {
+            DeviceConfiguration.DESKTOP,
+            -> {
                 Row(
                     modifier = rootModifier.fillMaxSize()
                 ) {
@@ -225,7 +227,7 @@ private fun AuthScreenContent(
                 text = stringResource(CoreRes.string.ok),
                 onClick = onDismissError
             ),
-            message = errorMessage.asString(),
+            message = errorMessage.asString()
         )
     }
 }
@@ -238,14 +240,14 @@ private fun WelcomeSection(modifier: Modifier = Modifier) {
             .ticketShadow()
             .background(
                 color = MaterialTheme.colorScheme.primary,
-                shape = RoundedCornerShape(32.dp),
+                shape = RoundedCornerShape(32.dp)
             )
             .padding(vertical = 24.dp)
             .clearAndSetSemantics {
                 this.contentDescription = contentDescription
             },
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
+        verticalArrangement = Arrangement.Center
     ) {
         Text(
             text = stringResource(Res.string.welcome),
@@ -262,7 +264,7 @@ private fun WelcomeSection(modifier: Modifier = Modifier) {
             Icon(
                 imageVector = Icons.Default.Logo,
                 tint = MaterialTheme.colorScheme.onPrimary,
-                contentDescription = null,
+                contentDescription = null
             )
             Spacer(Modifier.width(4.dp))
             Text(
@@ -291,11 +293,11 @@ private fun AuthMethodSection(
             .ticketShadow()
             .background(
                 color = MaterialTheme.colorScheme.surface,
-                shape = RoundedCornerShape(32.dp),
+                shape = RoundedCornerShape(32.dp)
             )
             .fillMaxHeight(),
         verticalArrangement = Arrangement.SpaceEvenly,
-        horizontalAlignment = Alignment.CenterHorizontally,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         SignInViaOpenRouterOption(
             modifier = Modifier.padding(horizontal = 32.dp),
@@ -303,7 +305,7 @@ private fun AuthMethodSection(
             isAuthCompleted = isAuthCompleted,
             isOAuthInProgress = isOAuthInProgress,
             onOAuthClick = onOAuthClick,
-            onOAuthCancelClick = onCancelOAuthClick,
+            onOAuthCancelClick = onCancelOAuthClick
         )
         OrHorizontalDivider()
         SignWithApiKeyOption(
@@ -311,10 +313,9 @@ private fun AuthMethodSection(
             apiKey = apiKey,
             isLoading = isLoading,
             onApiKeyChanged = onApiKeyChanged,
-            onApiKeySubmit = onApiKeySubmit,
+            onApiKeySubmit = onApiKeySubmit
         )
     }
-
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -330,7 +331,7 @@ private fun SignInViaOpenRouterOption(
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Button(
             modifier = Modifier
@@ -338,12 +339,12 @@ private fun SignInViaOpenRouterOption(
                 .pointerHoverIcon(PointerIcon.Hand),
             onClick = if (isOAuthInProgress) onOAuthCancelClick else onOAuthClick,
             enabled = (!isLoading || isOAuthInProgress) && !isAuthCompleted,
-            contentPadding = PaddingValues(horizontal = 16.dp),
+            contentPadding = PaddingValues(horizontal = 16.dp)
         ) {
             if (isOAuthInProgress) {
                 LoadingIndicator(
                     modifier = Modifier.size(32.dp),
-                    color = MaterialTheme.colorScheme.onPrimary,
+                    color = MaterialTheme.colorScheme.onPrimary
                 )
             } else {
                 Icon(
@@ -380,17 +381,17 @@ private fun OrHorizontalDivider(modifier: Modifier = Modifier) {
         HorizontalDivider(
             modifier = Modifier.weight(1f),
             color = MaterialTheme.colorScheme.outline,
-            thickness = 2.dp,
+            thickness = 2.dp
         )
         Text(
             text = stringResource(Res.string.or),
             style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.outline,
+            color = MaterialTheme.colorScheme.outline
         )
         HorizontalDivider(
             modifier = Modifier.weight(1f),
             color = MaterialTheme.colorScheme.outline,
-            thickness = 2.dp,
+            thickness = 2.dp
         )
     }
 }
@@ -406,7 +407,7 @@ private fun SignWithApiKeyOption(
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         ApiKeyField(
             value = apiKey,
@@ -415,7 +416,7 @@ private fun SignWithApiKeyOption(
             onSubmit = onApiKeySubmit,
             submitEnabled = !isLoading && apiKey.isNotBlank(),
             submitContentDescription = stringResource(Res.string.submit_api_key),
-            modifier = Modifier.widthIn(max = maxButtonAndTextFieldWidth),
+            modifier = Modifier.widthIn(max = maxButtonAndTextFieldWidth)
         )
         Text(
             text = stringResource(Res.string.key_auth_description),
@@ -427,7 +428,7 @@ private fun SignWithApiKeyOption(
 private fun Modifier.ticketShadow(): Modifier = shadow(
     elevation = 32.dp,
     shape = RoundedCornerShape(32.dp),
-    clip = false,
+    clip = false
 )
 
 private fun Modifier.glowOnExit(
@@ -452,7 +453,7 @@ private fun AuthScreenPreview() {
             state = AuthStore.State(
                 apiKey = "",
                 isLoading = false,
-                error = null,
+                error = null
             ),
             onOAuthClick = {},
             onCancelOAuthClick = {},

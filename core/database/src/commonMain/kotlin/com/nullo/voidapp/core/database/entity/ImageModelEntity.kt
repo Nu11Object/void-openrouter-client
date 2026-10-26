@@ -25,5 +25,5 @@ data class ImageModelEntity(
     val outputModalities: List<String>,
 
     val supportsStreaming: Boolean,
-    val supportedParameters: Map<String, ImageParameterCapability>
+    val supportedParameters: Map<String, ImageParameterCapability>,
 )

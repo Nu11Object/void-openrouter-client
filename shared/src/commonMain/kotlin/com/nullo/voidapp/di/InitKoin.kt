@@ -23,14 +23,14 @@ private val baseModules = listOf(
     coreAuthModule,
     dataStoreModule,
     databaseModule,
-    securityModule,
+    securityModule
 )
 
 private val dataModules = listOf(
     settingsModule,
     sessionModule,
     catalogModule,
-    chatModule,
+    chatModule
 )
 
 private val featureModules = listOf(
@@ -38,7 +38,7 @@ private val featureModules = listOf(
     authFeatureModule,
     settingsFeatureModule,
     catalogFeatureModule,
-    chatFeatureModule,
+    chatFeatureModule
 )
 
 fun initKoin(config: KoinAppDeclaration? = null) {

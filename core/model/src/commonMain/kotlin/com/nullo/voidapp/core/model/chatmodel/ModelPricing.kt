@@ -14,5 +14,5 @@ data class ModelPricing(
 
     val isFree: Boolean
         get() = promptPerMillion.compareTo(BigDecimal.ZERO) == 0 &&
-                completionPerMillion.compareTo(BigDecimal.ZERO) == 0
+            completionPerMillion.compareTo(BigDecimal.ZERO) == 0
 }

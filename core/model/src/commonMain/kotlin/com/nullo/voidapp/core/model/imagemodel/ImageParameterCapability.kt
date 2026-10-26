@@ -11,7 +11,10 @@ sealed interface ImageParameterCapability {
 
     @Serializable
     @SerialName("range")
-    data class Range(val min: Double, val max: Double) : ImageParameterCapability
+    data class Range(
+        val min: Double,
+        val max: Double,
+    ) : ImageParameterCapability
 
     @Serializable
     @SerialName("flag")

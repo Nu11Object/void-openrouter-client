@@ -23,7 +23,7 @@ import com.nullo.voidapp.feature.settings.presentation.ui.SettingsScreen
 fun RootContent(
     rootComponent: RootComponent,
     modifier: Modifier = Modifier,
-    windowTitleBar: (@Composable () -> Unit)? = null
+    windowTitleBar: (@Composable () -> Unit)? = null,
 ) {
     val appTheme by rootComponent.appTheme.collectAsStateWithLifecycle()
 

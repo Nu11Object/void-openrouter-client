@@ -67,6 +67,7 @@ import com.nullo.voidapp.feature.settings.presentation.store.SettingsStore.State
 import com.nullo.voidapp.feature.settings.presentation.store.SettingsStore.State.Loading
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
+import voidapp.core.utils.generated.resources.Res as CoreRes
 import voidapp.core.utils.generated.resources.cancel
 import voidapp.core.utils.generated.resources.ok
 import voidapp.core.utils.generated.resources.oops
@@ -89,12 +90,11 @@ import voidapp.feature.settings.generated.resources.title_auth
 import voidapp.feature.settings.generated.resources.title_danger
 import voidapp.feature.settings.generated.resources.title_settings
 import voidapp.feature.settings.generated.resources.title_theme
-import voidapp.core.utils.generated.resources.Res as CoreRes
 
 @Composable
 fun SettingsScreen(
     settingsComponent: SettingsComponent,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val state by settingsComponent.model.subscribeAsState()
 
@@ -127,7 +127,7 @@ private fun SettingsScreenContent(
     val deviceConfiguration = rememberDeviceConfiguration()
     val isPortrait = remember(deviceConfiguration) {
         deviceConfiguration == DeviceConfiguration.MOBILE_PORTRAIT ||
-                deviceConfiguration == DeviceConfiguration.TABLET_PORTRAIT
+            deviceConfiguration == DeviceConfiguration.TABLET_PORTRAIT
     }
     val surfaceColor = MaterialTheme.colorScheme.surface
     val itemModifier = remember(surfaceColor) {
@@ -144,7 +144,7 @@ private fun SettingsScreenContent(
         topBar = {
             BackTopAppBar(
                 title = stringResource(Res.string.title_settings),
-                onBackClick = onBackClick,
+                onBackClick = onBackClick
             )
         }
     ) { innerPadding ->
@@ -199,7 +199,7 @@ private fun SettingsScreenContent(
                     ),
                     dismissButton = VoidDialogButton(
                         text = stringResource(CoreRes.string.cancel),
-                        onClick = onDismissDialog,
+                        onClick = onDismissDialog
                     )
                 )
             }
@@ -221,7 +221,7 @@ private fun SettingsScreenContent(
     AnimatedVisibility(
         visible = state.loading == Loading.FullScreen,
         enter = fadeIn(),
-        exit = fadeOut(),
+        exit = fadeOut()
     ) {
         Box(
             modifier = Modifier
@@ -231,7 +231,7 @@ private fun SettingsScreenContent(
         ) {
             ContainedLoadingIndicator(
                 containerColor = MaterialTheme.colorScheme.primaryContainer,
-                indicatorColor = MaterialTheme.colorScheme.primary,
+                indicatorColor = MaterialTheme.colorScheme.primary
             )
         }
     }
@@ -254,7 +254,7 @@ private fun AuthSection(
     ) {
         SectionHeader(
             icon = Icons.Default.Key,
-            title = stringResource(Res.string.title_auth),
+            title = stringResource(Res.string.title_auth)
         )
         Text(
             text = stringResource(Res.string.description_auth),
@@ -304,7 +304,7 @@ private fun ThemeSection(
                 Icons.Default.SystemTheme,
                 Res.string.system,
                 Res.string.desc_system
-            ),
+            )
         )
     }
 
@@ -314,14 +314,14 @@ private fun ThemeSection(
     ) {
         SectionHeader(
             icon = Icons.Default.Palette,
-            title = stringResource(Res.string.title_theme),
+            title = stringResource(Res.string.title_theme)
         )
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(MaterialTheme.shapes.extraLarge)
                 .selectableGroup(),
-            horizontalArrangement = Arrangement.spacedBy(2.dp),
+            horizontalArrangement = Arrangement.spacedBy(2.dp)
         ) {
             themeOptions.fastForEach { option ->
                 ThemeOption(
@@ -382,7 +382,7 @@ private fun ThemeOption(
             Spacer(Modifier.height(8.dp))
             Text(
                 text = stringResource(themeName),
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.bodySmall
             )
         }
     }
@@ -399,7 +399,7 @@ private fun DangerSection(
     ) {
         SectionHeader(
             icon = Icons.Default.Warning,
-            title = stringResource(Res.string.title_danger),
+            title = stringResource(Res.string.title_danger)
         )
         Button(
             onClick = onRequestSignOut,
@@ -464,7 +464,7 @@ private fun SettingsScreenPreview() {
             onChangeTheme = {},
             onConfirmSignOut = {},
             onRequestSignOut = {},
-            onDismissDialog = {},
+            onDismissDialog = {}
         )
     }
 }

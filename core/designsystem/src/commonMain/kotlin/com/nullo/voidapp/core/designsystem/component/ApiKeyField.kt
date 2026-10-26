@@ -79,7 +79,7 @@ fun ApiKeyField(
                         imageVector = Icons.Default.Check,
                         tint = MaterialTheme.colorScheme.primary,
                         contentDescription = savedText,
-                        modifier = Modifier.padding(vertical = 4.dp, horizontal = 16.dp),
+                        modifier = Modifier.padding(vertical = 4.dp, horizontal = 16.dp)
                     )
                 } else {
                     IconButton(
@@ -90,7 +90,7 @@ fun ApiKeyField(
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.ArrowForward,
-                            contentDescription = submitContentDescription,
+                            contentDescription = submitContentDescription
                         )
                     }
                 }

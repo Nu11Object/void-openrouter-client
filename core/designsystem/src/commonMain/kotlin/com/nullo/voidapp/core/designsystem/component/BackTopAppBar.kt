@@ -14,8 +14,8 @@ import androidx.compose.ui.input.pointer.pointerHoverIcon
 import com.nullo.voidapp.core.designsystem.icon.Icons
 import com.nullo.voidapp.core.designsystem.icon.automirrored.ArrowBack
 import org.jetbrains.compose.resources.stringResource
-import voidapp.core.utils.generated.resources.desc_go_back
 import voidapp.core.utils.generated.resources.Res as CoreRes
+import voidapp.core.utils.generated.resources.desc_go_back
 
 /**
  * A top app bar component with a title and a back navigation button.
@@ -28,7 +28,7 @@ fun BackTopAppBar(
     title: String,
     onBackClick: () -> Unit,
     actions: @Composable RowScope.() -> Unit = { },
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     TopAppBar(
         modifier = modifier,
@@ -48,6 +48,6 @@ fun BackTopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = Color.Transparent,
             scrolledContainerColor = Color.Transparent
-        ),
+        )
     )
 }

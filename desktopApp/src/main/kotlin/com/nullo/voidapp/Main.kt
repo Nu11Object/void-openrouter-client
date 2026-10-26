@@ -43,6 +43,8 @@ import com.nullo.voidapp.core.designsystem.icon.default.Logo
 import com.nullo.voidapp.core.designsystem.icon.default.Minimize
 import com.nullo.voidapp.di.initKoin
 import com.nullo.voidapp.feature.root.component.RootComponent
+import java.awt.Dimension
+import javax.swing.SwingUtilities.invokeAndWait
 import org.jetbrains.compose.resources.stringResource
 import org.koin.core.parameter.parametersOf
 import org.koin.mp.KoinPlatform.getKoin
@@ -51,8 +53,6 @@ import voidapp.desktopapp.generated.resources.desc_close_window
 import voidapp.desktopapp.generated.resources.desc_maximize_window
 import voidapp.desktopapp.generated.resources.desc_minimize_window
 import voidapp.desktopapp.generated.resources.desc_restore_window
-import java.awt.Dimension
-import javax.swing.SwingUtilities.invokeAndWait
 
 private const val WINDOW_TITLE = "Void"
 private val windowCornerRadius = 16.dp
@@ -122,13 +122,13 @@ private fun CustomTitleBar(
             .height(32.dp)
             .background(MaterialTheme.colorScheme.surfaceDim)
             .padding(start = 16.dp, end = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
             imageVector = Icons.Default.Logo,
             contentDescription = null,
             modifier = Modifier.size(16.dp),
-            tint = MaterialTheme.colorScheme.primary,
+            tint = MaterialTheme.colorScheme.primary
         )
         Spacer(Modifier.width(8.dp))
         Text(
@@ -177,7 +177,7 @@ private fun CustomTitleBar(
 private fun WindowControlButton(
     icon: ImageVector,
     contentDescription: String,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     IconButton(
         onClick = onClick,

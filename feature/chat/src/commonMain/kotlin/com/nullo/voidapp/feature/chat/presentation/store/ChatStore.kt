@@ -39,7 +39,7 @@ interface ChatStore : Store<ChatStore.Intent, ChatStore.State, ChatStore.Label> 
         val errorDialogText: UiText? = null,
 
         val renamingConversationId: Long? = null,
-        val renamingConversationInput: String = ""
+        val renamingConversationInput: String = "",
     ) {
         val isGenerating: Boolean
             get() = (messages.lastOrNull() as? Message.Completion)?.isStreaming ?: false
@@ -58,7 +58,10 @@ interface ChatStore : Store<ChatStore.Intent, ChatStore.State, ChatStore.Label> 
         data class ChangeModelSelectorTab(val tab: State.SelectorTab) : Intent
         data class ChangeModelSearchQuery(val query: String) : Intent
         data class SelectModel(val activeModelRef: ActiveModelRef) : Intent
-        data class UnpinModel(val modelId: String, val modelType: ModelType) : Intent
+        data class UnpinModel(
+            val modelId: String,
+            val modelType: ModelType,
+        ) : Intent
 
         data object OpenTuningPanel : Intent
         data object CloseTuningPanel : Intent

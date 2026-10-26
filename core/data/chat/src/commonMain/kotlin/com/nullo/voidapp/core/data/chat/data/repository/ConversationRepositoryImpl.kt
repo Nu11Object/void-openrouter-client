@@ -8,10 +8,10 @@ import com.nullo.voidapp.core.database.mapper.toDomain
 import com.nullo.voidapp.core.model.Conversation
 import com.nullo.voidapp.core.model.Message
 import com.nullo.voidapp.core.utils.kotlin.mapItems
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Clock
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 internal class ConversationRepositoryImpl(
     private val conversationDao: ConversationDao,

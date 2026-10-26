@@ -10,16 +10,14 @@ import platform.Foundation.NSUserDomainMask
 @OptIn(ExperimentalForeignApi::class)
 internal class IosDataStoreFactory : DataStoreFactory {
 
-    override fun create(fileName: String): DataStore<Preferences> {
-        return createDataStore {
-            val directory = NSFileManager.defaultManager.URLForDirectory(
-                directory = NSDocumentDirectory,
-                inDomain = NSUserDomainMask,
-                appropriateForURL = null,
-                create = false,
-                error = null
-            )
-            requireNotNull(directory).path + "/$fileName"
-        }
+    override fun create(fileName: String): DataStore<Preferences> = createDataStore {
+        val directory = NSFileManager.defaultManager.URLForDirectory(
+            directory = NSDocumentDirectory,
+            inDomain = NSUserDomainMask,
+            appropriateForURL = null,
+            create = false,
+            error = null
+        )
+        requireNotNull(directory).path + "/$fileName"
     }
 }

@@ -24,7 +24,7 @@ private const val DATABASE_VERSION = 4
         ChatModelEntity::class,
         ImageModelEntity::class,
         ConversationEntity::class,
-        MessageEntity::class,
+        MessageEntity::class
     ],
     version = DATABASE_VERSION
 )
@@ -44,11 +44,9 @@ internal expect object AppDatabaseConstructor : RoomDatabaseConstructor<AppDatab
 }
 
 internal fun getRoomDatabase(
-    builder: RoomDatabase.Builder<AppDatabase>
-): AppDatabase {
-    return builder
-        .setDriver(BundledSQLiteDriver())
-        .setQueryCoroutineContext(Dispatchers.IO)
-        .fallbackToDestructiveMigration(dropAllTables = true) // todo: remove before release
-        .build()
-}
+    builder: RoomDatabase.Builder<AppDatabase>,
+): AppDatabase = builder
+    .setDriver(BundledSQLiteDriver())
+    .setQueryCoroutineContext(Dispatchers.IO)
+    .fallbackToDestructiveMigration(dropAllTables = true) // todo: remove before release
+    .build()

@@ -21,7 +21,7 @@ interface CatalogStore : Store<CatalogStore.Intent, CatalogStore.State, CatalogS
         val error: UiText? = null,
         val message: UiText? = null,
         val isDbEmpty: Boolean = false,
-        val messageDismissalTimer: Int = 0
+        val messageDismissalTimer: Int = 0,
     ) {
 
         @Immutable
@@ -47,7 +47,7 @@ interface CatalogStore : Store<CatalogStore.Intent, CatalogStore.State, CatalogS
         data class SetPinState(
             val modelId: String,
             val modelType: ModelType,
-            val pinned: Boolean
+            val pinned: Boolean,
         ) : Intent
 
         data object DismissError : Intent

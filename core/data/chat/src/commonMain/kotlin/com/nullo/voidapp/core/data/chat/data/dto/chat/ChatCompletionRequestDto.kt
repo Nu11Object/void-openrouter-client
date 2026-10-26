@@ -33,15 +33,10 @@ data class ChatCompletionRequestDto(
 )
 
 @Serializable
-data class ReasoningConfigDto(
-    @SerialName("enabled") val enabled: Boolean = true,
-)
+data class ReasoningConfigDto(@SerialName("enabled") val enabled: Boolean = true)
 
 @Serializable
-data class PluginConfigDto(
-    @SerialName("id") val id: String,
-)
-
+data class PluginConfigDto(@SerialName("id") val id: String)
 
 @Serializable
 data class ChatMessageDto(
@@ -56,18 +51,12 @@ sealed interface ChatContentPartDto {
 
     @Serializable
     @SerialName("text")
-    data class Text(
-        @SerialName("text") val text: String,
-    ) : ChatContentPartDto
+    data class Text(@SerialName("text") val text: String) : ChatContentPartDto
 
     @Serializable
     @SerialName("image_url")
-    data class ImageUrl(
-        @SerialName("image_url") val imageUrl: ImageUrlDto,
-    ) : ChatContentPartDto
+    data class ImageUrl(@SerialName("image_url") val imageUrl: ImageUrlDto) : ChatContentPartDto
 }
 
 @Serializable
-data class ImageUrlDto(
-    @SerialName("url") val url: String,
-)
+data class ImageUrlDto(@SerialName("url") val url: String)

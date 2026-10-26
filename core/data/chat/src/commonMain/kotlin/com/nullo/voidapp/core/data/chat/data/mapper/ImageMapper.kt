@@ -32,13 +32,13 @@ internal fun buildImageGenerationRequest(
         seed = number(ImageParameter.SEED)?.toInt(),
         inputReferences = referenceImages
             .takeIf { it.isNotEmpty() }
-            ?.map { ImageReferenceDto(imageUrl = ImageReferenceUrlDto(url = it)) },
+            ?.map { ImageReferenceDto(imageUrl = ImageReferenceUrlDto(url = it)) }
     )
 }
 
 internal fun ImageGenerationResponseDto.toDomain(
     messageId: Long,
-    caption: String?
+    caption: String?,
 ): Message.Images = Message.Images(
     id = messageId,
     caption = caption,
@@ -47,5 +47,5 @@ internal fun ImageGenerationResponseDto.toDomain(
             base64Data = imageDto.b64Json,
             mimeType = imageDto.mediaType ?: "image/png"
         )
-    },
+    }
 )

@@ -36,7 +36,7 @@ import androidx.compose.ui.unit.dp
 data class VoidDialogButton(
     val text: String,
     val textColor: Color = Color.Unspecified,
-    val onClick: () -> Unit
+    val onClick: () -> Unit,
 )
 
 /**
@@ -60,7 +60,7 @@ fun VoidAlertDialog(
 ) {
     BasicAlertDialog(
         modifier = modifier,
-        onDismissRequest = onDismissRequest,
+        onDismissRequest = onDismissRequest
     ) {
         Card(
             shape = RoundedCornerShape(32.dp),
@@ -70,7 +70,7 @@ fun VoidAlertDialog(
         ) {
             Column(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Spacer(Modifier.height(24.dp))
 
@@ -99,7 +99,7 @@ fun VoidAlertDialog(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),
-                    verticalAlignment = Alignment.CenterVertically,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     if (dismissButton != null) {
                         TextButton(
@@ -107,7 +107,7 @@ fun VoidAlertDialog(
                                 .weight(1f)
                                 .fillMaxHeight()
                                 .pointerHoverIcon(PointerIcon.Hand),
-                            onClick = dismissButton.onClick,
+                            onClick = dismissButton.onClick
                         ) {
                             Text(
                                 text = dismissButton.text,
@@ -128,7 +128,7 @@ fun VoidAlertDialog(
                             .weight(1f)
                             .fillMaxHeight()
                             .pointerHoverIcon(PointerIcon.Hand),
-                        onClick = confirmButton.onClick,
+                        onClick = confirmButton.onClick
                     ) {
                         Text(
                             text = confirmButton.text,

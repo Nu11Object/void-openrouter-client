@@ -89,7 +89,7 @@ val MaterialTheme.extendedColors: ExtendedColors
 @Composable
 fun VoidTheme(
     appTheme: AppTheme = AppTheme.SYSTEM,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     val darkTheme = when (appTheme) {
         AppTheme.SYSTEM -> isSystemInDarkTheme()

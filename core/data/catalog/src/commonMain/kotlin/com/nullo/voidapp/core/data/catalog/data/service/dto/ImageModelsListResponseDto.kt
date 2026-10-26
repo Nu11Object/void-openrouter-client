@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 internal data class ImageModelsListResponseDto(
     @SerialName("data")
-    val data: List<ImageModelDto>
+    val data: List<ImageModelDto>,
 )
 
 @Serializable
@@ -26,7 +26,7 @@ internal data class ImageModelDto(
     @SerialName("supports_streaming")
     val supportsStreaming: Boolean,
     @SerialName("endpoints")
-    val endpoints: String
+    val endpoints: String,
 )
 
 @Serializable
@@ -34,7 +34,7 @@ internal data class ImageModelArchitectureDto(
     @SerialName("input_modalities")
     val inputModalities: List<String> = emptyList(),
     @SerialName("output_modalities")
-    val outputModalities: List<String> = emptyList()
+    val outputModalities: List<String> = emptyList(),
 )
 
 @Serializable
@@ -44,7 +44,7 @@ internal sealed class ImageParameterCapabilityDto {
     @SerialName("enum")
     internal data class Enum(
         @SerialName("values")
-        val values: List<String>
+        val values: List<String>,
     ) : ImageParameterCapabilityDto()
 
     @Serializable
@@ -53,7 +53,7 @@ internal sealed class ImageParameterCapabilityDto {
         @SerialName("min")
         val min: Double,
         @SerialName("max")
-        val max: Double
+        val max: Double,
     ) : ImageParameterCapabilityDto()
 
     @Serializable

@@ -16,6 +16,9 @@ import com.nullo.voidapp.core.database.mapper.toDomain
 import com.nullo.voidapp.core.model.ActiveModelRef
 import com.nullo.voidapp.core.model.ErrorReason
 import com.nullo.voidapp.core.model.Message
+import kotlin.coroutines.cancellation.CancellationException
+import kotlin.time.Clock
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,9 +27,6 @@ import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.sample
 import kotlinx.coroutines.withContext
-import kotlin.coroutines.cancellation.CancellationException
-import kotlin.time.Clock
-import kotlin.time.Duration.Companion.milliseconds
 
 internal class ChatRepositoryImpl(
     private val messageDao: MessageDao,
@@ -38,7 +38,7 @@ internal class ChatRepositoryImpl(
     override suspend fun sendPrompt(
         conversationId: Long,
         query: String,
-        activeModel: ActiveModelRef
+        activeModel: ActiveModelRef,
     ) {
         touchConversation(conversationId)
 
@@ -60,7 +60,7 @@ internal class ChatRepositoryImpl(
 
     override suspend fun regenerateLastResponse(
         conversationId: Long,
-        activeModel: ActiveModelRef
+        activeModel: ActiveModelRef,
     ) {
         touchConversation(conversationId)
         val prompt = messageDao.getLastPrompt(conversationId) ?: return
@@ -103,13 +103,14 @@ internal class ChatRepositoryImpl(
             history = history,
             prompt = prompt,
             responseMessageId = responseId,
-            activeModel = activeModel,
+            activeModel = activeModel
         )
             .onEach { latest.value = it }
             .sample(CHECKPOINT_INTERVAL)
             .onCompletion { cause ->
                 when (cause) {
                     null -> latest.value?.let { emit(it) }
+
                     is CancellationException -> withContext(NonCancellable) {
                         (latest.value as? Message.Completion)?.let { persist(it) }
                         messageDao.markInterrupted(responseId)
@@ -123,19 +124,24 @@ internal class ChatRepositoryImpl(
                     conversationId = conversationId,
                     errorReason = throwable.toErrorReason(),
                     rawMessage = (throwable as? ChatApiException)?.rawMessage,
-                    promptId = promptId,
+                    promptId = promptId
                 )
             }
             .collect { msg ->
                 when (msg) {
                     is Message.Completion -> persist(msg)
 
-                    is Message.ImageLoading -> {} // todo
-                    is Message.Images -> {} // todo
+                    is Message.ImageLoading -> {}
+
+                    // todo
+                    is Message.Images -> {}
+
+                    // todo
 
                     is Message.Interrupted,
                     is Message.Prompt,
-                    is Message.Error -> return@collect
+                    is Message.Error,
+                    -> return@collect
                 }
             }
     }
@@ -176,7 +182,7 @@ internal class ChatRepositoryImpl(
                 messageType = MessageType.ERROR,
                 errorReason = errorReason.name,
                 errorRawMessage = rawMessage,
-                promptId = promptId,
+                promptId = promptId
             )
         )
     }

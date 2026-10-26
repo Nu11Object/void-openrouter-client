@@ -40,6 +40,4 @@ data class ImageReferenceDto(
 )
 
 @Serializable
-data class ImageReferenceUrlDto(
-    @SerialName("url") val url: String,
-)
+data class ImageReferenceUrlDto(@SerialName("url") val url: String)

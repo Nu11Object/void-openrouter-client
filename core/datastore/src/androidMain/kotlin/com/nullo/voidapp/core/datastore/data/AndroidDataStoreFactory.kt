@@ -4,13 +4,9 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 
-internal class AndroidDataStoreFactory(
-    private val context: Context
-) : DataStoreFactory {
+internal class AndroidDataStoreFactory(private val context: Context) : DataStoreFactory {
 
-    override fun create(fileName: String): DataStore<Preferences> {
-        return createDataStore {
-            context.filesDir.resolve(fileName).absolutePath
-        }
+    override fun create(fileName: String): DataStore<Preferences> = createDataStore {
+        context.filesDir.resolve(fileName).absolutePath
     }
 }

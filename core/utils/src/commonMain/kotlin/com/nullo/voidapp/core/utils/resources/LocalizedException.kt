@@ -6,7 +6,7 @@ import voidapp.core.utils.generated.resources.error_unknown
 /** An exception that wraps a [UiText] */
 open class LocalizedException(
     val uiText: UiText,
-    cause: Throwable? = null
+    cause: Throwable? = null,
 ) : Exception(cause)
 
 /**

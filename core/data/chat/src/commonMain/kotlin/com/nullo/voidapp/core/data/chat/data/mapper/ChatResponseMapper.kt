@@ -25,14 +25,14 @@ internal fun Flow<ChatCompletionChunkDto>.toCompletionMessageFlow(
             .collect { chunk ->
                 val delta = chunk.choices.firstOrNull()?.delta
                 if (
-                    delta == null
-                    || (delta.content.isNullOrEmpty() && delta.reasoning.isNullOrEmpty())
+                    delta == null ||
+                    (delta.content.isNullOrEmpty() && delta.reasoning.isNullOrEmpty())
                 ) {
                     return@collect // skip service/ping chunks
                 }
                 current = current.copy(
                     text = current.text + delta.content.orEmpty(),
-                    reasoning = current.reasoning.append(delta.reasoning),
+                    reasoning = current.reasoning.append(delta.reasoning)
                 )
                 emit(current)
             }

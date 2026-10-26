@@ -1,7 +1,8 @@
 package com.nullo.voidapp.core.model.chatmodel
 
 enum class ModelFeature {
-    THINKING;
+    THINKING,
+    ;
 
     companion object {
 

@@ -28,7 +28,7 @@ interface SettingsComponent {
         fun create(
             onNavigateBack: () -> Unit,
             onSignedOut: () -> Unit,
-            componentContext: ComponentContext
+            componentContext: ComponentContext,
         ): SettingsComponent
     }
 }

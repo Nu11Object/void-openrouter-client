@@ -20,6 +20,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import voidapp.core.utils.generated.resources.Res as CoreRes
 import voidapp.core.utils.generated.resources.exception_internal
 import voidapp.core.utils.generated.resources.exception_invalid_api_key
 import voidapp.core.utils.generated.resources.exception_secure_storage
@@ -27,7 +28,6 @@ import voidapp.core.utils.generated.resources.exception_validation_network
 import voidapp.core.utils.generated.resources.exception_validation_unexpected
 import voidapp.feature.auth.generated.resources.Res
 import voidapp.feature.auth.generated.resources.exception_code_exchange
-import voidapp.core.utils.generated.resources.Res as CoreRes
 
 internal class AuthStoreFactory(
     private val storeFactory: StoreFactory,
@@ -36,7 +36,8 @@ internal class AuthStoreFactory(
     private val observeAuthStateUseCase: ObserveAuthStateUseCase,
 ) : StoreFactory by storeFactory {
 
-    fun create(): AuthStore = object : AuthStore,
+    fun create(): AuthStore = object :
+        AuthStore,
         Store<AuthStore.Intent, AuthStore.State, Nothing> by storeFactory.create(
             name = "AuthStore",
             initialState = AuthStore.State(),
@@ -184,16 +185,14 @@ internal class AuthStoreFactory(
 
     private object ReducerImpl : Reducer<AuthStore.State, Message> {
 
-        override fun AuthStore.State.reduce(msg: Message): AuthStore.State {
-            return when (msg) {
-                is Message.ApiKeyChanged -> copy(apiKey = msg.input)
-                Message.ErrorDismissed -> copy(error = null, isLoading = false)
-                is Message.ErrorOccurred -> copy(error = msg.uiText, isLoading = false)
-                Message.LaunchingOAuthFlow -> copy(isLoading = true, isOAuthInProgress = true)
-                Message.OAuthCancelled -> copy(isLoading = false, isOAuthInProgress = false)
-                Message.SubmittingApiKey -> copy(isLoading = true)
-                is Message.Authenticated -> copy(isAuthCompleted = true)
-            }
+        override fun AuthStore.State.reduce(msg: Message): AuthStore.State = when (msg) {
+            is Message.ApiKeyChanged -> copy(apiKey = msg.input)
+            Message.ErrorDismissed -> copy(error = null, isLoading = false)
+            is Message.ErrorOccurred -> copy(error = msg.uiText, isLoading = false)
+            Message.LaunchingOAuthFlow -> copy(isLoading = true, isOAuthInProgress = true)
+            Message.OAuthCancelled -> copy(isLoading = false, isOAuthInProgress = false)
+            Message.SubmittingApiKey -> copy(isLoading = true)
+            is Message.Authenticated -> copy(isAuthCompleted = true)
         }
     }
 }

@@ -180,6 +180,7 @@ import com.nullo.voidapp.feature.chat.presentation.store.ChatStore
 import com.nullo.voidapp.feature.chat.presentation.store.ChatStore.State.SelectorTab
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
+import voidapp.core.utils.generated.resources.Res as CoreRes
 import voidapp.core.utils.generated.resources.ok
 import voidapp.core.utils.generated.resources.oops
 import voidapp.feature.chat.generated.resources.Res
@@ -235,7 +236,6 @@ import voidapp.feature.chat.generated.resources.textbutton_retry_interupted_resp
 import voidapp.feature.chat.generated.resources.tune_model
 import voidapp.feature.chat.generated.resources.untitled_conversation
 import voidapp.feature.chat.generated.resources.void
-import voidapp.core.utils.generated.resources.Res as CoreRes
 
 private const val PROMPT_MAX_LINES = 6
 private val SIDE_MENU_MAX_EXPANDED_WIDTH = 296.dp
@@ -244,7 +244,7 @@ private const val CHAT_PLACEHOLDER_FADE_STEPS = 16
 @Composable
 fun ChatScreen(
     component: ChatComponent,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val state by component.model.subscribeAsState()
 
@@ -320,8 +320,8 @@ private fun ChatScreenContent(
 
     val imeVisible by remember { derivedStateOf { ime.getBottom(density) > 0 } }
     val shouldHideAppBar = deviceConfiguration == DeviceConfiguration.MOBILE_LANDSCAPE && imeVisible
-    val sideMenuIsAlwaysExpanded = (deviceConfiguration == DeviceConfiguration.TABLET_LANDSCAPE)
-            || (deviceConfiguration == DeviceConfiguration.DESKTOP)
+    val sideMenuIsAlwaysExpanded = (deviceConfiguration == DeviceConfiguration.TABLET_LANDSCAPE) ||
+        (deviceConfiguration == DeviceConfiguration.DESKTOP)
 
     Row(modifier = modifier.fillMaxSize()) {
         SideMenu(
@@ -338,7 +338,7 @@ private fun ChatScreenContent(
             onNavigateToAppSettings = onNavigateToAppSettings,
             onEditConversationTitleClick = onEditConversationTitleClick,
             onDeleteConversationClick = onDeleteConversationClick,
-            modifier = Modifier.fillMaxHeight(),
+            modifier = Modifier.fillMaxHeight()
         )
 
         Scaffold(
@@ -356,7 +356,7 @@ private fun ChatScreenContent(
                             ?: stringResource(Res.string.select_model),
                         onNavigationIconClick = { scope.launch { sideMenuState.expand() } },
                         onOpenModelSelectorClick = onOpenModelSelectorClick,
-                        onOpenTuningPanelClick = onOpenTuningPanelClick,
+                        onOpenTuningPanelClick = onOpenTuningPanelClick
                     )
                 }
             }
@@ -367,7 +367,7 @@ private fun ChatScreenContent(
                     .padding(
                         start = innerPadding.calculateStartPadding(LocalLayoutDirection.current),
                         end = innerPadding.calculateEndPadding(LocalLayoutDirection.current),
-                        bottom = innerPadding.calculateBottomPadding(),
+                        bottom = innerPadding.calculateBottomPadding()
                     )
                     .consumeWindowInsets(innerPadding)
                     .imePadding()
@@ -385,11 +385,11 @@ private fun ChatScreenContent(
                                 direction = FadeDirection.Top,
                                 fadeSize = innerPadding.calculateTopPadding(),
                                 holdFraction = 0.5f,
-                                easing = SmoothStepEasing,
+                                easing = SmoothStepEasing
                             ),
                             EdgeFadeSpec(
                                 direction = FadeDirection.Bottom,
-                                sizeFraction = 0.05f,
+                                sizeFraction = 0.05f
                             )
                         )
                 )
@@ -416,7 +416,7 @@ private fun ChatScreenContent(
                 modifier = Modifier
                     .imePadding()
                     .semantics { hideFromAccessibility() },
-                label = "EmptyChatPlaceholder",
+                label = "EmptyChatPlaceholder"
             ) {
                 Row(
                     modifier = Modifier.fillMaxSize(),
@@ -449,7 +449,7 @@ private fun ChatScreenContent(
             onModelsSearchQueryChange = onModelsSearchQueryChange,
             onUseModelClick = onUseModelClick,
             onUnpinModelClick = onUnpinModelClick,
-            onNavigateToModelCatalog = onNavigateToModelCatalog,
+            onNavigateToModelCatalog = onNavigateToModelCatalog
         )
     }
 
@@ -458,7 +458,7 @@ private fun ChatScreenContent(
             conversationTitle = state.renamingConversationInput,
             onDismissRenameConversationDialog = onDismissRenameConversationDialog,
             onConversationTitleChange = onConversationNameInputChange,
-            onConfirmConversationRename = onConfirmConversationRename,
+            onConfirmConversationRename = onConfirmConversationRename
         )
     }
 
@@ -469,8 +469,8 @@ private fun ChatScreenContent(
             onDismissRequest = onDismissErrorDialog,
             confirmButton = VoidDialogButton(
                 text = stringResource(CoreRes.string.ok),
-                onClick = onDismissErrorDialog,
-            ),
+                onClick = onDismissErrorDialog
+            )
         )
     }
 }
@@ -496,18 +496,18 @@ fun ModelSelectorSheet(
         with(density) { (windowHeightPx * 0.8f).toDp() }
     }
     val showEmptyModelListPlaceholder =
-        (selectedTab == SelectorTab.ChatModels && pinnedChatModels.isEmpty())
-                || (selectedTab == SelectorTab.ImageModels && pinnedImageModels.isEmpty())
+        (selectedTab == SelectorTab.ChatModels && pinnedChatModels.isEmpty()) ||
+            (selectedTab == SelectorTab.ImageModels && pinnedImageModels.isEmpty())
 
     ModalBottomSheet(
         sheetState = rememberBottomSheetState(
             initialValue = Hidden,
-            enabledValues = setOf(Hidden, Expanded),
+            enabledValues = setOf(Hidden, Expanded)
         ),
         onDismissRequest = onDismissModelSelector,
         containerColor = MaterialTheme.colorScheme.surface,
         contentColor = MaterialTheme.colorScheme.onSurface,
-        modifier = modifier,
+        modifier = modifier
     ) {
         LazyColumn(
             modifier = Modifier
@@ -521,7 +521,7 @@ fun ModelSelectorSheet(
             item(key = "ModelSelectorHeader") {
                 ModelSelectorTabSwitcher(
                     selectedTab = selectedTab,
-                    onTabSelected = onModelSelectorTabChange,
+                    onTabSelected = onModelSelectorTabChange
                 )
                 Spacer(Modifier.height(8.dp))
                 VoidSearchBar(
@@ -553,7 +553,6 @@ fun ModelSelectorSheet(
                         onUseModelClick = {
                             onDismissModelSelector()
                             onUseModelClick(ActiveModelRef.Image(model.id))
-
                         },
                         onUnpinModelClick = { onUnpinModelClick(model.id, ModelType.IMAGE) },
                         modifier = Modifier.animateItem()
@@ -599,7 +598,7 @@ private fun ModelSelectorItem(
             modifier = Modifier.weight(1f),
             style = MaterialTheme.typography.bodyMedium,
             overflow = TextOverflow.Ellipsis,
-            maxLines = 1,
+            maxLines = 1
         )
         IconButton(
             onClick = onUnpinModelClick,
@@ -607,7 +606,7 @@ private fun ModelSelectorItem(
         ) {
             Icon(
                 imageVector = Icons.Default.KeepOff,
-                contentDescription = stringResource(Res.string.template_unpin_model, modelName),
+                contentDescription = stringResource(Res.string.template_unpin_model, modelName)
             )
         }
     }
@@ -624,7 +623,7 @@ private fun EmptyModelSelectorItem(
     Column(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Icon(
@@ -634,7 +633,7 @@ private fun EmptyModelSelectorItem(
                     Icons.Default.SearchOff
                 },
                 contentDescription = null,
-                tint = contentColor,
+                tint = contentColor
             )
             Text(
                 text = if (isSearchQueryBlank) {
@@ -672,7 +671,7 @@ private fun ModelSelectorTabSwitcher(
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Text(
             text = stringResource(Res.string.chat_models),
@@ -690,7 +689,7 @@ private fun ModelSelectorTabSwitcher(
                 checkedThumbColor = MaterialTheme.colorScheme.primary,
                 checkedBorderColor = MaterialTheme.colorScheme.outline,
                 uncheckedTrackColor = MaterialTheme.colorScheme.surface,
-                checkedTrackColor = MaterialTheme.colorScheme.surface,
+                checkedTrackColor = MaterialTheme.colorScheme.surface
             ),
             thumbContent = {
                 Icon(
@@ -701,7 +700,7 @@ private fun ModelSelectorTabSwitcher(
                     },
                     contentDescription = null,
                     modifier = Modifier.size(SwitchDefaults.IconSize),
-                    tint = MaterialTheme.colorScheme.onPrimary,
+                    tint = MaterialTheme.colorScheme.onPrimary
                 )
             },
             modifier = Modifier.pointerHoverIcon(PointerIcon.Hand)
@@ -775,7 +774,7 @@ private fun RenameConversationDialog(
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(min = 48.dp)
-                    .pointerHoverIcon(PointerIcon.Hand),
+                    .pointerHoverIcon(PointerIcon.Hand)
             ) {
                 Text(text = stringResource(Res.string.cancel))
             }
@@ -829,8 +828,11 @@ private fun Chat(
                 )
 
                 is Message.ImageLoading,
-                is Message.Images -> {
-                } // TODO: Images are not supported yet
+                is Message.Images,
+                -> {
+                }
+
+                // TODO: Images are not supported yet
 
                 is Message.Interrupted -> InterruptedMessageItem(
                     message = message,
@@ -881,21 +883,21 @@ private fun PromptComposer(
                 icon = Icons.Default.Lightbulb,
                 label = stringResource(Res.string.option_think),
                 enabled = thinkingEnabled,
-                onClick = onToggleThinkingClick,
+                onClick = onToggleThinkingClick
             )
             Spacer(Modifier.width(4.dp))
             GenerationOption(
                 icon = Icons.Default.Explore,
                 label = stringResource(Res.string.option_search),
                 enabled = webSearchEnabled,
-                onClick = onToggleWebSearchClick,
+                onClick = onToggleWebSearchClick
             )
             Spacer(Modifier.weight(1f))
             SendPromptButton(
                 isGenerating = isGenerating,
                 isPromptBlank = prompt.isBlank(),
                 onStopGeneration = onStopGeneration,
-                onSendPrompt = onSendPrompt,
+                onSendPrompt = onSendPrompt
             )
         }
     }
@@ -915,9 +917,9 @@ private fun SendPromptButton(
         colors = IconButtonDefaults.filledIconButtonColors(
             disabledContainerColor = MaterialTheme.colorScheme.primaryContainer,
             disabledContentColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
-            contentColor = MaterialTheme.colorScheme.onPrimary,
+            contentColor = MaterialTheme.colorScheme.onPrimary
         ),
-        modifier = modifier.pointerHoverIcon(PointerIcon.Hand),
+        modifier = modifier.pointerHoverIcon(PointerIcon.Hand)
     ) {
         Crossfade(
             targetState = isGenerating,
@@ -967,7 +969,7 @@ private fun PromptTextField(
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,
             unfocusedContainerColor = Color.Transparent,
-            focusedContainerColor = Color.Transparent,
+            focusedContainerColor = Color.Transparent
         ),
         maxLines = PROMPT_MAX_LINES,
         modifier = Modifier.fillMaxWidth(),
@@ -1001,7 +1003,7 @@ private fun ChatTopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
         modifier = modifier
             .height(IntrinsicSize.Min)
-            .padding(end = 6.dp),
+            .padding(end = 6.dp)
     )
 }
 
@@ -1012,7 +1014,7 @@ private fun AppBarNavigationButton(
 ) {
     IconButton(
         onClick = onClick,
-        modifier = modifier.pointerHoverIcon(PointerIcon.Hand),
+        modifier = modifier.pointerHoverIcon(PointerIcon.Hand)
     ) {
         Icon(
             imageVector = Icons.AutoMirrored.MenuOpen,
@@ -1024,7 +1026,7 @@ private fun AppBarNavigationButton(
 @Composable
 private fun TuneModelButton(
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Button(
         onClick = onClick,
@@ -1033,12 +1035,12 @@ private fun TuneModelButton(
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.surface,
             contentColor = MaterialTheme.colorScheme.onSurface
-        ),
+        )
     ) {
         Icon(
             imageVector = Icons.Default.Tune,
             contentDescription = null,
-            modifier = Modifier.size(ButtonDefaults.IconSize),
+            modifier = Modifier.size(ButtonDefaults.IconSize)
         )
         Spacer(Modifier.width(ButtonDefaults.ExtraSmallIconSpacing))
         Text(text = stringResource(Res.string.tune_model))
@@ -1061,16 +1063,16 @@ private fun ActiveModelAppBarTitle(
                 onClick = onClick,
                 role = Role.Button,
                 indication = null,
-                interactionSource = null,
+                interactionSource = null
             )
             .pointerHoverIcon(PointerIcon.Hand)
-            .clearAndSetSemantics { this.contentDescription = contentDescription },
+            .clearAndSetSemantics { this.contentDescription = contentDescription }
     ) {
         AnimatedContent(
             targetState = activeModelName,
             transitionSpec = {
                 slideInHorizontally() + fadeIn() togetherWith
-                        slideOutHorizontally { it / 2 } + fadeOut()
+                    slideOutHorizontally { it / 2 } + fadeOut()
             },
             label = "AppBarModelName",
             modifier = Modifier.weight(1f, false)
@@ -1079,7 +1081,7 @@ private fun ActiveModelAppBarTitle(
                 text = modelName,
                 style = MaterialTheme.typography.titleSmall,
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
+                overflow = TextOverflow.Ellipsis
             )
         }
         Icon(
@@ -1101,9 +1103,9 @@ private fun PromptMessageItem(
             .wrapContentWidth(align = Alignment.End)
             .background(
                 color = MaterialTheme.colorScheme.surface,
-                shape = MaterialTheme.shapes.large,
+                shape = MaterialTheme.shapes.large
             )
-            .padding(16.dp),
+            .padding(16.dp)
     ) {
         SelectionContainer {
             Text(
@@ -1130,7 +1132,7 @@ private fun InterruptedMessageItem(
                 content = message.text ?: stringResource(Res.string.no_text_was_generated),
                 typography = chatMarkdownTypography(),
                 imageTransformer = Coil3ImageTransformerImpl,
-                components = rememberMarkdownComponents(),
+                components = rememberMarkdownComponents()
             )
         }
         AnimatedVisibility(
@@ -1149,7 +1151,7 @@ private fun InterruptedMessageItem(
             ) {
                 Text(
                     text = stringResource(Res.string.textbutton_retry_interupted_response),
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodyMedium
                 )
             }
         }
@@ -1202,7 +1204,7 @@ private fun CompletionMessageItem(
                     ),
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
-                    modifier = Modifier.animateContentSize(alignment = Alignment.CenterEnd),
+                    modifier = Modifier.animateContentSize(alignment = Alignment.CenterEnd)
                 )
                 Icon(
                     imageVector = Icons.AutoMirrored.ChevronRight,
@@ -1210,7 +1212,7 @@ private fun CompletionMessageItem(
                     tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
                     modifier = Modifier.graphicsLayer {
                         rotationZ = reasoningChevronRotation.value
-                    },
+                    }
                 )
             }
             AnimatedVisibility(
@@ -1235,7 +1237,7 @@ private fun CompletionMessageItem(
                     markdownState = completionMdState,
                     typography = chatMarkdownTypography(),
                     imageTransformer = Coil3ImageTransformerImpl,
-                    components = rememberMarkdownComponents(),
+                    components = rememberMarkdownComponents()
                 )
             }
         }
@@ -1244,7 +1246,7 @@ private fun CompletionMessageItem(
 
         AnimatedContent(
             targetState = completion.isStreaming,
-            label = "CompletionMessageItemContent",
+            label = "CompletionMessageItemContent"
         ) { isStreaming ->
             if (isStreaming) {
                 Row(
@@ -1289,7 +1291,7 @@ private fun ResponseActionButton(
     icon: ImageVector,
     onClick: () -> Unit,
     contentDescription: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     IconButton(
         onClick = onClick,
@@ -1388,7 +1390,7 @@ private fun ErrorMessageItem(
                 contentPadding = PaddingValues(),
                 colors = ButtonDefaults.textButtonColors(
                     contentColor = MaterialTheme.colorScheme.onErrorContainer
-                ),
+                )
             ) {
                 Icon(
                     imageVector = Icons.Default.Close,
@@ -1428,7 +1430,7 @@ private fun GenerationOption(
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                modifier = Modifier.size(AssistChipDefaults.IconSize),
+                modifier = Modifier.size(AssistChipDefaults.IconSize)
             )
         }
     )
@@ -1449,7 +1451,7 @@ private fun SideMenu(
     onNavigateToAppSettings: () -> Unit,
     onEditConversationTitleClick: (id: Long) -> Unit,
     onDeleteConversationClick: (id: Long) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val scope = rememberCoroutineScope()
     val collapseSideMenu: () -> Unit = remember(scope, sideMenuState) {
@@ -1468,7 +1470,7 @@ private fun SideMenu(
                 .padding(start = 8.dp, top = 8.dp, bottom = 8.dp),
             contentPadding = PaddingValues(start = 16.dp, top = 32.dp),
             colors = colors,
-            shape = RoundedCornerShape(24.dp),
+            shape = RoundedCornerShape(24.dp)
         ) {
             SideMenuContent(
                 conversations = conversations,
@@ -1485,7 +1487,7 @@ private fun SideMenu(
                 onNavigateToAppSettings = onNavigateToAppSettings,
                 onCloseSideMenuClicked = {},
                 onEditConversationTitleClick = onEditConversationTitleClick,
-                onDeleteConversationClick = onDeleteConversationClick,
+                onDeleteConversationClick = onDeleteConversationClick
             )
         }
     } else {
@@ -1494,7 +1496,7 @@ private fun SideMenu(
             colors = colors,
             expandedShape = RoundedCornerShape(topEnd = 24.dp, bottomEnd = 24.dp),
             contentPadding = PaddingValues(start = 16.dp),
-            hideOnCollapse = true,
+            hideOnCollapse = true
         ) {
             SideMenuContent(
                 showHeader = true,
@@ -1518,7 +1520,7 @@ private fun SideMenu(
                 },
                 onCloseSideMenuClicked = collapseSideMenu,
                 onEditConversationTitleClick = onEditConversationTitleClick,
-                onDeleteConversationClick = onDeleteConversationClick,
+                onDeleteConversationClick = onDeleteConversationClick
             )
         }
     }
@@ -1593,7 +1595,7 @@ private fun SideMenuContent(
             SideMenuItem(
                 icon = Icons.Default.Stylus,
                 label = stringResource(Res.string.new_chat),
-                onClick = onStartNewConversation,
+                onClick = onStartNewConversation
             )
         }
         item(key = "ModelCatalog") {
@@ -1618,7 +1620,7 @@ private fun SideMenuContent(
                 query = conversationSearchQuery,
                 onQueryChange = onConversationQueryChange,
                 onClearQuery = onClearConversationQuery,
-                placeholder = stringResource(Res.string.placeholder_search_chats),
+                placeholder = stringResource(Res.string.placeholder_search_chats)
             )
         }
 
@@ -1651,7 +1653,7 @@ private fun SideMenuContent(
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 8.dp),
+                        .padding(top = 8.dp)
                 )
             }
         }
@@ -1665,7 +1667,7 @@ private fun ConversationItem(
     onSelectConversation: (id: Long) -> Unit,
     onEditConversationTitleClick: (id: Long) -> Unit,
     onDeleteConversationClick: (id: Long) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val isSelected = conversation.id == activeConversationId
     val title = conversation.title ?: stringResource(Res.string.untitled_conversation)
@@ -1699,7 +1701,7 @@ private fun ConversationItem(
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.weight(1f),
             color = contentColor,
-            style = MaterialTheme.typography.bodyMedium,
+            style = MaterialTheme.typography.bodyMedium
         )
         IconButton(
             onClick = { actionMenuExpanded = true },
@@ -1711,7 +1713,7 @@ private fun ConversationItem(
                     Res.string.template_desc_more_conv_actions,
                     title
                 ),
-                tint = contentColor,
+                tint = contentColor
             )
             DropdownMenu(
                 expanded = actionMenuExpanded,
@@ -1791,16 +1793,16 @@ private fun rememberMarkdownComponents() = remember {
             MarkdownHighlightedCodeBlock(
                 content = it.content,
                 node = it.node,
-                showHeader = true,
+                showHeader = true
             )
         },
         codeFence = {
             MarkdownHighlightedCodeFence(
                 content = it.content,
                 node = it.node,
-                showHeader = true,
+                showHeader = true
             )
-        },
+        }
     )
 }
 
@@ -1856,7 +1858,7 @@ private fun Modifier.chatPlaceholderGlow(
     return drawWithCache {
         val areaSize = Size(
             width = size.width,
-            height = (size.height - bottomOffset.toPx()).coerceAtLeast(0f),
+            height = (size.height - bottomOffset.toPx()).coerceAtLeast(0f)
         )
         val glowHeight = areaSize.height * heightFraction
 
@@ -1871,13 +1873,13 @@ private fun Modifier.chatPlaceholderGlow(
                     drawRect(
                         brush = brush,
                         size = Size(areaSize.width, glowHeight),
-                        alpha = p,
+                        alpha = p
                     )
                 }
                 drawRect(
                     brush = horizontalMask,
                     size = areaSize,
-                    blendMode = BlendMode.DstIn,
+                    blendMode = BlendMode.DstIn
                 )
                 drawRect(
                     brush = bottomMask,
@@ -1913,7 +1915,7 @@ private fun ChatScreenPreview() {
                     Message.Interrupted(
                         id = 4,
                         text = "Interrupted generati"
-                    ),
+                    )
                 ),
                 conversations = listOf(
                     Conversation(
@@ -1940,7 +1942,7 @@ private fun ChatScreenPreview() {
                     title = "Title of selected one",
                     createdAt = 222222222L,
                     updatedAt = 222222222L
-                ),
+                )
             ),
             onConversationQueryChange = {},
             onSelectConversation = {},

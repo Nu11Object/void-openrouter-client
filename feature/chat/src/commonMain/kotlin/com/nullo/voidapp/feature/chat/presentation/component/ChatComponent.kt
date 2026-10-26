@@ -69,7 +69,7 @@ interface ChatComponent {
         fun create(
             onNavigateToModelCatalog: () -> Unit,
             onNavigateToAppSettings: () -> Unit,
-            componentContext: ComponentContext
+            componentContext: ComponentContext,
         ): ChatComponent
     }
 }

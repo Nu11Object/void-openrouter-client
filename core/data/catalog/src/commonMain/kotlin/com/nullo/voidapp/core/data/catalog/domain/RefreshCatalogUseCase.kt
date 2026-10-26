@@ -10,9 +10,7 @@ import com.nullo.voidapp.core.data.catalog.data.service.exception.NetworkExcepti
  * @throws NetworkException If the request failed for any other reason
  * (connectivity, timeout, serialization, or an unhandled status code).
  */
-class RefreshCatalogUseCase(
-    private val catalogRepository: CatalogRepository,
-) {
+class RefreshCatalogUseCase(private val catalogRepository: CatalogRepository) {
 
     suspend operator fun invoke() {
         catalogRepository.refreshCatalog()

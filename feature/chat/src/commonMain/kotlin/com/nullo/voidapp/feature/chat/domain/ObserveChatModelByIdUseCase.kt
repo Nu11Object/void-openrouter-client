@@ -5,11 +5,7 @@ import com.nullo.voidapp.core.model.chatmodel.ChatModel
 import kotlinx.coroutines.flow.Flow
 
 /** Use case responsible for observing chat model by its ID. */
-internal class ObserveChatModelByIdUseCase(
-    private val catalogRepository: CatalogRepository
-) {
+internal class ObserveChatModelByIdUseCase(private val catalogRepository: CatalogRepository) {
 
-    operator fun invoke(modelId: String): Flow<ChatModel?> {
-        return catalogRepository.observeChatModelById(modelId)
-    }
+    operator fun invoke(modelId: String): Flow<ChatModel?> = catalogRepository.observeChatModelById(modelId)
 }

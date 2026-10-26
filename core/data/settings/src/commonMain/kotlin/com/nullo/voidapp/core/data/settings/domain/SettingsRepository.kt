@@ -19,4 +19,3 @@ interface SettingsRepository {
     /** Clears all persisted settings. */
     suspend fun clear()
 }
-

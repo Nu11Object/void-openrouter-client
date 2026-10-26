@@ -36,7 +36,7 @@ fun ChatModelEntity.toDomain(): ChatModel = ChatModel(
         webSearch = webSearch.toBigDecimalOrNull()
     ),
     defaultTuningParameters = this.toDefaultParameters(),
-    pinned = pinned,
+    pinned = pinned
 )
 
 fun ChatModel.toEntity(): ChatModelEntity = ChatModelEntity(
@@ -70,7 +70,7 @@ private fun ChatModelEntity.toDefaultParameters(): DefaultTuningParameters =
         topK = defaultTopK,
         frequencyPenalty = defaultFrequencyPenalty,
         presencePenalty = defaultPresencePenalty,
-        repetitionPenalty = defaultRepetitionPenalty,
+        repetitionPenalty = defaultRepetitionPenalty
     )
 
 private fun String?.toBigDecimalOrNull(): BigDecimal? {

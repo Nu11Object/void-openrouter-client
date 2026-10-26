@@ -4,6 +4,8 @@ import com.nullo.voidapp.core.utils.resources.UiText
 import com.nullo.voidapp.feature.auth.data.network.AuthConfig
 import com.nullo.voidapp.feature.auth.exception.OAuthCancelledException
 import com.nullo.voidapp.feature.auth.exception.OAuthException
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
@@ -17,8 +19,6 @@ import voidapp.feature.auth.generated.resources.exception_empty_response
 import voidapp.feature.auth.generated.resources.exception_invalid_url
 import voidapp.feature.auth.generated.resources.exception_session_failed
 import voidapp.feature.auth.generated.resources.exception_system_error
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
 
 internal class IosOAuthWebLauncher : OAuthWebLauncher {
 
@@ -79,9 +79,10 @@ internal class IosOAuthWebLauncher : OAuthWebLauncher {
 }
 
 private class KeyWindowContextProvider :
-    NSObject(), ASWebAuthenticationPresentationContextProvidingProtocol {
+    NSObject(),
+    ASWebAuthenticationPresentationContextProvidingProtocol {
 
     override fun presentationAnchorForWebAuthenticationSession(
-        session: ASWebAuthenticationSession
+        session: ASWebAuthenticationSession,
     ): ASPresentationAnchor = ASPresentationAnchor()
 }

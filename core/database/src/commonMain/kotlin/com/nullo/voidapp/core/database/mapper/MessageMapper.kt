@@ -34,6 +34,6 @@ fun MessageEntity.toDomain(): Message = when (this.messageType) {
 
     MessageType.INTERRUPTED -> Message.Interrupted(
         id = id,
-        text = text,
+        text = text
     )
 }

@@ -42,10 +42,10 @@ fun VoidSnackbarHost(
                 action = action,
                 containerColor = MaterialTheme.colorScheme.primaryContainer,
                 contentColor = MaterialTheme.colorScheme.primary,
-                shape = MaterialTheme.shapes.large,
+                shape = MaterialTheme.shapes.large
             ) {
                 Text(
-                    text = targetMessage.asString(),
+                    text = targetMessage.asString()
                 )
             }
         }

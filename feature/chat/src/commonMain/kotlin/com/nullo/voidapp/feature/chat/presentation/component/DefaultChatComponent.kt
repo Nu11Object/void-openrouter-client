@@ -19,7 +19,8 @@ internal class DefaultChatComponent(
     private val onNavigateToAppSettings: () -> Unit,
     private val chatStoreFactory: ChatStoreFactory,
     private val componentContext: ComponentContext,
-) : ChatComponent, ComponentContext by componentContext {
+) : ChatComponent,
+    ComponentContext by componentContext {
 
     private val scope = componentScope()
     private val store = instanceKeeper.getStore { chatStoreFactory.create() }

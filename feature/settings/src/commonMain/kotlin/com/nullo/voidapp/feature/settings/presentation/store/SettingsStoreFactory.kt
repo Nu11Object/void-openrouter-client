@@ -17,6 +17,8 @@ import com.nullo.voidapp.feature.settings.domain.SignOutUseCase
 import com.nullo.voidapp.feature.settings.presentation.store.SettingsStore.State.Dialog
 import com.nullo.voidapp.feature.settings.presentation.store.SettingsStore.State.Loading
 import com.nullo.voidapp.feature.settings.presentation.store.SettingsStoreFactory.BootstrapperImpl
+import kotlin.coroutines.cancellation.CancellationException
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -29,8 +31,6 @@ import voidapp.core.utils.generated.resources.exception_invalid_api_key
 import voidapp.core.utils.generated.resources.exception_secure_storage
 import voidapp.core.utils.generated.resources.exception_validation_network
 import voidapp.core.utils.generated.resources.exception_validation_unexpected
-import kotlin.coroutines.cancellation.CancellationException
-import kotlin.time.Duration.Companion.seconds
 
 internal class SettingsStoreFactory(
     private val storeFactory: StoreFactory,
@@ -40,7 +40,8 @@ internal class SettingsStoreFactory(
     private val signOutUseCase: SignOutUseCase,
 ) : StoreFactory by storeFactory {
 
-    fun create(): SettingsStore = object : SettingsStore,
+    fun create(): SettingsStore = object :
+        SettingsStore,
         Store<SettingsStore.Intent, SettingsStore.State, SettingsStore.Label> by storeFactory.create(
             name = "SettingsStore",
             initialState = SettingsStore.State(),
@@ -170,22 +171,16 @@ internal class SettingsStoreFactory(
 
     private object ReducerImpl : Reducer<SettingsStore.State, Message> {
 
-        override fun SettingsStore.State.reduce(msg: Message): SettingsStore.State {
-            return when (msg) {
-                is Message.ApiKeyChanged -> copy(apiKey = msg.input, isApiKeySaved = false)
-                Message.SubmittingApiKey -> copy(loading = Loading.ApiKey, isApiKeySaved = false)
-                Message.ApiKeySubmitted -> copy(apiKey = "", loading = null, isApiKeySaved = true)
-                Message.ApiKeySuccessDismissed -> copy(isApiKeySaved = false)
-
-                is Message.AppThemeChanged -> copy(appTheme = msg.theme)
-
-                is Message.ErrorOccurred -> copy(dialog = Dialog.Error(msg.uiText), loading = null)
-                Message.DialogDismissed -> copy(dialog = null)
-
-                Message.SignOutRequested -> copy(dialog = Dialog.SignOutConfirmation)
-
-                Message.SignOutConfirmed -> copy(dialog = null, loading = Loading.FullScreen)
-            }
+        override fun SettingsStore.State.reduce(msg: Message): SettingsStore.State = when (msg) {
+            is Message.ApiKeyChanged -> copy(apiKey = msg.input, isApiKeySaved = false)
+            Message.SubmittingApiKey -> copy(loading = Loading.ApiKey, isApiKeySaved = false)
+            Message.ApiKeySubmitted -> copy(apiKey = "", loading = null, isApiKeySaved = true)
+            Message.ApiKeySuccessDismissed -> copy(isApiKeySaved = false)
+            is Message.AppThemeChanged -> copy(appTheme = msg.theme)
+            is Message.ErrorOccurred -> copy(dialog = Dialog.Error(msg.uiText), loading = null)
+            Message.DialogDismissed -> copy(dialog = null)
+            Message.SignOutRequested -> copy(dialog = Dialog.SignOutConfirmation)
+            Message.SignOutConfirmed -> copy(dialog = null, loading = Loading.FullScreen)
         }
     }
 }

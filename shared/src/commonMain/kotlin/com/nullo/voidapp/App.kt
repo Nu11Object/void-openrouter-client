@@ -9,7 +9,7 @@ import com.nullo.voidapp.feature.root.component.RootContent
 fun App(
     rootComponent: RootComponent,
     modifier: Modifier = Modifier,
-    windowTitleBar: (@Composable () -> Unit)? = null
+    windowTitleBar: (@Composable () -> Unit)? = null,
 ) {
     RootContent(
         rootComponent = rootComponent,

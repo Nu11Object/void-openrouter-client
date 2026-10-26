@@ -18,7 +18,7 @@ val settingsFeatureModule = module {
                 onNavigateBack = onNavigateBack,
                 onSignedOut = onSignedOut,
                 settingsStoreFactory = get(),
-                componentContext = componentContext,
+                componentContext = componentContext
             )
         }
     }

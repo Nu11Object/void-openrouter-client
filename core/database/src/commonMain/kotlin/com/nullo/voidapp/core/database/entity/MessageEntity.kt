@@ -35,5 +35,9 @@ data class MessageEntity(
 )
 
 enum class MessageType {
-    PROMPT, COMPLETION, IMAGES, ERROR, INTERRUPTED
+    PROMPT,
+    COMPLETION,
+    IMAGES,
+    ERROR,
+    INTERRUPTED,
 }

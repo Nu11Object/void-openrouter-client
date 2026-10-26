@@ -8,5 +8,7 @@ import com.nullo.voidapp.core.utils.resources.UiText
  *
  * Carries a localized [UiText] describing the failure to be shown directly to the user.
  */
-internal class ApiKeyException(uiText: UiText, cause: Throwable? = null) :
-    LocalizedException(uiText, cause)
+internal class ApiKeyException(
+    uiText: UiText,
+    cause: Throwable? = null,
+) : LocalizedException(uiText, cause)

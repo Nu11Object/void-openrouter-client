@@ -11,7 +11,8 @@ internal class DefaultAuthComponent(
     private val authStoreFactory: AuthStoreFactory,
     private val onAuthFinish: () -> Unit,
     private val componentContext: ComponentContext,
-) : AuthComponent, ComponentContext by componentContext {
+) : AuthComponent,
+    ComponentContext by componentContext {
 
     private val store = instanceKeeper.getStore { authStoreFactory.create() }
 

@@ -22,9 +22,7 @@ import com.nullo.voidapp.core.utils.kotlin.asCleanedApiKey
  * @throws SecureStorageException If the platform secure storage is inaccessible
  * or fails to write the key.
  */
-class ValidateAndSaveApiKeyUseCase(
-    private val authRepository: AuthRepository,
-) {
+class ValidateAndSaveApiKeyUseCase(private val authRepository: AuthRepository) {
 
     suspend operator fun invoke(apiKey: String) {
         val cleanApiKey = apiKey.asCleanedApiKey()

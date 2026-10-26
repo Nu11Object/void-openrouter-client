@@ -9,9 +9,7 @@ import com.nullo.voidapp.core.designsystem.theme.AppTheme
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-internal class SettingsRepositoryImpl(
-    private val dataStore: DataStore<Preferences>
-) : SettingsRepository {
+internal class SettingsRepositoryImpl(private val dataStore: DataStore<Preferences>) : SettingsRepository {
 
     private object PreferencesKeys {
         val APP_THEME = stringPreferencesKey("app_theme")

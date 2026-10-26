@@ -1,8 +1,17 @@
 package com.nullo.voidapp.core.model.imagemodel
 
 enum class ImageParameter {
-    RESOLUTION, ASPECT_RATIO, SIZE, QUALITY, OUTPUT_FORMAT,
-    BACKGROUND, OUTPUT_COMPRESSION, SEED, N, INPUT_REFERENCES;
+    RESOLUTION,
+    ASPECT_RATIO,
+    SIZE,
+    QUALITY,
+    OUTPUT_FORMAT,
+    BACKGROUND,
+    OUTPUT_COMPRESSION,
+    SEED,
+    N,
+    INPUT_REFERENCES,
+    ;
 
     companion object {
 

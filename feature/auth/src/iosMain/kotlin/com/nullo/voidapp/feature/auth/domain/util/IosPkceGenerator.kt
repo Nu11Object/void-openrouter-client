@@ -32,7 +32,7 @@ internal object IosPkceGenerator : PkceGenerator {
             val status = SecRandomCopyBytes(
                 rnd = kSecRandomDefault,
                 count = length.toULong(),
-                bytes = pinned.addressOf(0),
+                bytes = pinned.addressOf(0)
             )
             check(status == errSecSuccess) { "SecRandomCopyBytes failed: $status" }
         }
@@ -46,7 +46,7 @@ internal object IosPkceGenerator : PkceGenerator {
                 CC_SHA256(
                     data = pinnedIn.addressOf(0),
                     len = input.size.convert(),
-                    md = pinnedOut.addressOf(0).reinterpret(),
+                    md = pinnedOut.addressOf(0).reinterpret()
                 )
             }
         }

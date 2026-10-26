@@ -35,7 +35,8 @@ internal class DefaultRootComponent(
     private val settingsRepository: SettingsRepository,
     private val conversationRepository: ConversationRepository,
     private val apiKeyStorage: ApiKeyStorage,
-) : RootComponent, ComponentContext by componentContext {
+) : RootComponent,
+    ComponentContext by componentContext {
 
     private val scope = componentScope()
 
@@ -63,45 +64,43 @@ internal class DefaultRootComponent(
 
     fun child(
         config: Config,
-        componentContext: ComponentContext
-    ): RootComponent.Child {
-        return when (config) {
-            Config.Auth -> {
-                val component = authComponentFactory.create(
-                    onAuthFinished = { navigation.replaceCurrent(Config.Chat) },
-                    componentContext = componentContext
-                )
-                RootComponent.Child.Auth(component)
-            }
-
-            Config.Settings -> {
-                val component = settingsComponentFactory.create(
-                    onNavigateBack = navigation::pop,
-                    onSignedOut = { navigation.replaceAll(Config.Auth) },
-                    componentContext = componentContext,
-                )
-                RootComponent.Child.Settings(component)
-            }
-
-            Config.Catalog -> {
-                val component = catalogComponentFactory.create(
-                    onNavigateBack = navigation::pop,
-                    componentContext = componentContext,
-                )
-                RootComponent.Child.Catalog(component)
-            }
-
-            Config.Chat -> {
-                val component = chatComponentFactory.create(
-                    onNavigateToModelCatalog = { navigation.pushNew(Config.Catalog) },
-                    onNavigateToAppSettings = { navigation.pushNew(Config.Settings) },
-                    componentContext = componentContext,
-                )
-                RootComponent.Child.Chat(component)
-            }
-
-            Config.Initial -> RootComponent.Child.Initial
+        componentContext: ComponentContext,
+    ): RootComponent.Child = when (config) {
+        Config.Auth -> {
+            val component = authComponentFactory.create(
+                onAuthFinished = { navigation.replaceCurrent(Config.Chat) },
+                componentContext = componentContext
+            )
+            RootComponent.Child.Auth(component)
         }
+
+        Config.Settings -> {
+            val component = settingsComponentFactory.create(
+                onNavigateBack = navigation::pop,
+                onSignedOut = { navigation.replaceAll(Config.Auth) },
+                componentContext = componentContext
+            )
+            RootComponent.Child.Settings(component)
+        }
+
+        Config.Catalog -> {
+            val component = catalogComponentFactory.create(
+                onNavigateBack = navigation::pop,
+                componentContext = componentContext
+            )
+            RootComponent.Child.Catalog(component)
+        }
+
+        Config.Chat -> {
+            val component = chatComponentFactory.create(
+                onNavigateToModelCatalog = { navigation.pushNew(Config.Catalog) },
+                onNavigateToAppSettings = { navigation.pushNew(Config.Settings) },
+                componentContext = componentContext
+            )
+            RootComponent.Child.Chat(component)
+        }
+
+        Config.Initial -> RootComponent.Child.Initial
     }
 
     @Serializable

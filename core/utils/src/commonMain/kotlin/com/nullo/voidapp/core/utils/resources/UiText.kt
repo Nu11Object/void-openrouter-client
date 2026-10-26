@@ -16,7 +16,7 @@ sealed interface UiText {
     /** Represents a localized string resource with optional formatting arguments. */
     data class Resource(
         val stringResource: StringResource,
-        val args: List<Any> = emptyList()
+        val args: List<Any> = emptyList(),
     ) : UiText
 
     data object Empty : UiText
@@ -37,7 +37,7 @@ sealed interface UiText {
         /** Shorthand factory function to create a [UiText.Resource] using varargs. */
         operator fun invoke(
             stringResource: StringResource,
-            vararg args: Any
+            vararg args: Any,
         ): UiText = Resource(stringResource, args.toList())
     }
 }

@@ -5,8 +5,8 @@ import com.nullo.voidapp.core.data.chat.data.mapper.buildImageGenerationRequest
 import com.nullo.voidapp.core.data.chat.data.mapper.toCompletionMessageFlow
 import com.nullo.voidapp.core.data.chat.data.mapper.toDomain
 import com.nullo.voidapp.core.data.chat.data.service.ChatApiService
-import com.nullo.voidapp.core.data.chat.domain.ResponseGenerator
 import com.nullo.voidapp.core.data.chat.domain.ImageEncoder
+import com.nullo.voidapp.core.data.chat.domain.ResponseGenerator
 import com.nullo.voidapp.core.data.session.domain.SessionRepository
 import com.nullo.voidapp.core.model.ActiveModelRef
 import com.nullo.voidapp.core.model.Message
@@ -36,7 +36,7 @@ internal class ResponseGeneratorImpl(
                     tuningParameters = sessionRepository.chatTuningParameters.first(),
                     thinkingEnabled = sessionRepository.thinkingEnabled.first(),
                     webSearchEnabled = sessionRepository.webSearchEnabled.first(),
-                    encodeImage = imageEncoder::encodeAsDataUrl,
+                    encodeImage = imageEncoder::encodeAsDataUrl
                 )
 
                 emitAll(
@@ -56,7 +56,7 @@ internal class ResponseGeneratorImpl(
                     modelId = activeModel.id,
                     prompt = prompt.query,
                     referenceImages = referenceImages,
-                    parameters = sessionRepository.imageParameters.first(),
+                    parameters = sessionRepository.imageParameters.first()
                 )
 
                 emit(

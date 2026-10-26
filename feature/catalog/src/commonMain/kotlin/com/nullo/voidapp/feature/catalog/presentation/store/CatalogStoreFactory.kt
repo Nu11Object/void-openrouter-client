@@ -19,6 +19,9 @@ import com.nullo.voidapp.core.utils.kotlin.filterWithQuery
 import com.nullo.voidapp.core.utils.resources.UiText
 import com.nullo.voidapp.core.utils.resources.toUiText
 import com.nullo.voidapp.feature.catalog.presentation.store.CatalogStore.State
+import kotlin.coroutines.cancellation.CancellationException
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -28,15 +31,12 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import voidapp.core.utils.generated.resources.Res as CoreRes
 import voidapp.core.utils.generated.resources.exception_internal
 import voidapp.core.utils.generated.resources.exception_network
 import voidapp.feature.catalog.generated.resources.Res
 import voidapp.feature.catalog.generated.resources.message_catalog_refreshed
 import voidapp.feature.catalog.generated.resources.message_using_model
-import kotlin.coroutines.cancellation.CancellationException
-import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.Duration.Companion.seconds
-import voidapp.core.utils.generated.resources.Res as CoreRes
 
 internal class CatalogStoreFactory(
     private val storeFactory: StoreFactory,
@@ -52,7 +52,8 @@ internal class CatalogStoreFactory(
         // State.searchQuery is used for UI only!
         val searchQuery = MutableStateFlow("")
 
-        return object : CatalogStore,
+        return object :
+            CatalogStore,
             Store<CatalogStore.Intent, State, CatalogStore.Label> by storeFactory.create(
                 name = "CatalogStore",
                 initialState = State(),
@@ -91,15 +92,13 @@ internal class CatalogStoreFactory(
         data class UpdateModels(
             val chatModels: List<ChatModel>,
             val imageModels: List<ImageModel>,
-            val isDbEmpty: Boolean
+            val isDbEmpty: Boolean,
         ) : Action
 
         data object AutoRefreshCatalog : Action
     }
 
-    private inner class BootstrapperImpl(
-        private val searchQuery: Flow<String>
-    ) : CoroutineBootstrapper<Action>() {
+    private inner class BootstrapperImpl(private val searchQuery: Flow<String>) : CoroutineBootstrapper<Action>() {
 
         override fun invoke() {
             var isFirstEmission = true
@@ -137,9 +136,8 @@ internal class CatalogStoreFactory(
         }
     }
 
-    private inner class ExecutorImpl(
-        private val searchQuery: MutableStateFlow<String>
-    ) : CoroutineExecutor<CatalogStore.Intent, Action, State, Message, CatalogStore.Label>() {
+    private inner class ExecutorImpl(private val searchQuery: MutableStateFlow<String>) :
+        CoroutineExecutor<CatalogStore.Intent, Action, State, Message, CatalogStore.Label>() {
 
         private var useModelJob: Job? = null
         private var dismissMessageJob: Job? = null
@@ -191,7 +189,7 @@ internal class CatalogStoreFactory(
                     setPinStatusUseCase(
                         modelId = intent.modelId,
                         modelType = intent.modelType,
-                        pinned = intent.pinned,
+                        pinned = intent.pinned
                     )
                 }
 
@@ -214,6 +212,7 @@ internal class CatalogStoreFactory(
                 )
 
                 CatalogStore.Intent.DismissError -> dispatch(Message.ErrorDismissed)
+
                 CatalogStore.Intent.NavigateBack -> publish(CatalogStore.Label.NavigatedBack)
             }
         }
@@ -251,32 +250,36 @@ internal class CatalogStoreFactory(
 
     private object ReducerImpl : Reducer<State, Message> {
 
-        override fun State.reduce(msg: Message): State {
-            return when (msg) {
-                Message.CatalogRefreshStarted -> copy(isLoading = true)
-                Message.CatalogRefreshFinished -> copy(isLoading = false)
+        override fun State.reduce(msg: Message): State = when (msg) {
+            Message.CatalogRefreshStarted -> copy(isLoading = true)
 
-                is Message.CatalogTabChanged -> copy(selectedTab = msg.tab)
+            Message.CatalogRefreshFinished -> copy(isLoading = false)
 
-                is Message.ModelsUpdated -> copy(
-                    chatModels = msg.chatModels,
-                    imageModels = msg.imageModels,
-                    isDbEmpty = msg.isDbEmpty
-                )
+            is Message.CatalogTabChanged -> copy(selectedTab = msg.tab)
 
-                is Message.MessageReceived -> copy(message = msg.text)
-                Message.MessageDismissed -> copy(message = null)
-                is Message.MessageDismissalTimerChanged -> copy(
-                    messageDismissalTimer = msg.newValue
-                )
+            is Message.ModelsUpdated -> copy(
+                chatModels = msg.chatModels,
+                imageModels = msg.imageModels,
+                isDbEmpty = msg.isDbEmpty
+            )
 
-                is Message.ErrorOccurred -> copy(error = msg.text, isLoading = false)
-                Message.ErrorDismissed -> copy(error = null)
+            is Message.MessageReceived -> copy(message = msg.text)
 
-                is Message.SearchQueryChanged -> copy(searchQuery = msg.query)
-                is Message.SearchQueryCleared -> copy(searchQuery = "")
-                is Message.VerboseInfoToggled -> copy(showVerboseInfo = msg.enabled)
-            }
+            Message.MessageDismissed -> copy(message = null)
+
+            is Message.MessageDismissalTimerChanged -> copy(
+                messageDismissalTimer = msg.newValue
+            )
+
+            is Message.ErrorOccurred -> copy(error = msg.text, isLoading = false)
+
+            Message.ErrorDismissed -> copy(error = null)
+
+            is Message.SearchQueryChanged -> copy(searchQuery = msg.query)
+
+            is Message.SearchQueryCleared -> copy(searchQuery = "")
+
+            is Message.VerboseInfoToggled -> copy(showVerboseInfo = msg.enabled)
         }
     }
 

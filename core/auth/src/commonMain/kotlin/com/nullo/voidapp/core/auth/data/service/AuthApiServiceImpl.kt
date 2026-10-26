@@ -15,9 +15,7 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import kotlin.coroutines.cancellation.CancellationException
 
-internal class AuthApiServiceImpl(
-    private val httpClient: HttpClient
-) : AuthApiService {
+internal class AuthApiServiceImpl(private val httpClient: HttpClient) : AuthApiService {
 
     override suspend fun exchangeCode(code: String?, codeVerifier: String): String {
         if (code == null) throw AuthException.CodeExchangeException()
@@ -28,7 +26,7 @@ internal class AuthApiServiceImpl(
                     ExchangeCodeRequest(
                         code = code,
                         codeVerifier = codeVerifier,
-                        codeChallengeMethod = "S256",
+                        codeChallengeMethod = "S256"
                     )
                 )
             }.body<ExchangeCodeResponse>()

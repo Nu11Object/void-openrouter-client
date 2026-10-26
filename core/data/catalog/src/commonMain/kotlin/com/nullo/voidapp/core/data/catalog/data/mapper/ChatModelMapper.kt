@@ -34,7 +34,7 @@ internal fun ModelDto.toDomain(): ChatModel = ChatModel(
         .toSet(),
     pricing = pricing.toDomain(),
     defaultTuningParameters = defaultParameters?.toDomain() ?: DefaultTuningParameters(),
-    pinned = false,
+    pinned = false
 )
 
 private fun PricingDto.toDomain(): ModelPricing = ModelPricing(
@@ -54,7 +54,7 @@ private fun DefaultTuningParametersDto.toDomain(): DefaultTuningParameters =
         topK = topK,
         frequencyPenalty = frequencyPenalty,
         presencePenalty = presencePenalty,
-        repetitionPenalty = repetitionPenalty,
+        repetitionPenalty = repetitionPenalty
     )
 
 private fun String.parsePriceOrZero(): BigDecimal = runCatching {

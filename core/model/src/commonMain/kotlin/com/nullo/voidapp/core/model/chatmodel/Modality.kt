@@ -2,7 +2,9 @@ package com.nullo.voidapp.core.model.chatmodel
 
 enum class Modality {
     TEXT,
-    IMAGE;
+    IMAGE,
+    ;
+
     // Consider VIDEO, AUDIO in future
 
     companion object {

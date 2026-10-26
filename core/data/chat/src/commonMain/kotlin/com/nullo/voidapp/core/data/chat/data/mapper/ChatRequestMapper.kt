@@ -34,7 +34,7 @@ internal suspend fun buildChatCompletionRequest(
     repetitionPenalty = tuningParameters[TuningParameter.REPETITION_PENALTY],
     seed = tuningParameters[TuningParameter.SEED]?.toInt(),
     reasoning = ReasoningConfigDto(enabled = thinkingEnabled),
-    plugins = listOf(PluginConfigDto(id = WEB_PLUGIN_ID)).takeIf { webSearchEnabled },
+    plugins = listOf(PluginConfigDto(id = WEB_PLUGIN_ID)).takeIf { webSearchEnabled }
 )
 
 private suspend fun List<Message>.toChatMessageDtos(
@@ -52,16 +52,17 @@ private suspend fun Message.toChatMessageDtoOrNull(
                 val url = encodeImage(attachment.relativePath, attachment.mimeType)
                 add(ChatContentPartDto.ImageUrl(ImageUrlDto(url = url)))
             }
-        },
+        }
     )
 
     is Message.Completion -> ChatMessageDto(
         role = ROLE_ASSISTANT,
-        content = listOf(ChatContentPartDto.Text(text)),
+        content = listOf(ChatContentPartDto.Text(text))
     )
 
     is Message.Images,
     is Message.Error,
     is Message.Interrupted,
-    is Message.ImageLoading -> null
+    is Message.ImageLoading,
+    -> null
 }

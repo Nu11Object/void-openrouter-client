@@ -18,7 +18,7 @@ fun ImageModelEntity.toDomain(): ImageModel = ImageModel(
         param to capability
     }.toMap(),
     endpointsUrl = endpointsUrl,
-    pinned = pinned,
+    pinned = pinned
 )
 
 fun ImageModel.toEntity(): ImageModelEntity = ImageModelEntity(
@@ -30,5 +30,5 @@ fun ImageModel.toEntity(): ImageModelEntity = ImageModelEntity(
     outputModalities = outputModalities.map { it.name.lowercase() },
     supportsStreaming = supportsStreaming,
     supportedParameters = supportedParameters.mapKeys { (param, _) -> param.name.lowercase() },
-    endpointsUrl = endpointsUrl,
+    endpointsUrl = endpointsUrl
 )

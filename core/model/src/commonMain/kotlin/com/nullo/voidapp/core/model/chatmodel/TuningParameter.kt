@@ -8,7 +8,8 @@ enum class TuningParameter {
     FREQUENCY_PENALTY,
     PRESENCE_PENALTY,
     REPETITION_PENALTY,
-    SEED;
+    SEED,
+    ;
 
     companion object {
 

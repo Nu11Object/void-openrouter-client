@@ -4,6 +4,10 @@ import com.nullo.voidapp.core.utils.resources.UiText
 import com.nullo.voidapp.feature.auth.data.network.AuthConfig
 import com.nullo.voidapp.feature.auth.exception.OAuthCancelledException
 import com.nullo.voidapp.feature.auth.exception.OAuthException
+import java.awt.Desktop
+import java.net.ServerSocket
+import java.net.SocketTimeoutException
+import java.net.URI
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.jetbrains.compose.resources.getString
@@ -13,10 +17,6 @@ import voidapp.feature.auth.generated.resources.exception_browser_unsupported
 import voidapp.feature.auth.generated.resources.exception_empty_request
 import voidapp.feature.auth.generated.resources.oauth_success_message
 import voidapp.feature.auth.generated.resources.oauth_success_title
-import java.awt.Desktop
-import java.net.ServerSocket
-import java.net.SocketTimeoutException
-import java.net.URI
 
 internal class DesktopOAuthWebLauncher : OAuthWebLauncher {
 
@@ -77,7 +77,7 @@ internal class DesktopOAuthWebLauncher : OAuthWebLauncher {
 
     private fun openSystemBrowser(url: String) {
         val isSupported = Desktop.isDesktopSupported() &&
-                Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)
+            Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)
 
         if (!isSupported) {
             throw OAuthException(UiText(Res.string.exception_browser_unsupported))

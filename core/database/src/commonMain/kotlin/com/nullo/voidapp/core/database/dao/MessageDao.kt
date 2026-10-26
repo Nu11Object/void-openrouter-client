@@ -154,7 +154,7 @@ interface MessageDao {
                 messageType = MessageType.PROMPT,
                 text = query,
                 searchText = query?.lowercase(),
-                createdAt = now,
+                createdAt = now
             )
         )
         val responseId = insert(responsePlaceholder(conversationId, promptId, modelId, now))
@@ -189,5 +189,5 @@ private fun responsePlaceholder(
     promptId = promptId,
     isGenerating = true,
     modelId = modelId,
-    createdAt = now,
+    createdAt = now
 )

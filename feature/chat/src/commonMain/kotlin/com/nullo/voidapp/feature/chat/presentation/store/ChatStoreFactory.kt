@@ -37,6 +37,7 @@ import com.nullo.voidapp.feature.chat.domain.SetWebSearchEnabledUseCase
 import com.nullo.voidapp.feature.chat.domain.StartNewConversationUseCase
 import com.nullo.voidapp.feature.chat.presentation.store.ChatStore.Intent
 import com.nullo.voidapp.feature.chat.presentation.store.ChatStore.State
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
@@ -52,6 +53,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import voidapp.core.utils.generated.resources.Res as CoreRes
 import voidapp.core.utils.generated.resources.error_unknown
 import voidapp.feature.chat.generated.resources.Res
 import voidapp.feature.chat.generated.resources.error_blank_conversation_name
@@ -60,8 +62,6 @@ import voidapp.feature.chat.generated.resources.error_cannot_rename_conversation
 import voidapp.feature.chat.generated.resources.error_empty_prompt
 import voidapp.feature.chat.generated.resources.error_model_not_selected
 import voidapp.feature.chat.generated.resources.error_no_active_conversation
-import kotlin.time.Duration.Companion.milliseconds
-import voidapp.core.utils.generated.resources.Res as CoreRes
 
 internal class ChatStoreFactory(
     private val storeFactory: StoreFactory,
@@ -94,7 +94,8 @@ internal class ChatStoreFactory(
         val modelSearchQuery = MutableStateFlow("")
         val conversationId = MutableStateFlow<Long?>(null)
 
-        return object : ChatStore,
+        return object :
+            ChatStore,
             Store<Intent, State, ChatStore.Label> by storeFactory.create(
                 name = "ChatStore",
                 initialState = State(),
@@ -119,7 +120,10 @@ internal class ChatStoreFactory(
         data object ModelSelectorClosed : Msg
         data class ModelSelectorTabChanged(val tab: State.SelectorTab) : Msg
         data class ModelSearchQueryChanged(val query: String) : Msg
-        data class ActiveModelChanged(val modelName: String, val modelType: ModelType) : Msg
+        data class ActiveModelChanged(
+            val modelName: String,
+            val modelType: ModelType,
+        ) : Msg
         data object ModelSelectionConfirmationShowed : Msg
         data object ModelSelectionConfirmationHidden : Msg
 
@@ -359,8 +363,11 @@ internal class ChatStoreFactory(
                 )
 
                 Intent.CloseModelSelector -> dispatch(Msg.ModelSelectorClosed)
+
                 Intent.CloseTuningPanel -> dispatch(Msg.TuningPanelClosed)
+
                 Intent.DismissErrorDialog -> dispatch(Msg.ErrorDialogDismissed)
+
                 is Intent.DismissChatError -> scope.launch {
                     dismissErrorMessageUseCase(intent.messageId)
                 }
@@ -443,7 +450,9 @@ internal class ChatStoreFactory(
                 }
 
                 is Intent.ChangePrompt -> dispatch(Msg.PromptChanged(intent.prompt))
+
                 Intent.OpenModelSelector -> dispatch(Msg.ModelSelectorOpened)
+
                 Intent.StartNewConversation -> {
                     completionGenerationJob?.cancel()
                     conversationId.value = null
@@ -454,6 +463,7 @@ internal class ChatStoreFactory(
                 }
 
                 Intent.OpenAppSettings -> publish(ChatStore.Label.NavigatedToAppSettings)
+
                 Intent.OpenFullModelCatalog -> publish(ChatStore.Label.NavigatedToModelCatalog)
 
                 Intent.StopGeneration -> {
@@ -505,104 +515,102 @@ internal class ChatStoreFactory(
     }
 
     private object ReducerImpl : Reducer<State, Msg> {
-        override fun State.reduce(msg: Msg): State {
-            return when (msg) {
-                is Msg.ActiveModelChanged -> copy(
-                    activeModelName = msg.modelName,
-                    modelType = msg.modelType
-                )
+        override fun State.reduce(msg: Msg): State = when (msg) {
+            is Msg.ActiveModelChanged -> copy(
+                activeModelName = msg.modelName,
+                modelType = msg.modelType
+            )
 
-                is Msg.ConversationOpened -> copy(
-                    activeConversation = msg.conversation
-                )
+            is Msg.ConversationOpened -> copy(
+                activeConversation = msg.conversation
+            )
 
-                is Msg.ConversationSearchQueryChanged -> copy(
-                    conversationSearchQuery = msg.query
-                )
+            is Msg.ConversationSearchQueryChanged -> copy(
+                conversationSearchQuery = msg.query
+            )
 
-                is Msg.ConversationsUpdated -> copy(
-                    conversations = msg.conversations
-                )
+            is Msg.ConversationsUpdated -> copy(
+                conversations = msg.conversations
+            )
 
-                Msg.ErrorDialogDismissed -> copy(
-                    errorDialogText = null
-                )
+            Msg.ErrorDialogDismissed -> copy(
+                errorDialogText = null
+            )
 
-                is Msg.ErrorOccurred -> copy(
-                    errorDialogText = msg.text
-                )
+            is Msg.ErrorOccurred -> copy(
+                errorDialogText = msg.text
+            )
 
-                is Msg.ModelSearchQueryChanged -> copy(
-                    modelSearchQuery = msg.query
-                )
+            is Msg.ModelSearchQueryChanged -> copy(
+                modelSearchQuery = msg.query
+            )
 
-                Msg.ModelSelectionConfirmationHidden -> copy(
-                    isModelSelectionConfirmationShown = false
-                )
+            Msg.ModelSelectionConfirmationHidden -> copy(
+                isModelSelectionConfirmationShown = false
+            )
 
-                Msg.ModelSelectionConfirmationShowed -> copy(
-                    isModelSelectionConfirmationShown = true
-                )
+            Msg.ModelSelectionConfirmationShowed -> copy(
+                isModelSelectionConfirmationShown = true
+            )
 
-                Msg.ModelSelectorClosed -> copy(
-                    isModelSelectorOpen = false
-                )
+            Msg.ModelSelectorClosed -> copy(
+                isModelSelectorOpen = false
+            )
 
-                Msg.ModelSelectorOpened -> copy(
-                    isModelSelectorOpen = true
-                )
+            Msg.ModelSelectorOpened -> copy(
+                isModelSelectorOpen = true
+            )
 
-                is Msg.ModelSelectorTabChanged -> copy(
-                    modelSelectorTab = msg.tab
-                )
+            is Msg.ModelSelectorTabChanged -> copy(
+                modelSelectorTab = msg.tab
+            )
 
-                is Msg.PinnedModelsUpdated -> copy(
-                    pinnedChatModels = msg.chatModels,
-                    pinnedImageModels = msg.imageModels
-                )
+            is Msg.PinnedModelsUpdated -> copy(
+                pinnedChatModels = msg.chatModels,
+                pinnedImageModels = msg.imageModels
+            )
 
-                is Msg.PromptChanged -> copy(
-                    prompt = msg.prompt
-                )
+            is Msg.PromptChanged -> copy(
+                prompt = msg.prompt
+            )
 
-                Msg.NewConversationStarted -> copy(
-                    activeConversation = null,
-                    messages = emptyList()
-                )
+            Msg.NewConversationStarted -> copy(
+                activeConversation = null,
+                messages = emptyList()
+            )
 
-                is Msg.ThinkingStateChanged -> copy(
-                    thinkingEnabled = msg.enabled
-                )
+            is Msg.ThinkingStateChanged -> copy(
+                thinkingEnabled = msg.enabled
+            )
 
-                Msg.TuningPanelClosed -> copy(
-                    isTuningPanelOpen = false
-                )
+            Msg.TuningPanelClosed -> copy(
+                isTuningPanelOpen = false
+            )
 
-                Msg.TuningPanelOpened -> copy(
-                    isTuningPanelOpen = true
-                )
+            Msg.TuningPanelOpened -> copy(
+                isTuningPanelOpen = true
+            )
 
-                is Msg.WebSearchStateChanged -> copy(
-                    webSearchEnabled = msg.enabled
-                )
+            is Msg.WebSearchStateChanged -> copy(
+                webSearchEnabled = msg.enabled
+            )
 
-                is Msg.MessagesUpdated -> copy(
-                    messages = msg.messages
-                )
+            is Msg.MessagesUpdated -> copy(
+                messages = msg.messages
+            )
 
-                is Msg.ConversationNameInputChanged -> copy(
-                    renamingConversationInput = msg.input
-                )
+            is Msg.ConversationNameInputChanged -> copy(
+                renamingConversationInput = msg.input
+            )
 
-                Msg.RenameConversationDialogClosed -> copy(
-                    renamingConversationId = null,
-                    renamingConversationInput = ""
-                )
+            Msg.RenameConversationDialogClosed -> copy(
+                renamingConversationId = null,
+                renamingConversationInput = ""
+            )
 
-                is Msg.RenameConversationDialogOpened -> copy(
-                    renamingConversationId = msg.conversationId
-                )
-            }
+            is Msg.RenameConversationDialogOpened -> copy(
+                renamingConversationId = msg.conversationId
+            )
         }
     }
 

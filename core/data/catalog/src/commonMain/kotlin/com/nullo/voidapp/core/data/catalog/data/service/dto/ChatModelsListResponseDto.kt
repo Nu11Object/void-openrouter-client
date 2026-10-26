@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 internal data class ChatModelsListResponseDto(
     @SerialName("data")
-    val data: List<ModelDto> = emptyList()
+    val data: List<ModelDto> = emptyList(),
 )
 
 @Serializable
@@ -30,7 +30,7 @@ internal data class ModelDto(
     @SerialName("supported_parameters")
     val supportedParameters: List<String> = emptyList(),
     @SerialName("default_parameters")
-    val defaultParameters: DefaultTuningParametersDto? = null
+    val defaultParameters: DefaultTuningParametersDto? = null,
 )
 
 @Serializable
@@ -38,13 +38,13 @@ internal data class ModelArchitectureDto(
     @SerialName("input_modalities")
     val inputModalities: List<String> = emptyList(),
     @SerialName("output_modalities")
-    val outputModalities: List<String> = emptyList()
+    val outputModalities: List<String> = emptyList(),
 )
 
 @Serializable
 internal data class TopProviderDto(
     @SerialName("max_completion_tokens")
-    val maxCompletionTokens: Int? = null
+    val maxCompletionTokens: Int? = null,
 )
 
 @Serializable
@@ -58,7 +58,7 @@ internal data class PricingDto(
     @SerialName("request")
     val request: String? = null,
     @SerialName("web_search")
-    val webSearch: String? = null
+    val webSearch: String? = null,
 )
 
 @Serializable
@@ -74,5 +74,5 @@ internal data class DefaultTuningParametersDto(
     @SerialName("presence_penalty")
     val presencePenalty: Double? = null,
     @SerialName("repetition_penalty")
-    val repetitionPenalty: Double? = null
+    val repetitionPenalty: Double? = null,
 )

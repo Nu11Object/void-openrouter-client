@@ -24,7 +24,7 @@ interface AuthComponent {
 
         fun create(
             onAuthFinished: () -> Unit,
-            componentContext: ComponentContext
+            componentContext: ComponentContext,
         ): AuthComponent
     }
 }

@@ -61,7 +61,7 @@ fun chatMarkdownTypography(): MarkdownTypography {
         h5 = t.bodyMedium.copy(fontWeight = FontWeight.Bold),
         h6 = t.bodyMedium.copy(fontWeight = FontWeight.Bold),
         text = t.bodyMedium,
-        paragraph = t.bodyMedium,
+        paragraph = t.bodyMedium
     )
 }
 
@@ -87,7 +87,7 @@ private fun googleSansFlexFamily(
     opsz: Float,
     grad: Float = 0f,
     rond: Float = 0f,
-    width: Float = 100f
+    width: Float = 100f,
 ): FontFamily {
     val fonts = mutableListOf<Font>()
 
@@ -120,7 +120,7 @@ private fun googleSansFlexFamily(
                     FontVariation.width(width),
                     FontVariation.opticalSizing(opsz),
                     FontVariation.grade(grad),
-                    FontVariation.roundness(rond),
+                    FontVariation.roundness(rond)
                 )
             )
         )

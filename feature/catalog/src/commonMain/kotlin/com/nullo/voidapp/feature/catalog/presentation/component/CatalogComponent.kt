@@ -34,7 +34,7 @@ interface CatalogComponent {
 
         fun create(
             onNavigateBack: () -> Unit,
-            componentContext: ComponentContext
+            componentContext: ComponentContext,
         ): CatalogComponent
     }
 }

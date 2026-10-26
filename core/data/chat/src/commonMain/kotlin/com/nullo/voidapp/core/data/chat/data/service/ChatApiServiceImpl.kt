@@ -31,7 +31,7 @@ internal class ChatApiServiceImpl(
 ) : ChatApiService {
 
     override fun streamChatCompletion(
-        request: ChatCompletionRequestDto
+        request: ChatCompletionRequestDto,
     ): Flow<ChatCompletionChunkDto> = callbackFlow {
         try {
             httpClient.sse(
@@ -39,7 +39,7 @@ internal class ChatApiServiceImpl(
                 request = {
                     method = HttpMethod.Post
                     setBody(request)
-                },
+                }
             ) {
                 incoming
                     .takeWhile { it.data != SSE_DONE }

@@ -14,7 +14,8 @@ enum class DeviceConfiguration {
     MOBILE_LANDSCAPE,
     TABLET_PORTRAIT,
     TABLET_LANDSCAPE,
-    DESKTOP;
+    DESKTOP,
+    ;
 
     companion object {
 

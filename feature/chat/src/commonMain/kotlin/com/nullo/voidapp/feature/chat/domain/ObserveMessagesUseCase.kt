@@ -5,11 +5,9 @@ import com.nullo.voidapp.core.model.Message
 import kotlinx.coroutines.flow.Flow
 
 /** Use case responsible for observing messages of the conversation. */
-internal class ObserveMessagesUseCase(
-    private val conversationRepository: ConversationRepository,
-) {
+internal class ObserveMessagesUseCase(private val conversationRepository: ConversationRepository) {
 
-    operator fun invoke(conversationId: Long): Flow<List<Message>> {
-        return conversationRepository.observeMessages(conversationId)
-    }
+    operator fun invoke(conversationId: Long): Flow<List<Message>> = conversationRepository.observeMessages(
+        conversationId
+    )
 }

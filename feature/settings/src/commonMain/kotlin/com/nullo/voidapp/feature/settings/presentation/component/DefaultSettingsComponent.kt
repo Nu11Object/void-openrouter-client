@@ -18,7 +18,8 @@ internal class DefaultSettingsComponent(
     private val onSignedOut: () -> Unit,
     private val settingsStoreFactory: SettingsStoreFactory,
     private val componentContext: ComponentContext,
-) : SettingsComponent, ComponentContext by componentContext {
+) : SettingsComponent,
+    ComponentContext by componentContext {
 
     private val scope = componentScope()
     private val store = instanceKeeper.getStore { settingsStoreFactory.create() }
