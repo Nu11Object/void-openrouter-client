@@ -17,25 +17,33 @@ import com.nullo.voidapp.feature.settings.di.settingsFeatureModule
 import org.koin.core.context.startKoin
 import org.koin.dsl.KoinAppDeclaration
 
+private val baseModules = listOf(
+    appModule,
+    networkModule,
+    coreAuthModule,
+    dataStoreModule,
+    databaseModule,
+    securityModule,
+)
+
+private val dataModules = listOf(
+    settingsModule,
+    sessionModule,
+    catalogModule,
+    chatModule,
+)
+
+private val featureModules = listOf(
+    rootModule,
+    authFeatureModule,
+    settingsFeatureModule,
+    catalogFeatureModule,
+    chatFeatureModule,
+)
+
 fun initKoin(config: KoinAppDeclaration? = null) {
     startKoin {
         config?.invoke(this)
-        modules(
-            appModule,
-            rootModule,
-            networkModule,
-            coreAuthModule,
-            dataStoreModule,
-            databaseModule,
-            settingsModule,
-            sessionModule,
-            catalogModule,
-            chatModule,
-            securityModule,
-            authFeatureModule,
-            settingsFeatureModule,
-            catalogFeatureModule,
-            chatFeatureModule,
-        )
+        modules(baseModules + dataModules + featureModules)
     }
 }
