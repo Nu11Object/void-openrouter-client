@@ -1,8 +1,6 @@
 package com.nullo.voidapp.feature.auth.domain.util
 
 import com.nullo.voidapp.feature.auth.domain.entity.PkceParams
-import io.ktor.utils.io.charsets.Charsets
-import io.ktor.utils.io.core.toByteArray
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.convert
@@ -24,7 +22,7 @@ internal object IosPkceGenerator : PkceGenerator {
     override fun generate(): PkceParams {
         val verifierBytes = secureRandom(VERIFIER_BYTE_LENGTH)
         val codeVerifier = verifierBytes.encodeBase64Url()
-        val codeChallenge = sha256(codeVerifier.toByteArray(Charsets.UTF_8)).encodeBase64Url()
+        val codeChallenge = sha256(codeVerifier.encodeToByteArray()).encodeBase64Url()
         return PkceParams(codeVerifier = codeVerifier, codeChallenge = codeChallenge)
     }
 
