@@ -45,10 +45,12 @@ import com.nullo.voidapp.di.initKoin
 import com.nullo.voidapp.feature.root.component.RootComponent
 import java.awt.Dimension
 import javax.swing.SwingUtilities.invokeAndWait
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.core.parameter.parametersOf
 import org.koin.mp.KoinPlatform.getKoin
 import voidapp.desktopapp.generated.resources.Res
+import voidapp.desktopapp.generated.resources.app_icon
 import voidapp.desktopapp.generated.resources.desc_close_window
 import voidapp.desktopapp.generated.resources.desc_maximize_window
 import voidapp.desktopapp.generated.resources.desc_minimize_window
@@ -78,8 +80,9 @@ fun main() {
 
         Window(
             onCloseRequest = ::exitApplication,
-            title = WINDOW_TITLE,
             state = windowState,
+            title = WINDOW_TITLE,
+            icon = painterResource(Res.drawable.app_icon),
             undecorated = true,
             transparent = true
         ) {
