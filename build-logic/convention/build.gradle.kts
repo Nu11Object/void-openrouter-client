@@ -25,6 +25,7 @@ dependencies {
     implementation(libs.compose.gradle.plugin)
     implementation(libs.ksp.gradle.plugin)
     implementation(libs.room.gradle.plugin)
+    implementation(libs.ktlint.gradle.plugin)
 }
 
 tasks {

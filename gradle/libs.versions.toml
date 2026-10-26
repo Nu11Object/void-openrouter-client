@@ -43,6 +43,9 @@ fileKit = "0.16.0"
 markdown = "0.46.0"
 coil = "3.6.3"
 
+ktlint = "14.2.0"
+ktlint-engine = "1.8.0"
+
 [libraries]
 # Gradle plugin artifacts used by build-logic
 android-gradle-plugin = { module = "com.android.tools.build:gradle", version.ref = "agp" }
@@ -52,6 +55,8 @@ kotlin-compose-gradle-plugin = { module = "org.jetbrains.kotlin:compose-compiler
 kotlin-serialization-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-serialization", version.ref = "kotlin" }
 ksp-gradle-plugin = { module = "com.google.devtools.ksp:symbol-processing-gradle-plugin", version.ref = "ksp" }
 room-gradle-plugin = { module = "androidx.room3:room3-gradle-plugin", version.ref = "room" }
+ktlint-gradle-plugin = { module = "org.jlleitschuh.gradle:ktlint-gradle", version.ref = "ktlint" }
+
 decompose-core = { module = "com.arkivanov.decompose:decompose", version.ref = "decompose" }
 decompose-compose = { module = "com.arkivanov.decompose:extensions-compose", version.ref = "decompose" }
 essenty-lifecycle = { module = "com.arkivanov.essenty:lifecycle", version.ref = "essenty" }
