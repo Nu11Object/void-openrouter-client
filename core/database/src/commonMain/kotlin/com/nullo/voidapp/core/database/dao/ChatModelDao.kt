@@ -17,16 +17,33 @@ interface ChatModelDao {
     @Query("SELECT * FROM chat_models")
     fun observeAll(): Flow<List<ChatModelEntity>>
 
-    @Query("SELECT * FROM chat_models WHERE id = :modelId LIMIT 1")
+    @Query(
+        """
+        SELECT * FROM chat_models
+        WHERE id = :modelId
+        LIMIT 1
+        """
+    )
     fun observeById(modelId: String): Flow<ChatModelEntity?>
 
-    @Query("SELECT * FROM chat_models WHERE pinned = 1")
+    @Query(
+        """
+        SELECT * FROM chat_models
+        WHERE pinned = 1
+        """
+    )
     fun observePinned(): Flow<List<ChatModelEntity>>
 
     @Query("SELECT COUNT(*) FROM chat_models")
     suspend fun count(): Int
 
-    @Query("UPDATE chat_models SET pinned = :pinned WHERE id = :modelId")
+    @Query(
+        """
+        UPDATE chat_models
+        SET pinned = :pinned
+        WHERE id = :modelId
+        """
+    )
     suspend fun setPinned(modelId: String, pinned: Boolean)
 
     @Transaction
@@ -40,7 +57,12 @@ interface ChatModelDao {
         )
     }
 
-    @Query("SELECT id FROM chat_models WHERE pinned = 1")
+    @Query(
+        """
+        SELECT id FROM chat_models
+        WHERE pinned = 1
+        """
+    )
     suspend fun getPinnedIds(): List<String>
 
     @Query("DELETE FROM chat_models")
