@@ -7,6 +7,7 @@ import com.nullo.voidapp.feature.root.component.RootComponent
 import org.koin.core.parameter.parametersOf
 import org.koin.mp.KoinPlatform.getKoin
 
+@Suppress("ktlint:standard:function-naming")
 fun MainViewController() = ComposeUIViewController {
     App(rootComponent = RootHolder.rootComponent)
 }

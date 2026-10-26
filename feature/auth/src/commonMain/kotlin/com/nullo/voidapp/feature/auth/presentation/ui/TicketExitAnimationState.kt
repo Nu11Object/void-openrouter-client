@@ -17,7 +17,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 /** Duration of "pulling the ticket" - shared between the offset and glow growth. */
-private const val PullDurationMs = 1500
+private const val PULL_DURATION_MS = 1500
 
 /** The total upward offset of the ticket before it tears. */
 private val PullLiftOffset = (-32).dp
@@ -29,7 +29,7 @@ private val TopTearOffset = (-96).dp
 private val BottomLiftOffset = (-48).dp
 
 /** The target rotation angle (in degrees) for the top half of the ticket after it tears. */
-private const val TopRotationDegree = -8f
+private const val TOP_ROTATION_DEGREE = -8f
 
 /**
  * Two phases:
@@ -61,7 +61,7 @@ internal class TicketExitAnimationState(
             topOffsetAnim.animateTo(
                 targetValue = PullLiftOffset,
                 animationSpec = tween(
-                    durationMillis = PullDurationMs,
+                    durationMillis = PULL_DURATION_MS,
                     easing = LinearEasing,
                 )
             )
@@ -75,7 +75,7 @@ internal class TicketExitAnimationState(
                 )
             }
             topRotationAnim.animateTo(
-                targetValue = TopRotationDegree,
+                targetValue = TOP_ROTATION_DEGREE,
                 animationSpec = spring(Spring.DampingRatioMediumBouncy, Spring.StiffnessMediumLow)
             )
         }
@@ -83,7 +83,7 @@ internal class TicketExitAnimationState(
             bottomOffsetAnim.animateTo(
                 targetValue = PullLiftOffset,
                 animationSpec = tween(
-                    durationMillis = PullDurationMs,
+                    durationMillis = PULL_DURATION_MS,
                     easing = LinearEasing,
                 )
             )
@@ -99,7 +99,7 @@ internal class TicketExitAnimationState(
             linearProgressAnim.animateTo(
                 targetValue = 1f,
                 animationSpec = tween(
-                    durationMillis = PullDurationMs,
+                    durationMillis = PULL_DURATION_MS,
                     easing = EaseOut,
                 )
             )
