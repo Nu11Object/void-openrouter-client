@@ -101,6 +101,24 @@ git clone https://github.com/Nu11Object/void-openrouter-client.git
 Open it in Android Studio (or another IDE with Kotlin Multiplatform support) and pick the run
 configuration for the platform you want.
 
+#### Build conventions
+
+Shared Gradle configuration lives in `build-logic`.
+
+| Plugin                        | Purpose                                                              |
+|-------------------------------|----------------------------------------------------------------------|
+| `voidapp.kmp.library`         | KMP targets for Android, iOS and JVM; SDK versions                   |
+| `voidapp.kmp.compose`         | Compose Multiplatform and resources                                  |
+| `voidapp.kmp.serialization`   | kotlinx.serialization compiler plugin                                |
+| `voidapp.mvi`                 | MVIKotlin dependencies                                               |
+| `voidapp.decompose`           | Decompose dependencies                                               |
+| `voidapp.feature`             | Feature stack: Compose, MVI, Decompose, Koin and shared core modules |
+| `voidapp.room`                | Room and KSP for every target                                        |
+| `voidapp.android.application` | Android app configuration and release R8/resource shrinking          |
+| `voidapp.desktop.application` | Compose Desktop application                                          |
+| `voidapp.ios.framework`       | Static iOS framework                                                 |
+| `voidapp.quality`             | ktlint checks for KMP libraries and applications                     |
+
 <br>
 
 ![Tech Stack Header](./assets/header_tech_stack.png)
@@ -121,6 +139,7 @@ The project is written in **Kotlin Multiplatform** with **Compose Multiplatform*
 | Images               | [Coil 3](https://coil-kt.github.io/coil/)                                                      |
 | Markdown rendering   | [multiplatform-markdown-renderer](https://github.com/mikepenz/multiplatform-markdown-renderer) |
 | File picking         | [FileKit](https://github.com/vinceglb/FileKit)                                                 |
+| SVG to ImageVector   | [Valkyrie](https://github.com/ComposeGears/Valkyrie)                                           |
 
 Exact versions live in [`gradle/libs.versions.toml`](gradle/libs.versions.toml).
 
@@ -224,7 +243,6 @@ graph TD
     database --> model
     security --> datastore
     designsystem --> utils
-    model --> utils
 ```
 
 #### Feature modules
