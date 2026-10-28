@@ -248,7 +248,7 @@ private fun CatalogScreenContent(
             ) {
                 Column(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.weight(2f)
+                    modifier = Modifier.weight(3f)
                 ) {
                     VoidSearchBar(
                         query = state.searchQuery,
@@ -274,7 +274,7 @@ private fun CatalogScreenContent(
                     onUseModelClick = onUseModelClick,
                     onPinModelClick = onPinModelClick,
                     bottomFadeFraction = 0.1f,
-                    modifier = Modifier.weight(4f)
+                    modifier = Modifier.weight(5f)
                 )
             }
         }
