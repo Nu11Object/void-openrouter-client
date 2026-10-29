@@ -51,6 +51,7 @@ include(":core:security")
 include(":core:utils")
 include(":core:designsystem")
 include(":core:datastore")
+include(":core:desktop")
 
 include(":feature:root")
 include(":feature:auth")

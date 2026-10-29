@@ -14,6 +14,9 @@ kotlin {
             implementation(libs.androidx.sqlite.bundled)
             implementation(libs.kotlinx.serialization.json)
         }
+        jvmMain.dependencies {
+            implementation(projects.core.desktop)
+        }
     }
 }
 

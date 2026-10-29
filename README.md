@@ -191,6 +191,7 @@ graph TD
         database[core:database]
         security[core:security]
         datastore[core:datastore]
+        desktop[core:desktop]
     end
 
     subgraph Foundation
@@ -241,6 +242,8 @@ graph TD
     coreAuth --> security
     network --> security
     database --> model
+    database --> desktop
+    datastore --> desktop
     security --> datastore
     designsystem --> utils
 ```
@@ -263,6 +266,7 @@ graph TD
 | `core:model`         | Immutable domain models for chat/image models, conversations, messages, pricing and tuning parameters.        |
 | `core:designsystem`  | Material 3 theme, colors, typography, icons and reusable Compose components.                                  |
 | `core:datastore`     | DataStore factory and qualifiers for settings, session and API key preferences.                               |
+| `core:desktop`       | Desktop-only JVM utilities; resolves canonical app-data directories for Room and DataStore.                   |
 | `core:security`      | API key storage contract with Tink, Keychain and Java Keyring platform implementations.                       |
 | `core:network`       | Shared Ktor `HttpClient` with JSON, SSE, timeouts, bearer auth injection and logging.                         |
 | `core:database`      | Room database, DAOs, entities and mappers for cached models, conversations and messages.                      |

@@ -9,5 +9,8 @@ kotlin {
             api(libs.androidx.datastore.preferences)
             implementation(libs.okio)
         }
+        jvmMain.dependencies {
+            implementation(projects.core.desktop)
+        }
     }
 }
