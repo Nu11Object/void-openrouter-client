@@ -19,6 +19,7 @@ welcome to **fork or clone** the repository and take it in your own direction.
 
 - Conversations and messages are stored locally
 - Streaming responses
+- Attach images to your prompts
 - Thinking (reasoning) and web search support
 - Regenerate the last response
 - Graceful error handling: failed generations are kept in the conversation and can be retried
@@ -29,6 +30,7 @@ welcome to **fork or clone** the repository and take it in your own direction.
 - Loads all OpenRouter models: both **Chat** and **Image** models
 - Search for a model, then use it right away or pin it for later
 - Shows each model's name, context window and price per 1M tokens
+- Filter models by price, context window, features and modalities
 
 #### Settings
 
@@ -255,7 +257,7 @@ graph TD
 | `feature:root`     | Application shell that owns the Decompose root, navigation stack, theme and startup routing between screens.   |
 | `feature:auth`     | Sign-in screen with browser-based OAuth 2.0 + PKCE and manual API key entry, plus platform-specific launchers. |
 | `feature:chat`     | Conversation screen with streaming chat, model selection, thinking/web search toggles and history management.  |
-| `feature:catalog`  | Model catalog with search, refresh, pinning and selection of chat or image models.                             |
+| `feature:catalog`  | Model catalog with search, filtering, refresh, pinning and selection of chat or image models.                  |
 | `feature:settings` | Settings screen for theme, API key updates and sign-out with local data cleanup.                               |
 
 #### Core modules
@@ -274,7 +276,7 @@ graph TD
 | `core:data:settings` | DataStore-backed settings repository for the selected app theme.                                              |
 | `core:data:session`  | Persists the active model, tuning/image parameters and thinking/web search flags.                             |
 | `core:data:catalog`  | Syncs the OpenRouter catalog into Room and exposes use cases to observe, refresh and pin models.              |
-| `core:data:chat`     | Chat and conversation repositories, streaming response generation and image encoding.                         |
+| `core:data:chat`     | Chat and conversation repositories, streaming response generation, attachment storage and image encoding.     |
 
 <br>
 
@@ -282,5 +284,5 @@ graph TD
 
 - Image generation
 - Model tuning (parameters)
-- Model filtering in the catalog (by price, features, etc.)
 - Tests, starting with unit tests
+- CI & Releases
