@@ -87,7 +87,6 @@ import com.nullo.voidapp.feature.catalog.presentation.store.CatalogStore
 import com.nullo.voidapp.feature.catalog.presentation.store.CatalogStore.State.CatalogTab
 import org.jetbrains.compose.resources.stringResource
 import voidapp.core.utils.generated.resources.Res as CoreRes
-import voidapp.core.utils.generated.resources.dismiss
 import voidapp.core.utils.generated.resources.ok
 import voidapp.core.utils.generated.resources.oops
 import voidapp.core.utils.generated.resources.template_dismiss_with_timer
