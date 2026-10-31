@@ -4,6 +4,8 @@ import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.value.Value
 import com.nullo.voidapp.core.model.ActiveModelRef
 import com.nullo.voidapp.core.model.ModelType
+import com.nullo.voidapp.feature.catalog.domain.ChatModelFilters
+import com.nullo.voidapp.feature.catalog.domain.ImageModelFilters
 import com.nullo.voidapp.feature.catalog.presentation.store.CatalogStore
 
 interface CatalogComponent {
@@ -13,6 +15,12 @@ interface CatalogComponent {
     fun onBackClicked()
 
     fun onSearchQueryChanged(query: String)
+
+    fun onChatFiltersChanged(filters: ChatModelFilters)
+
+    fun onImageFiltersChanged(filters: ImageModelFilters)
+
+    fun onFiltersReset()
 
     fun onSearchQueryCleared()
 

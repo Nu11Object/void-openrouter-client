@@ -8,6 +8,8 @@ import com.nullo.voidapp.core.model.ActiveModelRef
 import com.nullo.voidapp.core.model.ModelType
 import com.nullo.voidapp.core.utils.decompose.componentScope
 import com.nullo.voidapp.core.utils.mvikotlin.asValue
+import com.nullo.voidapp.feature.catalog.domain.ChatModelFilters
+import com.nullo.voidapp.feature.catalog.domain.ImageModelFilters
 import com.nullo.voidapp.feature.catalog.presentation.store.CatalogStore
 import com.nullo.voidapp.feature.catalog.presentation.store.CatalogStore.Intent
 import com.nullo.voidapp.feature.catalog.presentation.store.CatalogStoreFactory
@@ -36,6 +38,18 @@ internal class DefaultCatalogComponent(
 
     override fun onSearchQueryChanged(query: String) {
         store.accept(Intent.ChangeSearchQuery(query))
+    }
+
+    override fun onChatFiltersChanged(filters: ChatModelFilters) {
+        store.accept(Intent.ChangeChatFilters(filters))
+    }
+
+    override fun onImageFiltersChanged(filters: ImageModelFilters) {
+        store.accept(Intent.ChangeImageFilters(filters))
+    }
+
+    override fun onFiltersReset() {
+        store.accept(Intent.ResetFilters)
     }
 
     override fun onSearchQueryCleared() {

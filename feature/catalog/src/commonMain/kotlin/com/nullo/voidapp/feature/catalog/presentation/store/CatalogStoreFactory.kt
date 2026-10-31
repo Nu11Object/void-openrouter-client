@@ -18,6 +18,9 @@ import com.nullo.voidapp.core.utils.kotlin.debouncedQuery
 import com.nullo.voidapp.core.utils.kotlin.filterWithQuery
 import com.nullo.voidapp.core.utils.resources.UiText
 import com.nullo.voidapp.core.utils.resources.toUiText
+import com.nullo.voidapp.feature.catalog.domain.ChatModelFilters
+import com.nullo.voidapp.feature.catalog.domain.ImageModelFilters
+import com.nullo.voidapp.feature.catalog.domain.applyFilters
 import com.nullo.voidapp.feature.catalog.presentation.store.CatalogStore.State
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Duration.Companion.milliseconds
@@ -48,17 +51,19 @@ internal class CatalogStoreFactory(
 ) : StoreFactory by storeFactory {
 
     fun create(): CatalogStore {
-        // Internal state flow to sync search queries between Executor and Bootstrapper.
-        // State.searchQuery is used for UI only!
+        // Internal state flows to sync Executor and Bootstrapper.
+        // Properties from State are used for UI only!
         val searchQuery = MutableStateFlow("")
+        val chatModelFilters = MutableStateFlow(ChatModelFilters.Default)
+        val imageModelFilters = MutableStateFlow(ImageModelFilters.Default)
 
         return object :
             CatalogStore,
             Store<CatalogStore.Intent, State, CatalogStore.Label> by storeFactory.create(
                 name = "CatalogStore",
                 initialState = State(),
-                bootstrapper = BootstrapperImpl(searchQuery),
-                executorFactory = { ExecutorImpl(searchQuery) },
+                bootstrapper = BootstrapperImpl(searchQuery, chatModelFilters, imageModelFilters),
+                executorFactory = { ExecutorImpl(searchQuery, chatModelFilters, imageModelFilters) },
                 reducer = ReducerImpl
             ) {}
     }
@@ -79,6 +84,9 @@ internal class CatalogStoreFactory(
             val isDbEmpty: Boolean,
         ) : Message
 
+        data class ChatFiltersChanged(val filters: ChatModelFilters) : Message
+        data class ImageFiltersChanged(val filters: ImageModelFilters) : Message
+
         data class ErrorOccurred(val text: UiText) : Message
         data class MessageReceived(val text: UiText) : Message
         data class MessageDismissalTimerChanged(val newValue: Int) : Message
@@ -98,7 +106,11 @@ internal class CatalogStoreFactory(
         data object AutoRefreshCatalog : Action
     }
 
-    private inner class BootstrapperImpl(private val searchQuery: Flow<String>) : CoroutineBootstrapper<Action>() {
+    private inner class BootstrapperImpl(
+        private val searchQuery: Flow<String>,
+        private val chatModelFilters: Flow<ChatModelFilters>,
+        private val imageModelFilters: Flow<ImageModelFilters>,
+    ) : CoroutineBootstrapper<Action>() {
 
         override fun invoke() {
             var isFirstEmission = true
@@ -106,19 +118,19 @@ internal class CatalogStoreFactory(
             combine(
                 observeChatModelsUseCase(),
                 observeImageModelsUseCase(),
-                searchQuery.debouncedQuery(SEARCH_QUERY_DEBOUNCE)
-            ) { chatModels, imageModels, query ->
+                searchQuery.debouncedQuery(SEARCH_QUERY_DEBOUNCE),
+                chatModelFilters,
+                imageModelFilters
+            ) { chatModels, imageModels, query, chatFilters, imageFilters ->
                 val isDbEmpty = chatModels.isEmpty() && imageModels.isEmpty()
 
-                val filteredChat = chatModels.filterWithQuery(
-                    query = query,
-                    filterBy = { it.name }
-                )
+                val filteredChat = chatModels
+                    .filterWithQuery(query = query, filterBy = { it.name })
+                    .applyFilters(chatFilters)
 
-                val filteredImage = imageModels.filterWithQuery(
-                    query = query,
-                    filterBy = { it.name }
-                )
+                val filteredImage = imageModels
+                    .filterWithQuery(query = query, filterBy = { it.name })
+                    .applyFilters(imageFilters)
 
                 Triple(filteredChat, filteredImage, isDbEmpty)
             }
@@ -136,8 +148,11 @@ internal class CatalogStoreFactory(
         }
     }
 
-    private inner class ExecutorImpl(private val searchQuery: MutableStateFlow<String>) :
-        CoroutineExecutor<CatalogStore.Intent, Action, State, Message, CatalogStore.Label>() {
+    private inner class ExecutorImpl(
+        private val searchQuery: MutableStateFlow<String>,
+        private val chatModelFilters: MutableStateFlow<ChatModelFilters>,
+        private val imageModelFilters: MutableStateFlow<ImageModelFilters>,
+    ) : CoroutineExecutor<CatalogStore.Intent, Action, State, Message, CatalogStore.Label>() {
 
         private var useModelJob: Job? = null
         private var dismissMessageJob: Job? = null
@@ -199,6 +214,30 @@ internal class CatalogStoreFactory(
                         val model = intent.modelRef
                         useModelUseCase(model)
                         showMessage(UiText(Res.string.message_using_model, model.id))
+                    }
+                }
+
+                is CatalogStore.Intent.ChangeChatFilters -> {
+                    dispatch(Message.ChatFiltersChanged(intent.filters))
+                    chatModelFilters.update { intent.filters }
+                }
+
+                is CatalogStore.Intent.ChangeImageFilters -> {
+                    dispatch(Message.ImageFiltersChanged(intent.filters))
+                    imageModelFilters.update { intent.filters }
+                }
+
+                is CatalogStore.Intent.ResetFilters -> {
+                    when (state().selectedTab) {
+                        State.CatalogTab.ChatModels -> {
+                            dispatch(Message.ChatFiltersChanged(ChatModelFilters.Default))
+                            chatModelFilters.update { ChatModelFilters.Default }
+                        }
+
+                        State.CatalogTab.ImageModels -> {
+                            dispatch(Message.ImageFiltersChanged(ImageModelFilters.Default))
+                            imageModelFilters.update { ImageModelFilters.Default }
+                        }
                     }
                 }
 
@@ -280,6 +319,14 @@ internal class CatalogStoreFactory(
             is Message.SearchQueryCleared -> copy(searchQuery = "")
 
             is Message.VerboseInfoToggled -> copy(showVerboseInfo = msg.enabled)
+
+            is Message.ChatFiltersChanged -> copy(
+                chatFilters = msg.filters
+            )
+
+            is Message.ImageFiltersChanged -> copy(
+                imageFilters = msg.filters
+            )
         }
     }
 

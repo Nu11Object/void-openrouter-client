@@ -7,22 +7,36 @@ import com.nullo.voidapp.core.model.ModelType
 import com.nullo.voidapp.core.model.chatmodel.ChatModel
 import com.nullo.voidapp.core.model.imagemodel.ImageModel
 import com.nullo.voidapp.core.utils.resources.UiText
+import com.nullo.voidapp.feature.catalog.domain.ChatModelFilters
+import com.nullo.voidapp.feature.catalog.domain.ImageModelFilters
 
 interface CatalogStore : Store<CatalogStore.Intent, CatalogStore.State, CatalogStore.Label> {
 
     @Immutable
     data class State(
         val searchQuery: String = "",
+
         val chatModels: List<ChatModel> = emptyList(),
         val imageModels: List<ImageModel> = emptyList(),
+
+        val chatFilters: ChatModelFilters = ChatModelFilters.Default,
+        val imageFilters: ImageModelFilters = ImageModelFilters.Default,
+
         val selectedTab: CatalogTab = CatalogTab.ChatModels,
         val showVerboseInfo: Boolean = true,
+
         val isLoading: Boolean = false,
+        val isDbEmpty: Boolean = false,
+
         val error: UiText? = null,
         val message: UiText? = null,
-        val isDbEmpty: Boolean = false,
         val messageDismissalTimer: Int = 0,
     ) {
+        val activeFiltersCount: Int
+            get() = when (selectedTab) {
+                CatalogTab.ChatModels -> chatFilters.activeCount
+                CatalogTab.ImageModels -> imageFilters.activeCount
+            }
 
         @Immutable
         sealed interface CatalogTab {
@@ -49,6 +63,10 @@ interface CatalogStore : Store<CatalogStore.Intent, CatalogStore.State, CatalogS
             val modelType: ModelType,
             val pinned: Boolean,
         ) : Intent
+
+        data class ChangeChatFilters(val filters: ChatModelFilters) : Intent
+        data class ChangeImageFilters(val filters: ImageModelFilters) : Intent
+        data object ResetFilters : Intent
 
         data object DismissError : Intent
         data object DismissMessage : Intent
