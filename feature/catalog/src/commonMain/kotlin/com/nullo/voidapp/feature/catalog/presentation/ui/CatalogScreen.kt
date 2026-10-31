@@ -4,8 +4,13 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,31 +29,53 @@ import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.lazy.staggeredgrid.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FloatingToolbarDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.HorizontalFloatingToolbar
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.ToggleButton
 import androidx.compose.material3.ToggleButtonDefaults
 import androidx.compose.material3.ToggleButtonShapes
+import androidx.compose.material3.rememberBottomSheetState
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
@@ -60,10 +87,13 @@ import com.nullo.voidapp.core.designsystem.component.VoidAlertDialog
 import com.nullo.voidapp.core.designsystem.component.VoidDialogButton
 import com.nullo.voidapp.core.designsystem.component.VoidSearchBar
 import com.nullo.voidapp.core.designsystem.component.VoidSnackbarHost
+import com.nullo.voidapp.core.designsystem.component.VoidTextField
 import com.nullo.voidapp.core.designsystem.icon.Icons
+import com.nullo.voidapp.core.designsystem.icon.automirrored.Restart
 import com.nullo.voidapp.core.designsystem.icon.default.Chat
 import com.nullo.voidapp.core.designsystem.icon.default.Check
 import com.nullo.voidapp.core.designsystem.icon.default.CloudSync
+import com.nullo.voidapp.core.designsystem.icon.default.Filter
 import com.nullo.voidapp.core.designsystem.icon.default.Image
 import com.nullo.voidapp.core.designsystem.icon.default.Keep
 import com.nullo.voidapp.core.designsystem.icon.default.Lightbulb
@@ -82,6 +112,9 @@ import com.nullo.voidapp.core.model.imagemodel.ImageModel
 import com.nullo.voidapp.core.utils.compose.DeviceConfiguration
 import com.nullo.voidapp.core.utils.compose.bottomFade
 import com.nullo.voidapp.core.utils.compose.rememberDeviceConfiguration
+import com.nullo.voidapp.feature.catalog.domain.ChatModelFilters
+import com.nullo.voidapp.feature.catalog.domain.ImageModelFilters
+import com.nullo.voidapp.feature.catalog.domain.PriceRange
 import com.nullo.voidapp.feature.catalog.presentation.component.CatalogComponent
 import com.nullo.voidapp.feature.catalog.presentation.store.CatalogStore
 import com.nullo.voidapp.feature.catalog.presentation.store.CatalogStore.State.CatalogTab
@@ -91,22 +124,39 @@ import voidapp.core.utils.generated.resources.ok
 import voidapp.core.utils.generated.resources.oops
 import voidapp.core.utils.generated.resources.template_dismiss_with_timer
 import voidapp.feature.catalog.generated.resources.Res
+import voidapp.feature.catalog.generated.resources.any
 import voidapp.feature.catalog.generated.resources.auto_sync_description
 import voidapp.feature.catalog.generated.resources.chat_models
+import voidapp.feature.catalog.generated.resources.context_window
+import voidapp.feature.catalog.generated.resources.desc_open_filters
+import voidapp.feature.catalog.generated.resources.features
+import voidapp.feature.catalog.generated.resources.filters
+import voidapp.feature.catalog.generated.resources.image
 import voidapp.feature.catalog.generated.resources.image_models
+import voidapp.feature.catalog.generated.resources.input_modalities
+import voidapp.feature.catalog.generated.resources.input_price
 import voidapp.feature.catalog.generated.resources.model_catalog
 import voidapp.feature.catalog.generated.resources.no_models_found
+import voidapp.feature.catalog.generated.resources.output_modalities
+import voidapp.feature.catalog.generated.resources.output_price
 import voidapp.feature.catalog.generated.resources.per_1m_tokens
 import voidapp.feature.catalog.generated.resources.pin
+import voidapp.feature.catalog.generated.resources.pinned_only
+import voidapp.feature.catalog.generated.resources.price_description
+import voidapp.feature.catalog.generated.resources.price_from
+import voidapp.feature.catalog.generated.resources.price_to
 import voidapp.feature.catalog.generated.resources.reasoning
 import voidapp.feature.catalog.generated.resources.refresh
+import voidapp.feature.catalog.generated.resources.reset
 import voidapp.feature.catalog.generated.resources.search_models
 import voidapp.feature.catalog.generated.resources.syncing
 import voidapp.feature.catalog.generated.resources.template_context_length
+import voidapp.feature.catalog.generated.resources.text
 import voidapp.feature.catalog.generated.resources.unpin
 import voidapp.feature.catalog.generated.resources.use_now
 import voidapp.feature.catalog.generated.resources.verbose
 import voidapp.feature.catalog.generated.resources.vision
+import voidapp.feature.catalog.generated.resources.zero_cost
 
 private val innerContentPadding = 16.dp
 
@@ -129,10 +179,14 @@ fun CatalogScreen(
         onPinModelClick = catalogComponent::onPinModelClicked,
         onDismissMessage = catalogComponent::onMessageDismissed,
         onDismissError = catalogComponent::onErrorDismissed,
+        onChatFiltersChange = catalogComponent::onChatFiltersChanged,
+        onImageFiltersChange = catalogComponent::onImageFiltersChanged,
+        onResetFiltersClick = catalogComponent::onFiltersReset,
         modifier = modifier
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CatalogScreenContent(
     state: CatalogStore.State,
@@ -146,12 +200,20 @@ private fun CatalogScreenContent(
     onPinModelClick: (modelId: String, ModelType, pin: Boolean) -> Unit,
     onDismissMessage: () -> Unit,
     onDismissError: () -> Unit,
+    onChatFiltersChange: (ChatModelFilters) -> Unit,
+    onImageFiltersChange: (ImageModelFilters) -> Unit,
+    onResetFiltersClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val deviceConfiguration = rememberDeviceConfiguration()
     val isPortrait = remember(deviceConfiguration) {
         deviceConfiguration == DeviceConfiguration.MOBILE_PORTRAIT ||
             deviceConfiguration == DeviceConfiguration.TABLET_PORTRAIT
+    }
+
+    var showFilters by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(isPortrait) {
+        if (!isPortrait) showFilters = false
     }
 
     Scaffold(
@@ -162,7 +224,28 @@ private fun CatalogScreenContent(
                 title = stringResource(Res.string.model_catalog),
                 onBackClick = onBackClick,
                 actions = {
-                    if (!isPortrait) {
+                    if (isPortrait) {
+                        IconButton(
+                            onClick = { showFilters = true },
+                            modifier = Modifier.pointerHoverIcon(PointerIcon.Hand)
+                        ) {
+                            BadgedBox(
+                                badge = {
+                                    if (state.activeFiltersCount > 0) {
+                                        Badge(
+                                            containerColor = MaterialTheme.colorScheme.primary,
+                                            contentColor = MaterialTheme.colorScheme.onPrimary
+                                        ) { Text(text = state.activeFiltersCount.toString()) }
+                                    }
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Filter,
+                                    contentDescription = stringResource(Res.string.desc_open_filters)
+                                )
+                            }
+                        }
+                    } else {
                         CatalogTabSwitcher(
                             selectedTab = state.selectedTab,
                             onTabSelected = onTabSelected,
@@ -247,7 +330,9 @@ private fun CatalogScreenContent(
             ) {
                 Column(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.weight(3f)
+                    modifier = Modifier
+                        .weight(3f)
+                        .verticalScroll(rememberScrollState())
                 ) {
                     VoidSearchBar(
                         query = state.searchQuery,
@@ -266,6 +351,25 @@ private fun CatalogScreenContent(
                             .fillMaxWidth()
                             .padding(horizontal = innerContentPadding)
                     )
+
+                    HorizontalDivider(
+                        color = MaterialTheme.colorScheme.outlineVariant,
+                        thickness = 2.dp,
+                        modifier = Modifier.padding(top = 8.dp, bottom = 16.dp)
+                    )
+
+                    FiltersSection(
+                        selectedTab = state.selectedTab,
+                        chatModelFilters = state.chatFilters,
+                        imageModelFilters = state.imageFilters,
+                        activeFiltersCount = state.activeFiltersCount,
+                        onChatFiltersChange = onChatFiltersChange,
+                        onImageFiltersChange = onImageFiltersChange,
+                        onResetFiltersClick = onResetFiltersClick,
+                        modifier = Modifier
+                            .padding(horizontal = innerContentPadding)
+                            .padding(bottom = 16.dp)
+                    )
                 }
 
                 ModelsListSection(
@@ -279,6 +383,28 @@ private fun CatalogScreenContent(
         }
     }
 
+    if (isPortrait && showFilters) {
+        ModalBottomSheet(
+            onDismissRequest = { showFilters = false },
+            sheetState = rememberBottomSheetState(initialValue = SheetValue.Hidden),
+            containerColor = MaterialTheme.colorScheme.surface
+        ) {
+            FiltersSection(
+                selectedTab = state.selectedTab,
+                chatModelFilters = state.chatFilters,
+                imageModelFilters = state.imageFilters,
+                activeFiltersCount = state.activeFiltersCount,
+                onChatFiltersChange = onChatFiltersChange,
+                onImageFiltersChange = onImageFiltersChange,
+                onResetFiltersClick = onResetFiltersClick,
+                modifier = Modifier
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = innerContentPadding)
+                    .padding(bottom = 16.dp)
+            )
+        }
+    }
+
     state.error?.let { error ->
         VoidAlertDialog(
             title = stringResource(CoreRes.string.oops),
@@ -288,6 +414,455 @@ private fun CatalogScreenContent(
                 text = stringResource(CoreRes.string.ok),
                 onClick = onDismissError
             )
+        )
+    }
+}
+
+@Composable
+private fun FiltersSection(
+    selectedTab: CatalogTab,
+    chatModelFilters: ChatModelFilters,
+    imageModelFilters: ImageModelFilters,
+    activeFiltersCount: Int,
+    onChatFiltersChange: (ChatModelFilters) -> Unit,
+    onImageFiltersChange: (ImageModelFilters) -> Unit,
+    onResetFiltersClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(start = 8.dp)
+        ) {
+            Text(
+                text = stringResource(Res.string.filters),
+                style = MaterialTheme.typography.titleMedium
+            )
+            AnimatedVisibility(
+                visible = activeFiltersCount > 0,
+                label = "ActiveFiltersCount"
+            ) {
+                Text(
+                    text = activeFiltersCount.toString(),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier
+                        .padding(start = 6.dp)
+                        .background(
+                            color = MaterialTheme.colorScheme.primaryContainer,
+                            shape = CircleShape
+                        )
+                        .padding(horizontal = 8.dp)
+                )
+            }
+            Spacer(Modifier.weight(1f))
+            TextButton(
+                onClick = onResetFiltersClick,
+                enabled = activeFiltersCount > 0,
+                modifier = Modifier
+                    .height(32.dp)
+                    .pointerHoverIcon(PointerIcon.Hand),
+                contentPadding = PaddingValues(horizontal = 6.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Restart,
+                    contentDescription = null,
+                    modifier = Modifier.size(ButtonDefaults.IconSize)
+                )
+                Spacer(Modifier.width(ButtonDefaults.IconSpacing))
+                Text(text = stringResource(Res.string.reset))
+            }
+        }
+        when (selectedTab) {
+            CatalogTab.ChatModels -> {
+                FilterSwitch(
+                    text = stringResource(Res.string.pinned_only),
+                    checked = chatModelFilters.pinnedOnly,
+                    onCheckedChange = { onChatFiltersChange(chatModelFilters.copy(pinnedOnly = it)) }
+                )
+                FilterSwitch(
+                    text = stringResource(Res.string.zero_cost),
+                    checked = chatModelFilters.freeOnly,
+                    onCheckedChange = { onChatFiltersChange(chatModelFilters.copy(freeOnly = it)) }
+                )
+                AnimatedContent(
+                    targetState = !chatModelFilters.freeOnly,
+                    transitionSpec = { fadeIn() togetherWith fadeOut() + slideOutHorizontally() },
+                    label = "FilterPriceRanges",
+                    modifier = Modifier.fillMaxWidth()
+                ) { visible ->
+                    if (visible) {
+                        Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                            FilterItemArea(
+                                title = stringResource(Res.string.input_price),
+                                description = stringResource(Res.string.price_description)
+                            ) {
+                                PriceRangeFields(
+                                    range = chatModelFilters.inputPrice,
+                                    onRangeChange = { onChatFiltersChange(chatModelFilters.copy(inputPrice = it)) }
+                                )
+                            }
+                            FilterItemArea(
+                                title = stringResource(Res.string.output_price),
+                                description = stringResource(Res.string.price_description)
+                            ) {
+                                PriceRangeFields(
+                                    range = chatModelFilters.outputPrice,
+                                    onRangeChange = { onChatFiltersChange(chatModelFilters.copy(outputPrice = it)) }
+                                )
+                            }
+                        }
+                    }
+                }
+                FilterItemArea(title = stringResource(Res.string.context_window)) {
+                    NumberField(
+                        value = chatModelFilters.minContextLength,
+                        onValueChange = { onChatFiltersChange(chatModelFilters.copy(minContextLength = it)) },
+                        parse = String::toIntOrNull,
+                        format = { it.toString() },
+                        placeholder = stringResource(Res.string.any),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        listOf(128_000, 256_000, 512_000, 1_000_000).forEach { size ->
+                            val selected = chatModelFilters.minContextLength == size
+                            FilterTag(
+                                text = size.toCompactString(),
+                                selected = selected,
+                                onClick = {
+                                    onChatFiltersChange(
+                                        chatModelFilters.copy(minContextLength = if (selected) null else size)
+                                    )
+                                }
+                            )
+                        }
+                    }
+                }
+                FeaturesFilter(
+                    selected = chatModelFilters.requiredFeatures,
+                    onSelectedChange = { onChatFiltersChange(chatModelFilters.copy(requiredFeatures = it)) }
+                )
+                ModalitiesFilter(
+                    title = stringResource(Res.string.input_modalities),
+                    selected = chatModelFilters.requiredInputModalities,
+                    onSelectedChange = { onChatFiltersChange(chatModelFilters.copy(requiredInputModalities = it)) }
+                )
+                ModalitiesFilter(
+                    title = stringResource(Res.string.output_modalities),
+                    selected = chatModelFilters.requiredOutputModalities,
+                    onSelectedChange = { onChatFiltersChange(chatModelFilters.copy(requiredOutputModalities = it)) }
+                )
+            }
+
+            CatalogTab.ImageModels -> {
+                FilterSwitch(
+                    text = stringResource(Res.string.pinned_only),
+                    checked = imageModelFilters.pinnedOnly,
+                    onCheckedChange = { onImageFiltersChange(imageModelFilters.copy(pinnedOnly = it)) }
+                )
+                ModalitiesFilter(
+                    title = stringResource(Res.string.input_modalities),
+                    selected = imageModelFilters.requiredInputModalities,
+                    onSelectedChange = { onImageFiltersChange(imageModelFilters.copy(requiredInputModalities = it)) }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun FilterItemArea(
+    title: String,
+    modifier: Modifier = Modifier,
+    description: String? = null,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Row(modifier = Modifier.padding(horizontal = 8.dp)) {
+            Text(text = title, style = MaterialTheme.typography.titleSmall)
+            Spacer(Modifier.weight(1f))
+            if (description != null) {
+                Text(
+                    text = description,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface.copy(0.7f)
+                )
+            }
+        }
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    color = MaterialTheme.colorScheme.background,
+                    shape = RoundedCornerShape(32.dp)
+                )
+                .padding(18.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            content = content
+        )
+    }
+}
+
+@Composable
+private fun <T : Comparable<T>> NumberField(
+    value: T?,
+    onValueChange: (T?) -> Unit,
+    parse: (String) -> T?,
+    format: (T) -> String,
+    placeholder: String,
+    modifier: Modifier = Modifier,
+    decimal: Boolean = false,
+) {
+    var text by remember { mutableStateOf(value?.let(format).orEmpty()) }
+
+    // External changes (Reset, quick values) update the text.
+    LaunchedEffect(value) {
+        val typed = parse(text)
+        val same = if (typed == null || value == null) typed == value else typed.compareTo(value) == 0
+        if (!same) text = value?.let(format).orEmpty()
+    }
+
+    VoidTextField(
+        value = text,
+        onValueChange = { input ->
+            text = input.replace(',', '.').filter { it.isDigit() || (decimal && it == '.') }
+            val parsed = parse(text)
+            if (text.isBlank() || parsed != null) onValueChange(parsed)
+        },
+        modifier = modifier.height(48.dp),
+        placeholder = {
+            Text(
+                text = placeholder,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+            )
+        },
+        keyboardOptions = KeyboardOptions(
+            keyboardType = if (decimal) KeyboardType.Decimal else KeyboardType.Number
+        ),
+        containerColor = MaterialTheme.colorScheme.surface
+    )
+}
+
+private fun String.toPriceOrNull(): BigDecimal? = runCatching {
+    trimEnd('.').let { if (it.startsWith('.')) "0$it" else it }.toBigDecimal()
+}.getOrNull()
+
+@Composable
+private fun PriceRangeFields(
+    range: PriceRange,
+    onRangeChange: (PriceRange) -> Unit,
+) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        NumberField(
+            value = range.min,
+            onValueChange = { onRangeChange(range.copy(min = it)) },
+            parse = String::toPriceOrNull,
+            format = { it.toPlainString() },
+            placeholder = stringResource(Res.string.price_from),
+            decimal = true,
+            modifier = Modifier.weight(1f)
+        )
+        NumberField(
+            value = range.max,
+            onValueChange = { onRangeChange(range.copy(max = it)) },
+            parse = String::toPriceOrNull,
+            format = { it.toPlainString() },
+            placeholder = stringResource(Res.string.price_to),
+            decimal = true,
+            modifier = Modifier.weight(1f)
+        )
+    }
+}
+
+@Composable
+private fun FilterTag(
+    text: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    icon: ImageVector? = null,
+) {
+    val contentColor = if (selected) {
+        MaterialTheme.colorScheme.onPrimary
+    } else {
+        MaterialTheme.colorScheme.onSurface
+    }
+
+    Row(
+        modifier = modifier
+            .clip(CircleShape)
+            .toggleable(
+                value = selected,
+                onValueChange = { onClick() },
+                role = Role.Checkbox
+            )
+            .pointerHoverIcon(PointerIcon.Hand)
+            .background(if (selected) MaterialTheme.colorScheme.primary else Color.Transparent)
+            .border(
+                width = 1.dp,
+                color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+                shape = CircleShape
+            )
+            .padding(horizontal = 12.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        if (icon != null) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = contentColor,
+                modifier = Modifier.size(14.dp)
+            )
+        }
+        Text(text = text, style = MaterialTheme.typography.labelSmall, color = contentColor)
+    }
+}
+
+@Composable
+private fun <T> TagSelector(
+    options: List<T>,
+    selected: Set<T>,
+    onSelectedChange: (Set<T>) -> Unit,
+    label: @Composable (T) -> String,
+    icon: (T) -> ImageVector? = { null },
+) {
+    FlowRow(
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        options.forEach { option ->
+            FilterTag(
+                text = label(option),
+                icon = icon(option),
+                selected = option in selected,
+                onClick = {
+                    onSelectedChange(if (option in selected) selected - option else selected + option)
+                }
+            )
+        }
+    }
+}
+
+@Composable
+private fun FeaturesFilter(
+    selected: Set<ModelFeature>,
+    onSelectedChange: (Set<ModelFeature>) -> Unit,
+) {
+    FilterItemArea(title = stringResource(Res.string.features)) {
+        TagSelector(
+            options = ModelFeature.entries,
+            selected = selected,
+            onSelectedChange = onSelectedChange,
+            label = { feature ->
+                when (feature) {
+                    ModelFeature.THINKING -> stringResource(Res.string.reasoning)
+                }
+            },
+            icon = { feature ->
+                when (feature) {
+                    ModelFeature.THINKING -> Icons.Default.Lightbulb
+                }
+            }
+        )
+    }
+}
+
+@Composable
+private fun ModalitiesFilter(
+    title: String,
+    selected: Set<Modality>,
+    onSelectedChange: (Set<Modality>) -> Unit,
+) {
+    FilterItemArea(title = title) {
+        TagSelector(
+            options = Modality.entries,
+            selected = selected,
+            onSelectedChange = onSelectedChange,
+            label = { modality ->
+                when (modality) {
+                    Modality.TEXT -> stringResource(Res.string.text)
+                    Modality.IMAGE -> stringResource(Res.string.image)
+                }
+            },
+            icon = { modality ->
+                when (modality) {
+                    Modality.TEXT -> Icons.Default.Chat
+                    Modality.IMAGE -> Icons.Default.Image
+                }
+            }
+        )
+    }
+}
+
+@Composable
+private fun FilterSwitch(
+    text: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(CircleShape)
+            .toggleable(
+                value = checked,
+                onValueChange = { onCheckedChange(!checked) },
+                interactionSource = remember { MutableInteractionSource() },
+                indication = ripple(color = MaterialTheme.colorScheme.primary)
+            )
+            .pointerHoverIcon(PointerIcon.Hand)
+            .background(
+                color = if (checked) {
+                    MaterialTheme.colorScheme.primaryContainer
+                } else {
+                    MaterialTheme.colorScheme.background
+                }
+            )
+            .padding(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Switch(
+            checked = checked,
+            onCheckedChange = null,
+            colors = SwitchDefaults.colors(
+                uncheckedTrackColor = MaterialTheme.colorScheme.surface
+            ),
+            thumbContent = {
+                if (checked) {
+                    Icon(
+                        imageVector = Icons.Default.Check,
+                        contentDescription = null,
+                        modifier = Modifier.size(SwitchDefaults.IconSize),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+            },
+            modifier = Modifier.pointerHoverIcon(PointerIcon.Hand)
+        )
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodyMedium,
+            color = if (checked) {
+                MaterialTheme.colorScheme.primary
+            } else {
+                MaterialTheme.colorScheme.onBackground
+            }
         )
     }
 }
@@ -795,13 +1370,14 @@ private fun ControlsSection(
                     Icon(
                         modifier = Modifier.size(SwitchDefaults.IconSize),
                         imageVector = Icons.Default.Check,
+                        tint = MaterialTheme.colorScheme.primary,
                         contentDescription = null
                     )
                 }
             },
             modifier = Modifier.pointerHoverIcon(PointerIcon.Hand)
         )
-        Spacer(Modifier.width(6.dp))
+        Spacer(Modifier.width(8.dp))
         Text(
             text = stringResource(Res.string.verbose),
             style = MaterialTheme.typography.bodyMedium
@@ -907,7 +1483,10 @@ private fun CatalogScreenPreview() {
             onPinModelClick = { _, _, _ -> },
             onUseModelClick = {},
             onDismissMessage = {},
-            onDismissError = {}
+            onDismissError = {},
+            onImageFiltersChange = {},
+            onChatFiltersChange = {},
+            onResetFiltersClick = {}
         )
     }
 }

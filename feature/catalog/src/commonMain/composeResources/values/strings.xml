@@ -17,4 +17,21 @@
     <string name="syncing">Syncing...</string>
     <string name="refresh">Refresh</string>
     <string name="verbose">Verbose</string>
+    <string name="desc_open_filters">Open filters</string>
+    <string name="filters">Filters</string>
+    <string name="reset">Reset</string>
+    <string name="pinned_only">Pinned only</string>
+    <string name="zero_cost">Zero-cost</string>
+    <string name="input_price">Input price</string>
+    <string name="output_price">Output price</string>
+    <string name="price_description">$ per 1M tokens</string>
+    <string name="context_window">Context window</string>
+    <string name="any">Any</string>
+    <string name="input_modalities">Input modalities</string>
+    <string name="output_modalities">Output modalities</string>
+    <string name="price_from">From</string>
+    <string name="price_to">To</string>
+    <string name="features">Features</string>
+    <string name="text">Text</string>
+    <string name="image">Image</string>
 </resources>
