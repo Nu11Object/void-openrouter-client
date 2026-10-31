@@ -26,6 +26,7 @@ kotlin {
             implementation(libs.koin.core)
             implementation(libs.decompose.core)
             implementation(libs.essenty.lifecycle)
+            implementation(libs.file.kit.coil)
         }
     }
 }

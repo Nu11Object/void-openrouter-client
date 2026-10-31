@@ -11,6 +11,7 @@ fun App(
     modifier: Modifier = Modifier,
     windowTitleBar: (@Composable () -> Unit)? = null,
 ) {
+    SetupImageLoader()
     RootContent(
         rootComponent = rootComponent,
         modifier = modifier,
