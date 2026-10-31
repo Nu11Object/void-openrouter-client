@@ -17,6 +17,12 @@ internal class FileKitImageEncoder : ImageEncoder {
         mimeType: String,
     ): String = withContext(Dispatchers.IO) {
         val bytes = (FileKit.filesDir / fileUri).readBytes()
-        "data:$mimeType;base64,${Base64.encode(bytes)}"
+        val prefix = "data:$mimeType;base64,"
+        val encodedLength = (bytes.size + 2) / 3 * 4
+
+        buildString(prefix.length + encodedLength) {
+            append(prefix)
+            Base64.encodeToAppendable(bytes, this)
+        }
     }
 }

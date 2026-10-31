@@ -1,8 +1,10 @@
 package com.nullo.voidapp.feature.chat.di
 
+import com.nullo.voidapp.feature.chat.domain.DeleteAttachmentUseCase
 import com.nullo.voidapp.feature.chat.domain.DeleteConversationUseCase
 import com.nullo.voidapp.feature.chat.domain.DismissErrorMessageUseCase
 import com.nullo.voidapp.feature.chat.domain.FindConversationIdsByTextUseCase
+import com.nullo.voidapp.feature.chat.domain.ImportAttachmentUseCase
 import com.nullo.voidapp.feature.chat.domain.ObserveActiveModelUseCase
 import com.nullo.voidapp.feature.chat.domain.ObserveChatModelByIdUseCase
 import com.nullo.voidapp.feature.chat.domain.ObserveConversationByIdUseCase
@@ -24,7 +26,35 @@ import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.module
 
 val chatFeatureModule = module {
-    factoryOf(::ChatStoreFactory)
+    // TODO: break ChatStore into smaller, more focused stores
+    factory {
+        ChatStoreFactory(
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get()
+        )
+    }
 
     factory {
         ChatComponent.Factory { onNavigateToModelCatalog, onNavigateToAppSettings, componentContext ->
@@ -54,4 +84,6 @@ val chatFeatureModule = module {
     factoryOf(::SetWebSearchEnabledUseCase)
     factoryOf(::StartNewConversationUseCase)
     factoryOf(::RenameConversationUseCase)
+    factoryOf(::DeleteAttachmentUseCase)
+    factoryOf(::ImportAttachmentUseCase)
 }

@@ -1,11 +1,15 @@
 <resources>
     <string name="error_model_not_selected">Select a model before generating a response.</string>
-    <string name="error_empty_prompt">Enter a prompt before generating a response.</string>
+    <string name="error_empty_request">Enter a prompt or attach an image to continue.</string>
+    <string name="error_empty_prompt_on_image">Enter a prompt to generate an image.</string>
     <string name="error_no_active_conversation">Couldn't access the current conversation. Please try again.</string>
     <string name="error_cannot_access_conversation">Couldn't access the conversation. Please try again.</string>
     <string name="error_conversation_not_created">Failed to create a conversation. Please try again.</string>
     <string name="error_cannot_rename_conversation">Failed to rename a conversation. Please try again.</string>
     <string name="error_blank_conversation_name">Enter a new name for the conversation.</string>
+    <string name="template_error_max_attachments_reached">Only the first %1$d images will be attached.</string>
+    <string name="error_some_attachments_import_failed">Some images couldn't be attached. Please try again.</string>
+    <string name="error_model_no_image_input">This model doesn't support image attachments.</string>
 
     <string name="error_title_network">Network error</string>
     <string name="error_title_server">Server error</string>
@@ -60,4 +64,5 @@
     <string name="untitled_conversation">Untitled conversation</string>
     <string name="delete">Delete</string>
     <string name="template_delete">Delete conversation %1$s</string>
+    <string name="desc_remove_attachment">Remove attachment</string>
 </resources>

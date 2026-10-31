@@ -13,18 +13,20 @@ import com.nullo.voidapp.core.database.entity.ChatModelEntity
 import com.nullo.voidapp.core.database.entity.ConversationEntity
 import com.nullo.voidapp.core.database.entity.ImageModelEntity
 import com.nullo.voidapp.core.database.entity.MessageEntity
+import com.nullo.voidapp.core.database.entity.MessageImageEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 
 internal const val DATABASE_NAME = "void_app.db"
-private const val DATABASE_VERSION = 4
+private const val DATABASE_VERSION = 5
 
 @Database(
     entities = [
         ChatModelEntity::class,
         ImageModelEntity::class,
         ConversationEntity::class,
-        MessageEntity::class
+        MessageEntity::class,
+        MessageImageEntity::class
     ],
     version = DATABASE_VERSION
 )

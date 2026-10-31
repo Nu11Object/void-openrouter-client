@@ -11,6 +11,9 @@ kotlin {
             implementation(projects.core.data.chat)
             implementation(projects.core.data.session)
 
+            implementation(libs.file.kit.core)
+            implementation(libs.file.kit.dialogs.compose)
+            implementation(libs.file.kit.coil)
             implementation(libs.markdown.core)
             implementation(libs.markdown.m3)
             implementation(libs.markdown.code)

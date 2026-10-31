@@ -11,6 +11,7 @@ import com.nullo.voidapp.core.data.catalog.domain.SetPinStatusUseCase
 import com.nullo.voidapp.core.data.catalog.domain.UseModelUseCase
 import com.nullo.voidapp.core.model.ActiveModelRef
 import com.nullo.voidapp.core.model.Conversation
+import com.nullo.voidapp.core.model.ImageAttachment
 import com.nullo.voidapp.core.model.Message
 import com.nullo.voidapp.core.model.ModelType
 import com.nullo.voidapp.core.model.chatmodel.ChatModel
@@ -18,9 +19,11 @@ import com.nullo.voidapp.core.model.imagemodel.ImageModel
 import com.nullo.voidapp.core.utils.kotlin.debouncedQuery
 import com.nullo.voidapp.core.utils.kotlin.filterWithQuery
 import com.nullo.voidapp.core.utils.resources.UiText
+import com.nullo.voidapp.feature.chat.domain.DeleteAttachmentUseCase
 import com.nullo.voidapp.feature.chat.domain.DeleteConversationUseCase
 import com.nullo.voidapp.feature.chat.domain.DismissErrorMessageUseCase
 import com.nullo.voidapp.feature.chat.domain.FindConversationIdsByTextUseCase
+import com.nullo.voidapp.feature.chat.domain.ImportAttachmentUseCase
 import com.nullo.voidapp.feature.chat.domain.ObserveActiveModelUseCase
 import com.nullo.voidapp.feature.chat.domain.ObserveChatModelByIdUseCase
 import com.nullo.voidapp.feature.chat.domain.ObserveConversationByIdUseCase
@@ -59,9 +62,13 @@ import voidapp.feature.chat.generated.resources.Res
 import voidapp.feature.chat.generated.resources.error_blank_conversation_name
 import voidapp.feature.chat.generated.resources.error_cannot_access_conversation
 import voidapp.feature.chat.generated.resources.error_cannot_rename_conversation
-import voidapp.feature.chat.generated.resources.error_empty_prompt
+import voidapp.feature.chat.generated.resources.error_empty_prompt_on_image
+import voidapp.feature.chat.generated.resources.error_empty_request
+import voidapp.feature.chat.generated.resources.error_model_no_image_input
 import voidapp.feature.chat.generated.resources.error_model_not_selected
 import voidapp.feature.chat.generated.resources.error_no_active_conversation
+import voidapp.feature.chat.generated.resources.error_some_attachments_import_failed
+import voidapp.feature.chat.generated.resources.template_error_max_attachments_reached
 
 internal class ChatStoreFactory(
     private val storeFactory: StoreFactory,
@@ -86,6 +93,8 @@ internal class ChatStoreFactory(
     private val setPinStatusUseCase: SetPinStatusUseCase,
     private val sendPromptUseCase: SendPromptUseCase,
     private val useModelUseCase: UseModelUseCase,
+    private val importAttachmentUseCase: ImportAttachmentUseCase,
+    private val deleteAttachmentUseCase: DeleteAttachmentUseCase,
 ) : StoreFactory by storeFactory {
 
     fun create(): ChatStore {
@@ -121,9 +130,11 @@ internal class ChatStoreFactory(
         data class ModelSelectorTabChanged(val tab: State.SelectorTab) : Msg
         data class ModelSearchQueryChanged(val query: String) : Msg
         data class ActiveModelChanged(
-            val modelName: String,
             val modelType: ModelType,
+            val modelName: String,
+            val supportsImageInput: Boolean,
         ) : Msg
+
         data object ModelSelectionConfirmationShowed : Msg
         data object ModelSelectionConfirmationHidden : Msg
 
@@ -153,6 +164,12 @@ internal class ChatStoreFactory(
         data class RenameConversationDialogOpened(val conversationId: Long) : Msg
         data object RenameConversationDialogClosed : Msg
         data class ConversationNameInputChanged(val input: String) : Msg
+
+        data object AttachmentsImportStarted : Msg
+        data class AttachmentsAdded(val attachments: List<ImageAttachment>) : Msg
+        data class AttachmentsRestored(val attachments: List<ImageAttachment>) : Msg
+        data object AttachmentsCleared : Msg
+        data class AttachmentRemoved(val attachment: ImageAttachment) : Msg
     }
 
     private sealed interface Action {
@@ -292,12 +309,14 @@ internal class ChatStoreFactory(
                     activeModelNameJob = when (modelRef) {
                         is ActiveModelRef.Chat -> observeChatModelByIdUseCase(modelRef.id)
                             .filterNotNull()
-                            .onEach { dispatch(Msg.ActiveModelChanged(it.name, ModelType.CHAT)) }
+                            .onEach { dispatch(Msg.ActiveModelChanged(ModelType.CHAT, it.name, it.supportsVision)) }
                             .launchIn(scope)
 
                         is ActiveModelRef.Image -> observeImageModelByIdUseCase(modelRef.id)
                             .filterNotNull()
-                            .onEach { dispatch(Msg.ActiveModelChanged(it.name, ModelType.IMAGE)) }
+                            .onEach {
+                                dispatch(Msg.ActiveModelChanged(ModelType.IMAGE, it.name, it.supportsInputReferences))
+                            }
                             .launchIn(scope)
 
                         null -> return
@@ -372,10 +391,6 @@ internal class ChatStoreFactory(
                     dismissErrorMessageUseCase(intent.messageId)
                 }
 
-                Intent.OpenAttachmentsSelector -> {
-                    dispatch(Msg.ErrorOccurred(UiText.Static("Not implemented yet")))
-                }
-
                 is Intent.OpenConversation -> {
                     if (intent.conversationId == conversationId.value) return
 
@@ -407,30 +422,51 @@ internal class ChatStoreFactory(
                 }
 
                 Intent.SendPrompt -> {
-                    if (completionGenerationJob?.isActive == true) return
+                    val state = state()
+                    if (completionGenerationJob?.isActive == true || state.isImportingAttachments) return
 
                     val activeModel = activeModelRef ?: run {
                         dispatchError(UiText(Res.string.error_model_not_selected))
                         return
                     }
-                    val prompt = state().prompt.trim().ifBlank {
-                        dispatchError(UiText(Res.string.error_empty_prompt))
+                    val prompt = state.prompt.trim()
+                    val images = state.promptImages
+
+                    val error = when {
+                        prompt.isBlank() && images.isEmpty() -> {
+                            UiText(Res.string.error_empty_request)
+                        }
+
+                        activeModel is ActiveModelRef.Image && prompt.isBlank() -> {
+                            UiText(Res.string.error_empty_prompt_on_image)
+                        }
+
+                        images.isNotEmpty() && !state.supportsImageInput -> {
+                            UiText(Res.string.error_model_no_image_input)
+                        }
+
+                        else -> null
+                    }
+                    error?.let {
+                        dispatchError(it)
                         return
                     }
+
                     dispatch(Msg.PromptChanged(""))
+                    dispatch(Msg.AttachmentsCleared)
 
                     completionGenerationJob = scope.launch {
                         try {
                             val conversationId = conversationId.value
-                                ?: startNewConversationUseCase(prompt).also {
-                                    conversationId.value = it
-                                }
-                            sendPromptUseCase(conversationId, prompt, activeModel)
+                                ?: startNewConversationUseCase(prompt).also { conversationId.value = it }
+
+                            sendPromptUseCase(conversationId, prompt, images, activeModel)
                         } catch (e: CancellationException) {
                             throw e
                         } catch (_: Exception) {
                             dispatchError(UiText(CoreRes.string.error_unknown))
                             dispatch(Msg.PromptChanged(prompt))
+                            dispatch(Msg.AttachmentsRestored(images))
                         }
                     }
                 }
@@ -506,6 +542,36 @@ internal class ChatStoreFactory(
                         dispatchError(UiText(Res.string.error_cannot_rename_conversation))
                     }
                 }
+
+                is Intent.AttachImages -> scope.launch {
+                    val remaining = State.MAX_ATTACHMENTS - state().promptImages.size
+                    if (intent.files.size > remaining) {
+                        dispatchError(UiText(Res.string.template_error_max_attachments_reached, State.MAX_ATTACHMENTS))
+                    }
+                    if (remaining <= 0) return@launch
+
+                    dispatch(Msg.AttachmentsImportStarted)
+                    var hasFailures = false
+                    val imported = intent.files
+                        .take(remaining)
+                        .mapNotNull { file ->
+                            try {
+                                importAttachmentUseCase(file)
+                            } catch (e: CancellationException) {
+                                throw e
+                            } catch (_: Exception) {
+                                hasFailures = true
+                                null
+                            }
+                        }
+                    if (hasFailures) dispatchError(UiText(Res.string.error_some_attachments_import_failed))
+                    dispatch(Msg.AttachmentsAdded(imported))
+                }
+
+                is Intent.RemoveImageAttachment -> scope.launch {
+                    dispatch(Msg.AttachmentRemoved(intent.attachment))
+                    deleteAttachmentUseCase(intent.attachment)
+                }
             }
         }
 
@@ -518,7 +584,8 @@ internal class ChatStoreFactory(
         override fun State.reduce(msg: Msg): State = when (msg) {
             is Msg.ActiveModelChanged -> copy(
                 activeModelName = msg.modelName,
-                modelType = msg.modelType
+                modelType = msg.modelType,
+                supportsImageInput = msg.supportsImageInput
             )
 
             is Msg.ConversationOpened -> copy(
@@ -610,6 +677,27 @@ internal class ChatStoreFactory(
 
             is Msg.RenameConversationDialogOpened -> copy(
                 renamingConversationId = msg.conversationId
+            )
+
+            Msg.AttachmentsImportStarted -> copy(
+                isImportingAttachments = true
+            )
+
+            is Msg.AttachmentsAdded -> copy(
+                isImportingAttachments = false,
+                promptImages = promptImages + msg.attachments
+            )
+
+            is Msg.AttachmentsRestored -> copy(
+                promptImages = promptImages + msg.attachments
+            )
+
+            is Msg.AttachmentRemoved -> copy(
+                promptImages = promptImages - msg.attachment
+            )
+
+            Msg.AttachmentsCleared -> copy(
+                promptImages = emptyList()
             )
         }
     }

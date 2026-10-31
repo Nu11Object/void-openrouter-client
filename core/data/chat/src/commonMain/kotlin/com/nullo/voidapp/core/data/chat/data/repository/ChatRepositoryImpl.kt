@@ -13,8 +13,10 @@ import com.nullo.voidapp.core.database.dao.MessageDao
 import com.nullo.voidapp.core.database.entity.MessageEntity
 import com.nullo.voidapp.core.database.entity.MessageType
 import com.nullo.voidapp.core.database.mapper.toDomain
+import com.nullo.voidapp.core.database.mapper.toPrompt
 import com.nullo.voidapp.core.model.ActiveModelRef
 import com.nullo.voidapp.core.model.ErrorReason
+import com.nullo.voidapp.core.model.ImageAttachment
 import com.nullo.voidapp.core.model.Message
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Clock
@@ -38,6 +40,7 @@ internal class ChatRepositoryImpl(
     override suspend fun sendPrompt(
         conversationId: Long,
         query: String,
+        images: List<ImageAttachment>,
         activeModel: ActiveModelRef,
     ) {
         touchConversation(conversationId)
@@ -45,14 +48,19 @@ internal class ChatRepositoryImpl(
         val startedGeneration = messageDao.startGeneration(
             conversationId = conversationId,
             query = query,
+            images = images,
             modelId = activeModel.id,
             now = clock.now().toEpochMilliseconds()
         )
 
+        val prompt = Message.Prompt(
+            id = startedGeneration.promptId,
+            query = query,
+            images = images
+        )
         generateResponse(
             conversationId = conversationId,
-            query = query,
-            promptId = startedGeneration.promptId,
+            prompt = prompt,
             responseId = startedGeneration.responseId,
             activeModel = activeModel
         )
@@ -63,7 +71,7 @@ internal class ChatRepositoryImpl(
         activeModel: ActiveModelRef,
     ) {
         touchConversation(conversationId)
-        val prompt = messageDao.getLastPrompt(conversationId) ?: return
+        val prompt = messageDao.getLastPrompt(conversationId)?.toPrompt() ?: return
 
         val responseId = messageDao.restartGeneration(
             conversationId = conversationId,
@@ -74,8 +82,7 @@ internal class ChatRepositoryImpl(
 
         generateResponse(
             conversationId = conversationId,
-            query = prompt.text.orEmpty(),
-            promptId = prompt.id,
+            prompt = prompt,
             responseId = responseId,
             activeModel = activeModel
         )
@@ -84,19 +91,13 @@ internal class ChatRepositoryImpl(
     @OptIn(FlowPreview::class)
     private suspend fun generateResponse(
         conversationId: Long,
-        query: String,
-        promptId: Long,
+        prompt: Message.Prompt,
         responseId: Long,
         activeModel: ActiveModelRef,
     ) {
         val history = messageDao
-            .getMessagesBefore(conversationId, promptId)
+            .getMessagesBefore(conversationId, prompt.id)
             .map { it.toDomain() }
-        val prompt = Message.Prompt(
-            id = promptId,
-            query = query,
-            images = emptyList() // todo: add images
-        )
 
         val latest = MutableStateFlow<Message?>(null)
         responseGenerator.generateResponse(
@@ -124,7 +125,7 @@ internal class ChatRepositoryImpl(
                     conversationId = conversationId,
                     errorReason = throwable.toErrorReason(),
                     rawMessage = (throwable as? ChatApiException)?.rawMessage,
-                    promptId = promptId
+                    promptId = prompt.id
                 )
             }
             .collect { msg ->
@@ -135,8 +136,6 @@ internal class ChatRepositoryImpl(
 
                     // todo
                     is Message.Images -> {}
-
-                    // todo
 
                     is Message.Interrupted,
                     is Message.Prompt,

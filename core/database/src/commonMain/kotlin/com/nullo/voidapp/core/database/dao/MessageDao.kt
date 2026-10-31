@@ -5,7 +5,10 @@ import androidx.room3.Insert
 import androidx.room3.Query
 import androidx.room3.Transaction
 import com.nullo.voidapp.core.database.entity.MessageEntity
+import com.nullo.voidapp.core.database.entity.MessageImageEntity
 import com.nullo.voidapp.core.database.entity.MessageType
+import com.nullo.voidapp.core.database.entity.MessageWithImages
+import com.nullo.voidapp.core.model.ImageAttachment
 import kotlinx.coroutines.flow.Flow
 
 /** IDs of the prompt and response rows created when a generation starts. */
@@ -20,43 +23,49 @@ interface MessageDao {
     @Insert
     suspend fun insert(message: MessageEntity): Long
 
+    @Insert
+    suspend fun insertImages(images: List<MessageImageEntity>)
+
+    @Transaction
     @Query(
         """
-        SELECT * FROM messages 
-        WHERE conversationId = :conversationId 
+        SELECT * FROM messages
+        WHERE conversationId = :conversationId
         ORDER BY id ASC
         """
     )
-    fun observeByConversation(conversationId: Long): Flow<List<MessageEntity>>
+    fun observeByConversation(conversationId: Long): Flow<List<MessageWithImages>>
 
+    @Transaction
     @Query(
         """
-        SELECT * FROM messages 
-        WHERE conversationId = :conversationId AND id < :messageId 
+        SELECT * FROM messages
+        WHERE conversationId = :conversationId AND id < :messageId
         ORDER BY id ASC
         """
     )
-    suspend fun getMessagesBefore(conversationId: Long, messageId: Long): List<MessageEntity>
+    suspend fun getMessagesBefore(conversationId: Long, messageId: Long): List<MessageWithImages>
 
+    @Transaction
     @Query(
         """
-        SELECT * FROM messages 
-        WHERE conversationId = :conversationId AND messageType = 'PROMPT' 
-        ORDER BY id DESC 
+        SELECT * FROM messages
+        WHERE conversationId = :conversationId AND messageType = 'PROMPT'
+        ORDER BY id DESC
         LIMIT 1
         """
     )
-    suspend fun getLastPrompt(conversationId: Long): MessageEntity?
+    suspend fun getLastPrompt(conversationId: Long): MessageWithImages?
 
     /** Overwrites the content with a cumulative snapshot; pass `isGenerating = false` for the final write. */
     @Query(
         """
         UPDATE messages
-        SET 
-            text = :text, 
-            searchText = :searchText, 
-            reasoning = :reasoning, 
-            isGenerating = :isGenerating 
+        SET
+            text = :text,
+            searchText = :searchText,
+            reasoning = :reasoning,
+            isGenerating = :isGenerating
         WHERE id = :messageId
         """
     )
@@ -79,10 +88,10 @@ interface MessageDao {
     /** Turns an unfinished response into an interrupted one (e.g. the user pressed stop). */
     @Query(
         """
-        UPDATE messages 
-        SET 
-            messageType = 'INTERRUPTED', 
-            isGenerating = 0 
+        UPDATE messages
+        SET
+            messageType = 'INTERRUPTED',
+            isGenerating = 0
         WHERE id = :messageId
         """
     )
@@ -90,10 +99,10 @@ interface MessageDao {
 
     @Query(
         """
-        UPDATE messages 
-        SET 
-            messageType = 'INTERRUPTED', 
-            isGenerating = 0 
+        UPDATE messages
+        SET
+            messageType = 'INTERRUPTED',
+            isGenerating = 0
         WHERE isGenerating = 1
         """
     )
@@ -104,7 +113,7 @@ interface MessageDao {
 
     @Query(
         """
-        DELETE FROM messages 
+        DELETE FROM messages
         WHERE promptId = :promptId
         """
     )
@@ -112,7 +121,7 @@ interface MessageDao {
 
     @Query(
         """
-        DELETE FROM messages 
+        DELETE FROM messages
         WHERE id = :messageId AND messageType = 'ERROR'
         """
     )
@@ -120,7 +129,7 @@ interface MessageDao {
 
     @Query(
         """
-        DELETE FROM messages 
+        DELETE FROM messages
         WHERE id = :messageId AND text IS NULL
         """
     )
@@ -145,6 +154,7 @@ interface MessageDao {
     suspend fun startGeneration(
         conversationId: Long,
         query: String?,
+        images: List<ImageAttachment>,
         modelId: String?,
         now: Long,
     ): StartedGeneration {
@@ -156,6 +166,16 @@ interface MessageDao {
                 searchText = query?.lowercase(),
                 createdAt = now
             )
+        )
+        insertImages(
+            images.mapIndexed { index, image ->
+                MessageImageEntity(
+                    messageId = promptId,
+                    relativePath = image.relativePath,
+                    mimeType = image.mimeType,
+                    position = index
+                )
+            }
         )
         val responseId = insert(responsePlaceholder(conversationId, promptId, modelId, now))
         return StartedGeneration(promptId, responseId)

@@ -16,6 +16,8 @@ data class ImageModel(
     val endpointsUrl: String,
     val pinned: Boolean,
 ) {
+    val supportsInputReferences: Boolean
+        get() = supports(ImageParameter.INPUT_REFERENCES)
 
     fun capabilityOf(param: ImageParameter): ImageParameterCapability? = supportedParameters[param]
 

@@ -5,7 +5,9 @@ import com.nullo.voidapp.core.data.chat.data.repository.ChatRepositoryImpl
 import com.nullo.voidapp.core.data.chat.data.repository.ConversationRepositoryImpl
 import com.nullo.voidapp.core.data.chat.data.service.ChatApiService
 import com.nullo.voidapp.core.data.chat.data.service.ChatApiServiceImpl
+import com.nullo.voidapp.core.data.chat.data.storage.FileKitAttachmentStorage
 import com.nullo.voidapp.core.data.chat.data.storage.FileKitImageEncoder
+import com.nullo.voidapp.core.data.chat.domain.AttachmentStorage
 import com.nullo.voidapp.core.data.chat.domain.ChatRepository
 import com.nullo.voidapp.core.data.chat.domain.ConversationRepository
 import com.nullo.voidapp.core.data.chat.domain.ImageEncoder
@@ -23,6 +25,7 @@ val chatModule = module {
     }
 
     single<ImageEncoder> { FileKitImageEncoder() }
+    single<AttachmentStorage> { FileKitAttachmentStorage() }
 
     single<ResponseGenerator> {
         ResponseGeneratorImpl(

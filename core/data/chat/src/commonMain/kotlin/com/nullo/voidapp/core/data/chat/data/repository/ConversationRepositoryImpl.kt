@@ -1,5 +1,6 @@
 package com.nullo.voidapp.core.data.chat.data.repository
 
+import com.nullo.voidapp.core.data.chat.domain.AttachmentStorage
 import com.nullo.voidapp.core.data.chat.domain.ConversationRepository
 import com.nullo.voidapp.core.database.dao.ConversationDao
 import com.nullo.voidapp.core.database.dao.MessageDao
@@ -16,6 +17,7 @@ import kotlinx.coroutines.flow.map
 internal class ConversationRepositoryImpl(
     private val conversationDao: ConversationDao,
     private val messageDao: MessageDao,
+    private val attachmentStorage: AttachmentStorage,
     private val clock: Clock,
 ) : ConversationRepository {
 
@@ -54,17 +56,32 @@ internal class ConversationRepositoryImpl(
     }
 
     override suspend fun delete(conversationId: Long) {
+        val paths = conversationDao.getImagePathsOfConversation(conversationId)
         conversationDao.delete(conversationId)
+        deleteFiles(paths)
     }
 
     override suspend fun deleteAll() {
+        val paths = conversationDao.getAllImagePaths()
         conversationDao.clearAll()
         messageDao.clearAll()
+        deleteFiles(paths)
+    }
+
+    private suspend fun clearUnreferencedImages() {
+        val onDisk = attachmentStorage.listFiles()
+        val referenced = conversationDao.getAllImagePaths().toSet()
+        deleteFiles(onDisk - referenced)
     }
 
     override suspend fun cleanUpAfterPreviousSession() {
         ignoreFail { messageDao.closeInterruptedGenerations() }
         ignoreFail { conversationDao.deleteEmpty() }
+        ignoreFail { clearUnreferencedImages() }
+    }
+
+    private suspend fun deleteFiles(paths: Collection<String>) {
+        paths.forEach { path -> ignoreFail { attachmentStorage.delete(path) } }
     }
 
     private suspend fun ignoreFail(block: suspend () -> Unit) {

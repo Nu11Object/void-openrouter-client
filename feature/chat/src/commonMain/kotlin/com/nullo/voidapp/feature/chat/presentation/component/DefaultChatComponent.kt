@@ -5,12 +5,14 @@ import com.arkivanov.decompose.value.Value
 import com.arkivanov.mvikotlin.core.instancekeeper.getStore
 import com.arkivanov.mvikotlin.extensions.coroutines.labels
 import com.nullo.voidapp.core.model.ActiveModelRef
+import com.nullo.voidapp.core.model.ImageAttachment
 import com.nullo.voidapp.core.model.ModelType
 import com.nullo.voidapp.core.utils.decompose.componentScope
 import com.nullo.voidapp.core.utils.mvikotlin.asValue
 import com.nullo.voidapp.feature.chat.presentation.store.ChatStore
 import com.nullo.voidapp.feature.chat.presentation.store.ChatStore.Intent
 import com.nullo.voidapp.feature.chat.presentation.store.ChatStoreFactory
+import io.github.vinceglb.filekit.PlatformFile
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
@@ -63,8 +65,12 @@ internal class DefaultChatComponent(
         store.accept(Intent.CloseTuningPanel)
     }
 
-    override fun onAttachmentSelectorOpened() {
-        store.accept(Intent.OpenAttachmentsSelector)
+    override fun onImagesAttached(files: List<PlatformFile>) {
+        store.accept(Intent.AttachImages(files))
+    }
+
+    override fun onImageAttachmentDeleted(image: ImageAttachment) {
+        store.accept(Intent.RemoveImageAttachment(image))
     }
 
     override fun onThinkingToggled() {

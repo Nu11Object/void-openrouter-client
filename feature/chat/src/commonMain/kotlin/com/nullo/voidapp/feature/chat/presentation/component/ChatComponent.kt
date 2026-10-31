@@ -3,8 +3,10 @@ package com.nullo.voidapp.feature.chat.presentation.component
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.value.Value
 import com.nullo.voidapp.core.model.ActiveModelRef
+import com.nullo.voidapp.core.model.ImageAttachment
 import com.nullo.voidapp.core.model.ModelType
 import com.nullo.voidapp.feature.chat.presentation.store.ChatStore
+import io.github.vinceglb.filekit.PlatformFile
 
 interface ChatComponent {
 
@@ -26,7 +28,9 @@ interface ChatComponent {
 
     fun onTuningPanelClosed()
 
-    fun onAttachmentSelectorOpened()
+    fun onImagesAttached(files: List<PlatformFile>)
+
+    fun onImageAttachmentDeleted(image: ImageAttachment)
 
     fun onThinkingToggled()
 

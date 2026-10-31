@@ -49,6 +49,7 @@ sealed class Message(open val id: Long) {
 }
 
 /** Represents an image attached to a user prompt. */
+@Immutable
 data class ImageAttachment(
     val relativePath: String,
     val mimeType: String,

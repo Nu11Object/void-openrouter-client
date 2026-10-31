@@ -19,6 +19,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -41,6 +42,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -106,8 +108,10 @@ import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -125,6 +129,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import coil3.compose.AsyncImage
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import com.mikepenz.markdown.coil3.Coil3ImageTransformerImpl
 import com.mikepenz.markdown.compose.components.markdownComponents
@@ -145,6 +150,7 @@ import com.nullo.voidapp.core.designsystem.icon.default.ArrowDropDown
 import com.nullo.voidapp.core.designsystem.icon.default.ArrowUpward
 import com.nullo.voidapp.core.designsystem.icon.default.Attach
 import com.nullo.voidapp.core.designsystem.icon.default.Awesome
+import com.nullo.voidapp.core.designsystem.icon.default.BrokenImage
 import com.nullo.voidapp.core.designsystem.icon.default.Chat
 import com.nullo.voidapp.core.designsystem.icon.default.Close
 import com.nullo.voidapp.core.designsystem.icon.default.ContentCopy
@@ -165,6 +171,7 @@ import com.nullo.voidapp.core.designsystem.theme.chatMarkdownTypography
 import com.nullo.voidapp.core.model.ActiveModelRef
 import com.nullo.voidapp.core.model.Conversation
 import com.nullo.voidapp.core.model.ErrorReason
+import com.nullo.voidapp.core.model.ImageAttachment
 import com.nullo.voidapp.core.model.Message
 import com.nullo.voidapp.core.model.ModelType
 import com.nullo.voidapp.core.model.chatmodel.ChatModel
@@ -178,6 +185,13 @@ import com.nullo.voidapp.core.utils.compose.rememberDeviceConfiguration
 import com.nullo.voidapp.feature.chat.presentation.component.ChatComponent
 import com.nullo.voidapp.feature.chat.presentation.store.ChatStore
 import com.nullo.voidapp.feature.chat.presentation.store.ChatStore.State.SelectorTab
+import io.github.vinceglb.filekit.FileKit
+import io.github.vinceglb.filekit.PlatformFile
+import io.github.vinceglb.filekit.dialogs.FileKitMode
+import io.github.vinceglb.filekit.dialogs.FileKitType
+import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
+import io.github.vinceglb.filekit.div
+import io.github.vinceglb.filekit.filesDir
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import voidapp.core.utils.generated.resources.Res as CoreRes
@@ -192,6 +206,7 @@ import voidapp.feature.chat.generated.resources.desc_collapse_side_menu
 import voidapp.feature.chat.generated.resources.desc_copy_last_response
 import voidapp.feature.chat.generated.resources.desc_open_side_menu
 import voidapp.feature.chat.generated.resources.desc_regenerate_last_response
+import voidapp.feature.chat.generated.resources.desc_remove_attachment
 import voidapp.feature.chat.generated.resources.desc_send_message
 import voidapp.feature.chat.generated.resources.desc_stop_generation
 import voidapp.feature.chat.generated.resources.dismiss
@@ -260,7 +275,8 @@ fun ChatScreen(
         onOpenModelSelectorClick = component::onOpenModelSelectorClicked,
         onOpenTuningPanelClick = component::onTuningPanelOpened,
         onPromptChange = component::onPromptChanged,
-        onPickAttachmentsClick = component::onAttachmentSelectorOpened,
+        onAttachImages = component::onImagesAttached,
+        onRemoveAttachment = component::onImageAttachmentDeleted,
         onToggleThinkingClick = component::onThinkingToggled,
         onToggleWebSearchClick = component::onWebSearchToggled,
         onSendPrompt = component::onPromptSent,
@@ -292,7 +308,8 @@ private fun ChatScreenContent(
     onOpenModelSelectorClick: () -> Unit,
     onOpenTuningPanelClick: () -> Unit,
     onPromptChange: (String) -> Unit,
-    onPickAttachmentsClick: () -> Unit,
+    onAttachImages: (List<PlatformFile>) -> Unit,
+    onRemoveAttachment: (ImageAttachment) -> Unit,
     onToggleThinkingClick: () -> Unit,
     onToggleWebSearchClick: () -> Unit,
     onSendPrompt: () -> Unit,
@@ -396,7 +413,11 @@ private fun ChatScreenContent(
 
                 PromptComposer(
                     prompt = state.prompt,
+                    promptImages = state.promptImages,
                     isGenerating = state.isGenerating,
+                    isImportingAttachments = state.isImportingAttachments,
+                    canAttachImages = state.canAttachImages,
+                    canSendPrompt = state.canSendPrompt,
                     thinkingEnabled = state.thinkingEnabled,
                     webSearchEnabled = state.webSearchEnabled,
                     onPromptChange = onPromptChange,
@@ -404,7 +425,8 @@ private fun ChatScreenContent(
                     onStopGeneration = onStopGeneration,
                     onToggleThinkingClick = onToggleThinkingClick,
                     onToggleWebSearchClick = onToggleWebSearchClick,
-                    onPickAttachmentsClick = onPickAttachmentsClick,
+                    onAttachImages = onAttachImages,
+                    onRemoveAttachment = onRemoveAttachment,
                     modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
                 )
             }
@@ -830,9 +852,8 @@ private fun Chat(
                 is Message.ImageLoading,
                 is Message.Images,
                 -> {
+                    /* TODO: Images are not supported yet */
                 }
-
-                // TODO: Images are not supported yet
 
                 is Message.Interrupted -> InterruptedMessageItem(
                     message = message,
@@ -850,10 +871,15 @@ private fun Chat(
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun PromptComposer(
     prompt: String,
+    promptImages: List<ImageAttachment>,
     isGenerating: Boolean,
+    isImportingAttachments: Boolean,
+    canAttachImages: Boolean,
+    canSendPrompt: Boolean,
     thinkingEnabled: Boolean,
     webSearchEnabled: Boolean,
     onSendPrompt: () -> Unit,
@@ -861,9 +887,17 @@ private fun PromptComposer(
     onPromptChange: (String) -> Unit,
     onToggleThinkingClick: () -> Unit,
     onToggleWebSearchClick: () -> Unit,
-    onPickAttachmentsClick: () -> Unit,
+    onAttachImages: (List<PlatformFile>) -> Unit,
+    onRemoveAttachment: (ImageAttachment) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val imagePickerLauncher = rememberFilePickerLauncher(
+        type = FileKitType.Image,
+        mode = FileKitMode.Multiple()
+    ) { files ->
+        if (!files.isNullOrEmpty()) onAttachImages(files)
+    }
+
     Column(
         modifier = modifier
             .background(
@@ -872,13 +906,47 @@ private fun PromptComposer(
             )
             .padding(8.dp)
     ) {
+        AnimatedVisibility(
+            visible = promptImages.isNotEmpty(),
+            label = "AttachmentsSection"
+        ) {
+            AttachmentsSection(
+                images = promptImages,
+                onRemoveAttachmentClick = onRemoveAttachment,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp)
+                    .edgeFades(
+                        EdgeFadeSpec(FadeDirection.Start, sizeFraction = 0.05f),
+                        EdgeFadeSpec(FadeDirection.End, sizeFraction = 0.05f)
+                    )
+            )
+        }
+
         PromptTextField(
             prompt = prompt,
             onPromptChange = onPromptChange
         )
 
-        Row {
-            AttachmentButton(onClick = onPickAttachmentsClick)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            AnimatedContent(
+                targetState = isImportingAttachments,
+                label = "AttachmentButton"
+            ) { importing ->
+                if (importing) {
+                    LoadingIndicator(
+                        modifier = Modifier
+                            .padding(horizontal = 8.dp)
+                            .size(32.dp),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                } else {
+                    AttachmentButton(
+                        enabled = canAttachImages,
+                        onClick = imagePickerLauncher::launch
+                    )
+                }
+            }
             GenerationOption(
                 icon = Icons.Default.Lightbulb,
                 label = stringResource(Res.string.option_think),
@@ -895,7 +963,7 @@ private fun PromptComposer(
             Spacer(Modifier.weight(1f))
             SendPromptButton(
                 isGenerating = isGenerating,
-                isPromptBlank = prompt.isBlank(),
+                canSendPrompt = canSendPrompt,
                 onStopGeneration = onStopGeneration,
                 onSendPrompt = onSendPrompt
             )
@@ -904,16 +972,78 @@ private fun PromptComposer(
 }
 
 @Composable
+private fun AttachmentsSection(
+    images: List<ImageAttachment>,
+    onRemoveAttachmentClick: (ImageAttachment) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    LazyRow(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        contentPadding = PaddingValues(horizontal = 8.dp)
+    ) {
+        items(images, key = { it.relativePath }) { image ->
+            ImageAttachmentItem(
+                imageAttachment = image,
+                onRemoveClick = { onRemoveAttachmentClick(image) },
+                modifier = Modifier.size(56.dp).animateItem()
+            )
+        }
+    }
+}
+
+@Composable
+private fun ImageAttachmentItem(
+    imageAttachment: ImageAttachment,
+    modifier: Modifier = Modifier,
+    onRemoveClick: (() -> Unit)? = null,
+) {
+    val file = remember(imageAttachment.relativePath) {
+        FileKit.filesDir / imageAttachment.relativePath
+    }
+    Box(modifier = modifier) {
+        AsyncImage(
+            model = file,
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            error = rememberVectorPainter(Icons.Default.BrokenImage),
+            modifier = Modifier
+                .fillMaxSize()
+                .clip(MaterialTheme.shapes.small)
+        )
+        if (onRemoveClick != null) {
+            IconButton(
+                onClick = onRemoveClick,
+                colors = IconButtonDefaults.iconButtonColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    contentColor = MaterialTheme.colorScheme.onSurface
+                ),
+                modifier = Modifier
+                    .size(16.dp)
+                    .align(Alignment.TopEnd)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = stringResource(Res.string.desc_remove_attachment),
+                    modifier = Modifier.pointerHoverIcon(PointerIcon.Hand)
+                )
+            }
+        }
+    }
+}
+
+@Composable
 private fun SendPromptButton(
     isGenerating: Boolean,
-    isPromptBlank: Boolean,
+    canSendPrompt: Boolean,
     onStopGeneration: () -> Unit,
     onSendPrompt: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     FilledIconButton(
         onClick = if (isGenerating) onStopGeneration else onSendPrompt,
-        enabled = isGenerating || !isPromptBlank,
+        enabled = isGenerating || canSendPrompt,
         colors = IconButtonDefaults.filledIconButtonColors(
             disabledContainerColor = MaterialTheme.colorScheme.primaryContainer,
             disabledContentColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
@@ -944,10 +1074,12 @@ private fun SendPromptButton(
 @Composable
 private fun AttachmentButton(
     onClick: () -> Unit,
+    enabled: Boolean,
     modifier: Modifier = Modifier,
 ) {
     IconButton(
         onClick = onClick,
+        enabled = enabled,
         modifier = modifier.pointerHoverIcon(PointerIcon.Hand)
     ) {
         Icon(
@@ -1107,11 +1239,28 @@ private fun PromptMessageItem(
             )
             .padding(16.dp)
     ) {
-        SelectionContainer {
-            Text(
-                text = prompt.query,
-                style = MaterialTheme.typography.bodyMedium
-            )
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            if (prompt.images.isNotEmpty()) {
+                FlowRow(
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    prompt.images.forEach { image ->
+                        ImageAttachmentItem(
+                            imageAttachment = image,
+                            modifier = Modifier.size(if (prompt.query.isNotBlank()) 32.dp else 64.dp)
+                        )
+                    }
+                }
+            }
+            if (prompt.query.isNotBlank()) {
+                SelectionContainer {
+                    Text(
+                        text = prompt.query,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            }
         }
     }
 }
@@ -1904,7 +2053,21 @@ private fun ChatScreenPreview() {
                 thinkingEnabled = true,
                 webSearchEnabled = false,
                 messages = listOf(
-                    Message.Prompt(id = 0, query = "Prompt message"),
+                    Message.Prompt(
+                        id = 0,
+                        query = "Prompt message",
+                        images = listOf(
+                            ImageAttachment("1", "png"),
+                            ImageAttachment("2", "png"),
+                            ImageAttachment("3", "png"),
+                            ImageAttachment("4", "png"),
+                            ImageAttachment("5", "png"),
+                            ImageAttachment("6", "png"),
+                            ImageAttachment("7", "png"),
+                            ImageAttachment("8", "png"),
+                            ImageAttachment("9", "png")
+                        )
+                    ),
                     Message.Completion(
                         id = 1,
                         reasoning = "Reasoning text from AI is here",
@@ -1954,7 +2117,8 @@ private fun ChatScreenPreview() {
             onSendPrompt = {},
             onToggleWebSearchClick = {},
             onToggleThinkingClick = {},
-            onPickAttachmentsClick = {},
+            onAttachImages = {},
+            onRemoveAttachment = {},
             onStopGeneration = {},
             onRegenerateLastResponseClick = {},
             onEditConversationTitleClick = {},

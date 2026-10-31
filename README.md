@@ -282,6 +282,5 @@ graph TD
 
 - Image generation
 - Model tuning (parameters)
-- Attach images to prompts
 - Model filtering in the catalog (by price, features, etc.)
 - Tests, starting with unit tests

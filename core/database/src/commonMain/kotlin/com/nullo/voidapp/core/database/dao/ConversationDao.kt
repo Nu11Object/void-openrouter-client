@@ -69,4 +69,16 @@ interface ConversationDao {
 
     @Query("DELETE FROM conversations")
     suspend fun clearAll()
+
+    @Query(
+        """
+        SELECT mi.relativePath FROM message_images mi
+        JOIN messages m ON m.id = mi.messageId
+        WHERE m.conversationId = :conversationId
+        """
+    )
+    suspend fun getImagePathsOfConversation(conversationId: Long): List<String>
+
+    @Query("SELECT relativePath FROM message_images")
+    suspend fun getAllImagePaths(): List<String>
 }
