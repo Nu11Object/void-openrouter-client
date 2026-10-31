@@ -7,7 +7,9 @@ import io.ktor.client.plugins.DefaultRequest
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.api.createClientPlugin
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.logging.DEFAULT
 import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.plugins.sse.SSE
 import io.ktor.client.request.header
@@ -30,7 +32,8 @@ internal class HttpClientFactory(
         install(SSE)
 
         install(Logging) {
-            level = LogLevel.ALL
+            logger = Logger.DEFAULT
+            level = LogLevel.INFO
             sanitizeHeader { it == HttpHeaders.Authorization }
         }
 
