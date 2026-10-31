@@ -12,6 +12,7 @@ dependencies {
     implementation(projects.core.designsystem)
 
     implementation(libs.androidx.window.core)
+    implementation(libs.file.kit.core)
 }
 
 compose.desktop {

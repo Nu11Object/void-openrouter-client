@@ -43,6 +43,7 @@ import com.nullo.voidapp.core.designsystem.icon.default.Logo
 import com.nullo.voidapp.core.designsystem.icon.default.Minimize
 import com.nullo.voidapp.di.initKoin
 import com.nullo.voidapp.feature.root.component.RootComponent
+import io.github.vinceglb.filekit.FileKit
 import java.awt.Dimension
 import javax.swing.SwingUtilities.invokeAndWait
 import org.jetbrains.compose.resources.painterResource
@@ -57,10 +58,12 @@ import voidapp.desktopapp.generated.resources.desc_minimize_window
 import voidapp.desktopapp.generated.resources.desc_restore_window
 
 private const val WINDOW_TITLE = "Void"
+private const val APP_ID = "com.nullo.voidapp"
 private val windowCornerRadius = 16.dp
 
 fun main() {
     invokeAndWait { setMainThreadId(Thread.currentThread().threadId()) }
+    FileKit.init(APP_ID)
     initKoin()
 
     application {
