@@ -10,14 +10,17 @@ import com.nullo.voidapp.core.model.Message
 fun MessageEntity.toDomain(): Message = when (this.messageType) {
     MessageType.PROMPT -> Message.Prompt(
         id = id,
-        query = text.orEmpty()
+        query = text.orEmpty(),
+        createdAt = createdAt
     )
 
     MessageType.COMPLETION -> Message.Completion(
         id = id,
         text = text.orEmpty(),
         reasoning = reasoning,
-        isStreaming = isGenerating
+        isStreaming = isGenerating,
+        createdAt = createdAt,
+        modelId = modelId
     )
 
     MessageType.IMAGES -> Message.Images(
@@ -43,7 +46,8 @@ fun MessageWithImages.toPrompt(): Message.Prompt = Message.Prompt(
     query = message.text.orEmpty(),
     images = images
         .sortedBy { it.position }
-        .map { ImageAttachment(it.relativePath, it.mimeType) }
+        .map { ImageAttachment(it.relativePath, it.mimeType) },
+    createdAt = message.createdAt
 )
 
 fun MessageWithImages.toDomain(): Message = when (message.messageType) {

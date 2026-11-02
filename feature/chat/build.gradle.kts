@@ -19,6 +19,7 @@ kotlin {
             implementation(libs.markdown.code)
             implementation(libs.markdown.coil)
             implementation(libs.coil.ktor3)
+            implementation(libs.kotlinx.datetime)
         }
     }
 }

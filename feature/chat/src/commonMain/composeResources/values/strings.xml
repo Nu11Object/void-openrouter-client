@@ -65,4 +65,5 @@
     <string name="delete">Delete</string>
     <string name="template_delete">Delete conversation %1$s</string>
     <string name="desc_remove_attachment">Remove attachment</string>
+    <string name="template_by_model">by %1$s</string>
 </resources>

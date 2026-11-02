@@ -192,7 +192,13 @@ import io.github.vinceglb.filekit.dialogs.FileKitType
 import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
 import io.github.vinceglb.filekit.div
 import io.github.vinceglb.filekit.filesDir
+import kotlin.time.Instant
 import kotlinx.coroutines.launch
+import kotlinx.datetime.LocalDateTime.Companion.Format
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.format
+import kotlinx.datetime.format.char
+import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
 import voidapp.core.utils.generated.resources.Res as CoreRes
 import voidapp.core.utils.generated.resources.ok
@@ -242,6 +248,7 @@ import voidapp.feature.chat.generated.resources.search_models
 import voidapp.feature.chat.generated.resources.select_model
 import voidapp.feature.chat.generated.resources.settings
 import voidapp.feature.chat.generated.resources.show_reasoning
+import voidapp.feature.chat.generated.resources.template_by_model
 import voidapp.feature.chat.generated.resources.template_delete
 import voidapp.feature.chat.generated.resources.template_desc_active_model
 import voidapp.feature.chat.generated.resources.template_desc_more_conv_actions
@@ -1229,38 +1236,51 @@ private fun PromptMessageItem(
     prompt: Message.Prompt,
     modifier: Modifier = Modifier,
 ) {
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .wrapContentWidth(align = Alignment.End)
-            .background(
-                color = MaterialTheme.colorScheme.surface,
-                shape = MaterialTheme.shapes.large
-            )
-            .padding(16.dp)
-    ) {
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            if (prompt.images.isNotEmpty()) {
-                FlowRow(
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    prompt.images.forEach { image ->
-                        ImageAttachmentItem(
-                            imageAttachment = image,
-                            modifier = Modifier.size(if (prompt.query.isNotBlank()) 32.dp else 64.dp)
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Box(
+            modifier = modifier
+                .fillMaxWidth()
+                .wrapContentWidth(align = Alignment.End)
+                .background(
+                    color = MaterialTheme.colorScheme.surface,
+                    shape = MaterialTheme.shapes.large
+                )
+                .padding(16.dp)
+        ) {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (prompt.images.isNotEmpty()) {
+                    FlowRow(
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        prompt.images.forEach { image ->
+                            ImageAttachmentItem(
+                                imageAttachment = image,
+                                modifier = Modifier.size(if (prompt.query.isNotBlank()) 32.dp else 64.dp)
+                            )
+                        }
+                    }
+                }
+                if (prompt.query.isNotBlank()) {
+                    SelectionContainer {
+                        Text(
+                            text = prompt.query,
+                            style = MaterialTheme.typography.bodyMedium
                         )
                     }
                 }
             }
-            if (prompt.query.isNotBlank()) {
-                SelectionContainer {
-                    Text(
-                        text = prompt.query,
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
-            }
+        }
+        prompt.createdAt?.let { timestamp ->
+            Text(
+                text = timestamp.toFormattedDateTime(),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
+                textAlign = TextAlign.End,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(end = 8.dp)
+            )
         }
     }
 }
@@ -1410,25 +1430,42 @@ private fun CompletionMessageItem(
                     )
                 }
             } else {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.offset(x = (-8).dp)
-                ) {
-                    if (isLastMessage) {
-                        ResponseActionButton(
-                            icon = Icons.AutoMirrored.Restart,
-                            onClick = onRegenerateResponse,
-                            contentDescription = stringResource(
-                                Res.string.desc_regenerate_last_response
-                            )
+                Column {
+                    completion.createdAt?.let { timestamp ->
+                        Text(
+                            text = timestamp.toFormattedDateTime(),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
                         )
                     }
-                    ResponseActionButton(
-                        icon = Icons.Default.ContentCopy,
-                        onClick = { clipboardManager.setText(AnnotatedString(completion.text)) },
-                        contentDescription = stringResource(Res.string.desc_copy_last_response)
-                    )
+                    completion.modelId?.let { model ->
+                        Text(
+                            text = stringResource(Res.string.template_by_model, model),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
+                        )
+                    }
+                    Spacer(Modifier.height(8.dp))
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.offset(x = (-8).dp)
+                    ) {
+                        if (isLastMessage) {
+                            ResponseActionButton(
+                                icon = Icons.AutoMirrored.Restart,
+                                onClick = onRegenerateResponse,
+                                contentDescription = stringResource(
+                                    Res.string.desc_regenerate_last_response
+                                )
+                            )
+                        }
+                        ResponseActionButton(
+                            icon = Icons.Default.ContentCopy,
+                            onClick = { clipboardManager.setText(AnnotatedString(completion.text)) },
+                            contentDescription = stringResource(Res.string.desc_copy_last_response)
+                        )
+                    }
                 }
             }
         }
@@ -2042,6 +2079,25 @@ private fun Modifier.chatPlaceholderGlow(
     }
 }
 
+private val dateTimeFormat = Format {
+    hour()
+    char(':')
+    minute()
+    char(':')
+    second()
+    chars(" · ")
+    day()
+    char('.')
+    monthNumber()
+    char('.')
+    year()
+}
+
+fun Long.toFormattedDateTime(): String =
+    Instant.fromEpochMilliseconds(this)
+        .toLocalDateTime(TimeZone.currentSystemDefault())
+        .format(dateTimeFormat)
+
 @Composable
 @PreviewLightDark
 private fun ChatScreenPreview() {
@@ -2049,35 +2105,29 @@ private fun ChatScreenPreview() {
         ChatScreenContent(
             state = ChatStore.State(
                 prompt = "",
-                isModelSelectorOpen = true,
                 thinkingEnabled = true,
                 webSearchEnabled = false,
                 messages = listOf(
                     Message.Prompt(
                         id = 0,
                         query = "Prompt message",
-                        images = listOf(
-                            ImageAttachment("1", "png"),
-                            ImageAttachment("2", "png"),
-                            ImageAttachment("3", "png"),
-                            ImageAttachment("4", "png"),
-                            ImageAttachment("5", "png"),
-                            ImageAttachment("6", "png"),
-                            ImageAttachment("7", "png"),
-                            ImageAttachment("8", "png"),
-                            ImageAttachment("9", "png")
-                        )
+                        createdAt = 1363626236
                     ),
                     Message.Completion(
                         id = 1,
+                        text = "Fully generated response",
+                        createdAt = 1363626265,
+                        modelId = "company/model-id"
+                    ),
+                    Message.Prompt(
+                        id = 2,
+                        query = "Another prompt"
+                    ),
+                    Message.Completion(
+                        id = 3,
                         reasoning = "Reasoning text from AI is here",
                         text = "This is a generating response from AI. One, two, three, fo",
                         isStreaming = true
-                    ),
-                    Message.Prompt(id = 2, query = "Prompt"),
-                    Message.Interrupted(
-                        id = 4,
-                        text = "Interrupted generati"
                     )
                 ),
                 conversations = listOf(

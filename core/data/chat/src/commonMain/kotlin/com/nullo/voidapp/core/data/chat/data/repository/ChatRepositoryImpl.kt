@@ -44,19 +44,21 @@ internal class ChatRepositoryImpl(
         activeModel: ActiveModelRef,
     ) {
         touchConversation(conversationId)
+        val now = clock.now().toEpochMilliseconds()
 
         val startedGeneration = messageDao.startGeneration(
             conversationId = conversationId,
             query = query,
             images = images,
             modelId = activeModel.id,
-            now = clock.now().toEpochMilliseconds()
+            now = now
         )
 
         val prompt = Message.Prompt(
             id = startedGeneration.promptId,
             query = query,
-            images = images
+            images = images,
+            createdAt = now
         )
         generateResponse(
             conversationId = conversationId,
