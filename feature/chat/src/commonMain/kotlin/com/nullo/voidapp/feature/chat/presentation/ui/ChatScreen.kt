@@ -210,6 +210,7 @@ import voidapp.feature.chat.generated.resources.delete
 import voidapp.feature.chat.generated.resources.desc_attach_files
 import voidapp.feature.chat.generated.resources.desc_collapse_side_menu
 import voidapp.feature.chat.generated.resources.desc_copy_last_response
+import voidapp.feature.chat.generated.resources.desc_copy_prompt
 import voidapp.feature.chat.generated.resources.desc_open_side_menu
 import voidapp.feature.chat.generated.resources.desc_regenerate_last_response
 import voidapp.feature.chat.generated.resources.desc_remove_attachment
@@ -1236,6 +1237,8 @@ private fun PromptMessageItem(
     prompt: Message.Prompt,
     modifier: Modifier = Modifier,
 ) {
+    val clipboardManager = LocalClipboardManager.current
+
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Box(
             modifier = modifier
@@ -1271,16 +1274,26 @@ private fun PromptMessageItem(
                 }
             }
         }
-        prompt.createdAt?.let { timestamp ->
-            Text(
-                text = timestamp.toFormattedDateTime(),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
-                textAlign = TextAlign.End,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(end = 8.dp)
-            )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.End,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            prompt.createdAt?.let { timestamp ->
+                Text(
+                    text = timestamp.toFormattedDateTime(),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
+                    textAlign = TextAlign.End
+                )
+            }
+            if (prompt.query.isNotBlank()) {
+                MessageActionButton(
+                    icon = Icons.Default.ContentCopy,
+                    onClick = { clipboardManager.setText(AnnotatedString(prompt.query)) },
+                    contentDescription = stringResource(Res.string.desc_copy_prompt)
+                )
+            }
         }
     }
 }
@@ -1452,7 +1465,7 @@ private fun CompletionMessageItem(
                         modifier = Modifier.offset(x = (-8).dp)
                     ) {
                         if (isLastMessage) {
-                            ResponseActionButton(
+                            MessageActionButton(
                                 icon = Icons.AutoMirrored.Restart,
                                 onClick = onRegenerateResponse,
                                 contentDescription = stringResource(
@@ -1460,7 +1473,7 @@ private fun CompletionMessageItem(
                                 )
                             )
                         }
-                        ResponseActionButton(
+                        MessageActionButton(
                             icon = Icons.Default.ContentCopy,
                             onClick = { clipboardManager.setText(AnnotatedString(completion.text)) },
                             contentDescription = stringResource(Res.string.desc_copy_last_response)
@@ -1473,7 +1486,7 @@ private fun CompletionMessageItem(
 }
 
 @Composable
-private fun ResponseActionButton(
+private fun MessageActionButton(
     icon: ImageVector,
     onClick: () -> Unit,
     contentDescription: String,

@@ -42,6 +42,7 @@
     <string name="desc_open_side_menu">Open side menu</string>
     <string name="desc_regenerate_last_response">Regenerate last response</string>
     <string name="desc_copy_last_response">Copy last response</string>
+    <string name="desc_copy_prompt">Copy prompt text</string>
     <string name="desc_collapse_side_menu">Collapse side menu</string>
     <string name="template_desc_active_model">Active model is %1$s. Tap to change.</string>
     <string name="template_desc_more_conv_actions">More actions for %1$s</string>
