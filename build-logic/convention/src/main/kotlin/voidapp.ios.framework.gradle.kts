@@ -8,6 +8,7 @@ pluginManager.withPlugin("org.jetbrains.kotlin.multiplatform") {
             binaries.framework {
                 baseName = project.name.replaceFirstChar { it.uppercase() }
                 isStatic = true
+                binaryOption("bundleId", "com.nullo.voidapp.shared")
             }
         }
     }

@@ -35,3 +35,7 @@ kotlin {
         }
     }
 }
+
+tasks.matching { it.name.startsWith("runKtlint") }.configureEach {
+    mustRunAfter(tasks.matching { it.name.startsWith("generateValkyrieImageVector") })
+}
