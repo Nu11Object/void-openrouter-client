@@ -6,17 +6,21 @@ import com.nullo.voidapp.core.model.ActiveModelRef
 import com.nullo.voidapp.core.model.ImageAttachment
 import com.nullo.voidapp.core.model.ModelType
 import com.nullo.voidapp.feature.chat.presentation.store.ChatStore
+import com.nullo.voidapp.feature.chat.presentation.store.ModelSelectorStore
+import com.nullo.voidapp.feature.chat.presentation.store.SideMenuStore
 import io.github.vinceglb.filekit.PlatformFile
 
 interface ChatComponent {
 
     val model: Value<ChatStore.State>
+    val sideMenuModel: Value<SideMenuStore.State>
+    val modelSelectorModel: Value<ModelSelectorStore.State>
 
     fun onOpenModelSelectorClicked()
 
     fun onCloseModelSelectorRequested()
 
-    fun onChangeModelSelectorTab(tab: ChatStore.State.SelectorTab)
+    fun onChangeModelSelectorTab(tab: ModelSelectorStore.State.SelectorTab)
 
     fun onModelSearchQueryChanged(query: String)
 
@@ -63,6 +67,8 @@ interface ChatComponent {
     fun onConversationRenameConfirmed()
 
     fun onConversationDeleted(conversationId: Long)
+
+    fun onSideMenuErrorDialogDismissed()
 
     fun onFullModelCatalogOpened()
 

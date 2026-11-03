@@ -182,9 +182,12 @@ import com.nullo.voidapp.core.utils.compose.FadeDirection
 import com.nullo.voidapp.core.utils.compose.SmoothStepEasing
 import com.nullo.voidapp.core.utils.compose.edgeFades
 import com.nullo.voidapp.core.utils.compose.rememberDeviceConfiguration
+import com.nullo.voidapp.core.utils.resources.UiText
 import com.nullo.voidapp.feature.chat.presentation.component.ChatComponent
 import com.nullo.voidapp.feature.chat.presentation.store.ChatStore
-import com.nullo.voidapp.feature.chat.presentation.store.ChatStore.State.SelectorTab
+import com.nullo.voidapp.feature.chat.presentation.store.ModelSelectorStore
+import com.nullo.voidapp.feature.chat.presentation.store.ModelSelectorStore.State.SelectorTab
+import com.nullo.voidapp.feature.chat.presentation.store.SideMenuStore
 import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.dialogs.FileKitMode
@@ -269,11 +272,15 @@ fun ChatScreen(
     component: ChatComponent,
     modifier: Modifier = Modifier,
 ) {
-    val state by component.model.subscribeAsState()
+    val chatState by component.model.subscribeAsState()
+    val sideMenuState by component.sideMenuModel.subscribeAsState()
+    val modelSelectorState by component.modelSelectorModel.subscribeAsState()
 
     ChatScreenContent(
         modifier = modifier,
-        state = state,
+        chatState = chatState,
+        sideMenuState = sideMenuState,
+        modelSelectorState = modelSelectorState,
         onConversationQueryChange = component::onSearchConversationQueryChanged,
         onModelsSearchQueryChange = component::onModelSearchQueryChanged,
         onStartNewConversation = component::onNewConversationStarted,
@@ -296,6 +303,7 @@ fun ChatScreen(
         onConversationNameInputChange = component::onConversationNameInputChange,
         onConfirmConversationRename = component::onConversationRenameConfirmed,
         onDismissErrorDialog = component::onErrorDialogDismissed,
+        onDismissSideMenuErrorDialog = component::onSideMenuErrorDialogDismissed,
         onDismissChatError = component::onChatErrorDismissed,
         onDismissModelSelector = component::onCloseModelSelectorRequested,
         onModelSelectorTabChange = component::onChangeModelSelectorTab,
@@ -306,7 +314,9 @@ fun ChatScreen(
 
 @Composable
 private fun ChatScreenContent(
-    state: ChatStore.State,
+    chatState: ChatStore.State,
+    sideMenuState: SideMenuStore.State,
+    modelSelectorState: ModelSelectorStore.State,
     onConversationQueryChange: (String) -> Unit,
     onModelsSearchQueryChange: (String) -> Unit,
     onStartNewConversation: () -> Unit,
@@ -329,6 +339,7 @@ private fun ChatScreenContent(
     onConversationNameInputChange: (String) -> Unit,
     onConfirmConversationRename: () -> Unit,
     onDismissErrorDialog: () -> Unit,
+    onDismissSideMenuErrorDialog: () -> Unit,
     onDismissChatError: (id: Long) -> Unit,
     onDismissModelSelector: () -> Unit,
     onModelSelectorTabChange: (SelectorTab) -> Unit,
@@ -341,7 +352,7 @@ private fun ChatScreenContent(
 
     val scope = rememberCoroutineScope()
     val deviceConfiguration = rememberDeviceConfiguration()
-    val sideMenuState = rememberWideNavigationRailState()
+    val sideMenuRailState = rememberWideNavigationRailState()
 
     val imeVisible by remember { derivedStateOf { ime.getBottom(density) > 0 } }
     val shouldHideAppBar = deviceConfiguration == DeviceConfiguration.MOBILE_LANDSCAPE && imeVisible
@@ -350,11 +361,11 @@ private fun ChatScreenContent(
 
     Row(modifier = modifier.fillMaxSize()) {
         SideMenu(
-            sideMenuState = sideMenuState,
+            railState = sideMenuRailState,
             alwaysExpanded = sideMenuIsAlwaysExpanded,
-            conversations = state.conversations,
-            activeConversationId = state.activeConversation?.id,
-            conversationQuery = state.conversationSearchQuery,
+            conversations = sideMenuState.conversations,
+            activeConversationId = sideMenuState.activeConversationId,
+            conversationQuery = sideMenuState.conversationSearchQuery,
             onStartNewConversation = onStartNewConversation,
             onConversationQueryChange = onConversationQueryChange,
             onClearConversationQuery = { onConversationQueryChange("") },
@@ -377,9 +388,8 @@ private fun ChatScreenContent(
                 ) {
                     ChatTopAppBar(
                         isSideMenuAlwaysExpanded = sideMenuIsAlwaysExpanded,
-                        activeModelName = state.activeModelName
-                            ?: stringResource(Res.string.select_model),
-                        onNavigationIconClick = { scope.launch { sideMenuState.expand() } },
+                        activeModelName = chatState.activeModelName ?: stringResource(Res.string.select_model),
+                        onNavigationIconClick = { scope.launch { sideMenuRailState.expand() } },
                         onOpenModelSelectorClick = onOpenModelSelectorClick,
                         onOpenTuningPanelClick = onOpenTuningPanelClick
                     )
@@ -396,10 +406,10 @@ private fun ChatScreenContent(
                     )
                     .consumeWindowInsets(innerPadding)
                     .imePadding()
-                    .chatPlaceholderGlow(visible = state.messages.isEmpty())
+                    .chatPlaceholderGlow(visible = chatState.messages.isEmpty())
             ) {
                 Chat(
-                    messages = state.messages,
+                    messages = chatState.messages,
                     messagesTopPadding = innerPadding.calculateTopPadding(),
                     onRegenerateLastResponseClick = onRegenerateLastResponseClick,
                     onDismissChatError = onDismissChatError,
@@ -420,14 +430,14 @@ private fun ChatScreenContent(
                 )
 
                 PromptComposer(
-                    prompt = state.prompt,
-                    promptImages = state.promptImages,
-                    isGenerating = state.isGenerating,
-                    isImportingAttachments = state.isImportingAttachments,
-                    canAttachImages = state.canAttachImages,
-                    canSendPrompt = state.canSendPrompt,
-                    thinkingEnabled = state.thinkingEnabled,
-                    webSearchEnabled = state.webSearchEnabled,
+                    prompt = chatState.prompt,
+                    promptImages = chatState.promptImages,
+                    isGenerating = chatState.isGenerating,
+                    isImportingAttachments = chatState.isImportingAttachments,
+                    canAttachImages = chatState.canAttachImages,
+                    canSendPrompt = chatState.canSendPrompt,
+                    thinkingEnabled = chatState.thinkingEnabled,
+                    webSearchEnabled = chatState.webSearchEnabled,
                     onPromptChange = onPromptChange,
                     onSendPrompt = onSendPrompt,
                     onStopGeneration = onStopGeneration,
@@ -440,7 +450,7 @@ private fun ChatScreenContent(
             }
 
             AnimatedVisibility(
-                visible = state.messages.isEmpty(),
+                visible = chatState.messages.isEmpty(),
                 enter = fadeIn(animationSpec = tween(durationMillis = 700)),
                 exit = fadeOut(),
                 modifier = Modifier
@@ -468,12 +478,12 @@ private fun ChatScreenContent(
         }
     }
 
-    if (state.isModelSelectorOpen) {
+    if (modelSelectorState.isModelSelectorOpen) {
         ModelSelectorSheet(
-            selectedTab = state.modelSelectorTab,
-            modelSearchQuery = state.modelSearchQuery,
-            pinnedChatModels = state.pinnedChatModels,
-            pinnedImageModels = state.pinnedImageModels,
+            selectedTab = modelSelectorState.modelSelectorTab,
+            modelSearchQuery = modelSelectorState.modelSearchQuery,
+            pinnedChatModels = modelSelectorState.pinnedChatModels,
+            pinnedImageModels = modelSelectorState.pinnedImageModels,
             onDismissModelSelector = onDismissModelSelector,
             onModelSelectorTabChange = onModelSelectorTabChange,
             onModelsSearchQueryChange = onModelsSearchQueryChange,
@@ -483,26 +493,44 @@ private fun ChatScreenContent(
         )
     }
 
-    if (state.renamingConversationId != null) {
+    if (sideMenuState.renamingConversationId != null) {
         RenameConversationDialog(
-            conversationTitle = state.renamingConversationInput,
+            conversationTitle = sideMenuState.renamingConversationInput,
             onDismissRenameConversationDialog = onDismissRenameConversationDialog,
             onConversationTitleChange = onConversationNameInputChange,
             onConfirmConversationRename = onConfirmConversationRename
         )
     }
 
-    state.errorDialogText?.let { errorUiText ->
-        VoidAlertDialog(
-            title = stringResource(CoreRes.string.oops),
-            message = errorUiText.asString(),
-            onDismissRequest = onDismissErrorDialog,
-            confirmButton = VoidDialogButton(
-                text = stringResource(CoreRes.string.ok),
-                onClick = onDismissErrorDialog
-            )
+    chatState.errorDialogText?.let { errorUiText ->
+        ChatErrorDialog(
+            text = errorUiText,
+            onDismiss = onDismissErrorDialog
         )
     }
+
+    sideMenuState.errorDialogText?.let { errorUiText ->
+        ChatErrorDialog(
+            text = errorUiText,
+            onDismiss = onDismissSideMenuErrorDialog
+        )
+    }
+}
+
+@Composable
+private fun ChatErrorDialog(
+    text: UiText,
+    onDismiss: () -> Unit,
+) {
+    VoidAlertDialog(
+        title = stringResource(CoreRes.string.oops),
+        message = text.asString(),
+        onDismissRequest = onDismiss,
+        confirmButton = VoidDialogButton(
+            text = stringResource(CoreRes.string.ok),
+            onClick = onDismiss
+        )
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -1637,7 +1665,7 @@ private fun GenerationOption(
 
 @Composable
 private fun SideMenu(
-    sideMenuState: WideNavigationRailState,
+    railState: WideNavigationRailState,
     alwaysExpanded: Boolean,
     conversations: List<Conversation>,
     onStartNewConversation: () -> Unit,
@@ -1653,8 +1681,8 @@ private fun SideMenu(
     modifier: Modifier = Modifier,
 ) {
     val scope = rememberCoroutineScope()
-    val collapseSideMenu: () -> Unit = remember(scope, sideMenuState) {
-        { scope.launch { sideMenuState.collapse() } }
+    val collapseSideMenu: () -> Unit = remember(scope, railState) {
+        { scope.launch { railState.collapse() } }
     }
     val colors = WideNavigationRailDefaults.colors(
         modalContainerColor = MaterialTheme.colorScheme.surface,
@@ -1691,7 +1719,7 @@ private fun SideMenu(
         }
     } else {
         ModalWideNavigationRail(
-            state = sideMenuState,
+            state = railState,
             colors = colors,
             expandedShape = RoundedCornerShape(topEnd = 24.dp, bottomEnd = 24.dp),
             contentPadding = PaddingValues(start = 16.dp),
@@ -2116,7 +2144,7 @@ fun Long.toFormattedDateTime(): String =
 private fun ChatScreenPreview() {
     VoidTheme {
         ChatScreenContent(
-            state = ChatStore.State(
+            chatState = ChatStore.State(
                 prompt = "",
                 thinkingEnabled = true,
                 webSearchEnabled = false,
@@ -2142,7 +2170,9 @@ private fun ChatScreenPreview() {
                         text = "This is a generating response from AI. One, two, three, fo",
                         isStreaming = true
                     )
-                ),
+                )
+            ),
+            sideMenuState = SideMenuStore.State(
                 conversations = listOf(
                     Conversation(
                         id = 1,
@@ -2163,13 +2193,9 @@ private fun ChatScreenPreview() {
                         updatedAt = 333333333L
                     )
                 ),
-                activeConversation = Conversation(
-                    id = 2,
-                    title = "Title of selected one",
-                    createdAt = 222222222L,
-                    updatedAt = 222222222L
-                )
+                activeConversationId = 2
             ),
+            modelSelectorState = ModelSelectorStore.State(),
             onConversationQueryChange = {},
             onSelectConversation = {},
             onNavigateToAppSettings = {},
@@ -2190,6 +2216,7 @@ private fun ChatScreenPreview() {
             onConversationNameInputChange = {},
             onDismissRenameConversationDialog = {},
             onDismissErrorDialog = {},
+            onDismissSideMenuErrorDialog = {},
             onStartNewConversation = {},
             onDismissChatError = {},
             onDismissModelSelector = {},

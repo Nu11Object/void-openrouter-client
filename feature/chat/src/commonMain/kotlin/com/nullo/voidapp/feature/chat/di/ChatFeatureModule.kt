@@ -22,39 +22,15 @@ import com.nullo.voidapp.feature.chat.domain.StartNewConversationUseCase
 import com.nullo.voidapp.feature.chat.presentation.component.ChatComponent
 import com.nullo.voidapp.feature.chat.presentation.component.DefaultChatComponent
 import com.nullo.voidapp.feature.chat.presentation.store.ChatStoreFactory
+import com.nullo.voidapp.feature.chat.presentation.store.ModelSelectorStoreFactory
+import com.nullo.voidapp.feature.chat.presentation.store.SideMenuStoreFactory
 import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.module
 
 val chatFeatureModule = module {
-    // TODO: break ChatStore into smaller, more focused stores
-    factory {
-        ChatStoreFactory(
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get()
-        )
-    }
+    factoryOf(::ChatStoreFactory)
+    factoryOf(::SideMenuStoreFactory)
+    factoryOf(::ModelSelectorStoreFactory)
 
     factory {
         ChatComponent.Factory { onNavigateToModelCatalog, onNavigateToAppSettings, componentContext ->
@@ -62,6 +38,8 @@ val chatFeatureModule = module {
                 onNavigateToModelCatalog = onNavigateToModelCatalog,
                 onNavigateToAppSettings = onNavigateToAppSettings,
                 chatStoreFactory = get(),
+                sideMenuStoreFactory = get(),
+                modelSelectorStoreFactory = get(),
                 componentContext = componentContext
             )
         }

@@ -2,157 +2,170 @@ package com.nullo.voidapp.feature.chat.presentation.component
 
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.value.Value
+import com.arkivanov.essenty.instancekeeper.InstanceKeeper
+import com.arkivanov.essenty.instancekeeper.getOrCreate
 import com.arkivanov.mvikotlin.core.instancekeeper.getStore
-import com.arkivanov.mvikotlin.extensions.coroutines.labels
 import com.nullo.voidapp.core.model.ActiveModelRef
 import com.nullo.voidapp.core.model.ImageAttachment
 import com.nullo.voidapp.core.model.ModelType
-import com.nullo.voidapp.core.utils.decompose.componentScope
 import com.nullo.voidapp.core.utils.mvikotlin.asValue
+import com.nullo.voidapp.feature.chat.presentation.store.ActiveConversationHolder
 import com.nullo.voidapp.feature.chat.presentation.store.ChatStore
-import com.nullo.voidapp.feature.chat.presentation.store.ChatStore.Intent
 import com.nullo.voidapp.feature.chat.presentation.store.ChatStoreFactory
+import com.nullo.voidapp.feature.chat.presentation.store.ModelSelectorStore
+import com.nullo.voidapp.feature.chat.presentation.store.ModelSelectorStoreFactory
+import com.nullo.voidapp.feature.chat.presentation.store.SideMenuStore
+import com.nullo.voidapp.feature.chat.presentation.store.SideMenuStoreFactory
 import io.github.vinceglb.filekit.PlatformFile
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 
 internal class DefaultChatComponent(
     private val onNavigateToModelCatalog: () -> Unit,
     private val onNavigateToAppSettings: () -> Unit,
-    private val chatStoreFactory: ChatStoreFactory,
+    chatStoreFactory: ChatStoreFactory,
+    sideMenuStoreFactory: SideMenuStoreFactory,
+    modelSelectorStoreFactory: ModelSelectorStoreFactory,
     private val componentContext: ComponentContext,
 ) : ChatComponent,
     ComponentContext by componentContext {
 
-    private val scope = componentScope()
-    private val store = instanceKeeper.getStore { chatStoreFactory.create() }
+    // Retained with the stores so a recreated component reuses the same holder.
+    private val activeConversation = instanceKeeper
+        .getOrCreate { RetainedActiveConversation() }
+        .holder
 
-    init {
-        observeLabels()
+    private val chatStore = instanceKeeper.getStore {
+        chatStoreFactory.create(activeConversation)
+    }
+    private val sideMenuStore = instanceKeeper.getStore {
+        sideMenuStoreFactory.create(activeConversation)
+    }
+    private val modelSelectorStore = instanceKeeper.getStore {
+        modelSelectorStoreFactory.create()
     }
 
-    override val model: Value<ChatStore.State> = store.asValue()
+    override val model: Value<ChatStore.State> = chatStore.asValue()
+    override val sideMenuModel: Value<SideMenuStore.State> = sideMenuStore.asValue()
+    override val modelSelectorModel: Value<ModelSelectorStore.State> = modelSelectorStore.asValue()
 
     override fun onOpenModelSelectorClicked() {
-        store.accept(Intent.OpenModelSelector)
+        modelSelectorStore.accept(ModelSelectorStore.Intent.OpenModelSelector)
     }
 
     override fun onCloseModelSelectorRequested() {
-        store.accept(Intent.CloseModelSelector)
+        modelSelectorStore.accept(ModelSelectorStore.Intent.CloseModelSelector)
     }
 
-    override fun onChangeModelSelectorTab(tab: ChatStore.State.SelectorTab) {
-        store.accept(Intent.ChangeModelSelectorTab(tab))
+    override fun onChangeModelSelectorTab(tab: ModelSelectorStore.State.SelectorTab) {
+        modelSelectorStore.accept(ModelSelectorStore.Intent.ChangeModelSelectorTab(tab))
     }
 
     override fun onModelSearchQueryChanged(query: String) {
-        store.accept(Intent.ChangeModelSearchQuery(query))
+        modelSelectorStore.accept(ModelSelectorStore.Intent.ChangeModelSearchQuery(query))
     }
 
     override fun onModelSelected(modelRef: ActiveModelRef) {
-        store.accept(Intent.SelectModel(modelRef))
+        modelSelectorStore.accept(ModelSelectorStore.Intent.SelectModel(modelRef))
     }
 
     override fun onModelUnpinned(modelId: String, modelType: ModelType) {
-        store.accept(Intent.UnpinModel(modelId, modelType))
+        modelSelectorStore.accept(ModelSelectorStore.Intent.UnpinModel(modelId, modelType))
     }
 
     override fun onTuningPanelOpened() {
-        store.accept(Intent.OpenTuningPanel)
+        chatStore.accept(ChatStore.Intent.OpenTuningPanel)
     }
 
     override fun onTuningPanelClosed() {
-        store.accept(Intent.CloseTuningPanel)
+        chatStore.accept(ChatStore.Intent.CloseTuningPanel)
     }
 
     override fun onImagesAttached(files: List<PlatformFile>) {
-        store.accept(Intent.AttachImages(files))
+        chatStore.accept(ChatStore.Intent.AttachImages(files))
     }
 
     override fun onImageAttachmentDeleted(image: ImageAttachment) {
-        store.accept(Intent.RemoveImageAttachment(image))
+        chatStore.accept(ChatStore.Intent.RemoveImageAttachment(image))
     }
 
     override fun onThinkingToggled() {
-        store.accept(Intent.ToggleThinking)
+        chatStore.accept(ChatStore.Intent.ToggleThinking)
     }
 
     override fun onWebSearchToggled() {
-        store.accept(Intent.ToggleWebSearch)
+        chatStore.accept(ChatStore.Intent.ToggleWebSearch)
     }
 
     override fun onPromptChanged(prompt: String) {
-        store.accept(Intent.ChangePrompt(prompt))
+        chatStore.accept(ChatStore.Intent.ChangePrompt(prompt))
     }
 
     override fun onPromptSent() {
-        store.accept(Intent.SendPrompt)
+        chatStore.accept(ChatStore.Intent.SendPrompt)
     }
 
     override fun onLastResponseRegenerateRequested() {
-        store.accept(Intent.RegenerateLastResponse)
+        chatStore.accept(ChatStore.Intent.RegenerateLastResponse)
     }
 
     override fun onGenerationStopped() {
-        store.accept(Intent.StopGeneration)
+        chatStore.accept(ChatStore.Intent.StopGeneration)
     }
 
     override fun onChatErrorDismissed(messageId: Long) {
-        store.accept(Intent.DismissChatError(messageId))
+        chatStore.accept(ChatStore.Intent.DismissChatError(messageId))
     }
 
     override fun onErrorDialogDismissed() {
-        store.accept(Intent.DismissErrorDialog)
+        chatStore.accept(ChatStore.Intent.DismissErrorDialog)
     }
 
     override fun onNewConversationStarted() {
-        store.accept(Intent.StartNewConversation)
+        sideMenuStore.accept(SideMenuStore.Intent.StartNewConversation)
     }
 
     override fun onConversationOpened(conversationId: Long) {
-        store.accept(Intent.OpenConversation(conversationId))
+        sideMenuStore.accept(SideMenuStore.Intent.OpenConversation(conversationId))
     }
 
     override fun onSearchConversationQueryChanged(query: String) {
-        store.accept(Intent.ChangeConversationSearchQuery(query))
+        sideMenuStore.accept(SideMenuStore.Intent.ChangeConversationSearchQuery(query))
     }
 
     override fun onRenameConversationDialogOpened(conversationId: Long) {
-        store.accept(Intent.OpenRenameConversationDialog(conversationId))
+        sideMenuStore.accept(SideMenuStore.Intent.OpenRenameConversationDialog(conversationId))
     }
 
     override fun onRenameConversationDialogClosed() {
-        store.accept(Intent.CloseRenameConversationDialog)
+        sideMenuStore.accept(SideMenuStore.Intent.CloseRenameConversationDialog)
     }
 
     override fun onConversationNameInputChange(input: String) {
-        store.accept(Intent.ChangeConversationNameInput(input))
+        sideMenuStore.accept(SideMenuStore.Intent.ChangeConversationNameInput(input))
     }
 
     override fun onConversationRenameConfirmed() {
-        store.accept(Intent.ConfirmConversationRename)
+        sideMenuStore.accept(SideMenuStore.Intent.ConfirmConversationRename)
     }
 
     override fun onConversationDeleted(conversationId: Long) {
-        store.accept(Intent.DeleteConversation(conversationId))
+        sideMenuStore.accept(SideMenuStore.Intent.DeleteConversation(conversationId))
+    }
+
+    override fun onSideMenuErrorDialogDismissed() {
+        sideMenuStore.accept(SideMenuStore.Intent.DismissErrorDialog)
     }
 
     override fun onFullModelCatalogOpened() {
-        store.accept(Intent.OpenFullModelCatalog)
+        onNavigateToModelCatalog()
     }
 
     override fun onAppSettingsOpened() {
-        store.accept(Intent.OpenAppSettings)
+        onNavigateToAppSettings()
     }
 
-    private fun observeLabels() {
-        store.labels
-            .onEach { label ->
-                when (label) {
-                    ChatStore.Label.NavigatedToAppSettings -> onNavigateToAppSettings()
-                    ChatStore.Label.NavigatedToModelCatalog -> onNavigateToModelCatalog()
-                }
-            }
-            .launchIn(scope)
+    private class RetainedActiveConversation : InstanceKeeper.Instance {
+        val holder = ActiveConversationHolder()
+
+        override fun onDestroy() = Unit
     }
 }
