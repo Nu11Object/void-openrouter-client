@@ -6,6 +6,7 @@ import com.arkivanov.mvikotlin.core.instancekeeper.getStore
 import com.arkivanov.mvikotlin.extensions.coroutines.labels
 import com.nullo.voidapp.core.model.ActiveModelRef
 import com.nullo.voidapp.core.model.ModelType
+import com.nullo.voidapp.core.model.imagemodel.ImageModel
 import com.nullo.voidapp.core.utils.decompose.componentScope
 import com.nullo.voidapp.core.utils.mvikotlin.asValue
 import com.nullo.voidapp.feature.catalog.domain.ChatModelFilters
@@ -46,6 +47,10 @@ internal class DefaultCatalogComponent(
 
     override fun onImageFiltersChanged(filters: ImageModelFilters) {
         store.accept(Intent.ChangeImageFilters(filters))
+    }
+
+    override fun onImagePriceRequested(model: ImageModel) {
+        store.accept(Intent.LoadImagePricing(model))
     }
 
     override fun onFiltersReset() {

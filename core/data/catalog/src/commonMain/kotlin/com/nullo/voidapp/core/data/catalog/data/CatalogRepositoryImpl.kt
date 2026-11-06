@@ -9,6 +9,7 @@ import com.nullo.voidapp.core.database.mapper.toEntity
 import com.nullo.voidapp.core.model.ModelType
 import com.nullo.voidapp.core.model.chatmodel.ChatModel
 import com.nullo.voidapp.core.model.imagemodel.ImageModel
+import com.nullo.voidapp.core.model.imagemodel.ImagePricing
 import com.nullo.voidapp.core.utils.kotlin.mapItems
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -62,6 +63,9 @@ internal class CatalogRepositoryImpl(
             }
         }
     }
+
+    override suspend fun fetchImageModelPricing(model: ImageModel): List<ImagePricing> =
+        catalogApiService.fetchImageModelPricing(model.endpointsUrl)
 
     override suspend fun deleteAll() {
         chatModelDao.deleteAll()

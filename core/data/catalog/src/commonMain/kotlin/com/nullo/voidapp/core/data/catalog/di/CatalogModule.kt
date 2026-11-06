@@ -4,6 +4,7 @@ import com.nullo.voidapp.core.data.catalog.data.CatalogRepositoryImpl
 import com.nullo.voidapp.core.data.catalog.data.service.CatalogApiService
 import com.nullo.voidapp.core.data.catalog.data.service.CatalogApiServiceImpl
 import com.nullo.voidapp.core.data.catalog.domain.CatalogRepository
+import com.nullo.voidapp.core.data.catalog.domain.GetImageModelPricingUseCase
 import com.nullo.voidapp.core.data.catalog.domain.ObserveChatModelsUseCase
 import com.nullo.voidapp.core.data.catalog.domain.ObserveImageModelsUseCase
 import com.nullo.voidapp.core.data.catalog.domain.ObservePinnedChatModelsUseCase
@@ -28,4 +29,5 @@ val catalogModule = module {
     factoryOf(::RefreshCatalogUseCase)
     factoryOf(::SetPinStatusUseCase)
     factoryOf(::UseModelUseCase)
+    factoryOf(::GetImageModelPricingUseCase)
 }

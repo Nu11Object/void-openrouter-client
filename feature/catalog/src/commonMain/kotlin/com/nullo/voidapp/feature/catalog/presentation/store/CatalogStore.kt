@@ -6,6 +6,7 @@ import com.nullo.voidapp.core.model.ActiveModelRef
 import com.nullo.voidapp.core.model.ModelType
 import com.nullo.voidapp.core.model.chatmodel.ChatModel
 import com.nullo.voidapp.core.model.imagemodel.ImageModel
+import com.nullo.voidapp.core.model.imagemodel.ImagePricing
 import com.nullo.voidapp.core.utils.resources.UiText
 import com.nullo.voidapp.feature.catalog.domain.ChatModelFilters
 import com.nullo.voidapp.feature.catalog.domain.ImageModelFilters
@@ -17,14 +18,14 @@ interface CatalogStore : Store<CatalogStore.Intent, CatalogStore.State, CatalogS
         val searchQuery: String = "",
 
         val chatModels: List<ChatModel> = emptyList(),
-        val imageModels: List<ImageModel> = emptyList(),
-
         val chatFilters: ChatModelFilters = ChatModelFilters.Default,
+
+        val imageModels: List<ImageModel> = emptyList(),
         val imageFilters: ImageModelFilters = ImageModelFilters.Default,
+        val imagePricing: Map<String, ImagePricingState> = emptyMap(),
 
         val selectedTab: CatalogTab = CatalogTab.ChatModels,
         val showVerboseInfo: Boolean = true,
-
         val isLoading: Boolean = false,
         val isDbEmpty: Boolean = false,
 
@@ -44,6 +45,14 @@ interface CatalogStore : Store<CatalogStore.Intent, CatalogStore.State, CatalogS
             data object ChatModels : CatalogTab
             data object ImageModels : CatalogTab
         }
+
+        @Immutable
+        sealed interface ImagePricingState {
+
+            data object Loading : ImagePricingState
+            data object Failed : ImagePricingState
+            data class Loaded(val providers: List<ImagePricing>) : ImagePricingState
+        }
     }
 
     sealed interface Intent {
@@ -57,6 +66,7 @@ interface CatalogStore : Store<CatalogStore.Intent, CatalogStore.State, CatalogS
         data class ChangeCatalogTab(val tab: State.CatalogTab) : Intent
         data class ToggleVerboseInfo(val verbose: Boolean) : Intent
 
+        data class LoadImagePricing(val model: ImageModel) : Intent
         data class UseModel(val modelRef: ActiveModelRef) : Intent
         data class SetPinState(
             val modelId: String,

@@ -5,6 +5,7 @@ import com.nullo.voidapp.core.data.catalog.data.service.exception.NetworkExcepti
 import com.nullo.voidapp.core.model.ModelType
 import com.nullo.voidapp.core.model.chatmodel.ChatModel
 import com.nullo.voidapp.core.model.imagemodel.ImageModel
+import com.nullo.voidapp.core.model.imagemodel.ImagePricing
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -67,6 +68,14 @@ interface CatalogRepository {
         modelType: ModelType,
         pinned: Boolean,
     )
+
+    /**
+     * Fetches pricing of [model] from every provider that serves it.
+     *
+     * @throws InternalServerException If the server returned an internal error.
+     * @throws NetworkException If the request failed for any other reason.
+     */
+    suspend fun fetchImageModelPricing(model: ImageModel): List<ImagePricing>
 
     /** Deletes all Chat and Image models. */
     suspend fun deleteAll()

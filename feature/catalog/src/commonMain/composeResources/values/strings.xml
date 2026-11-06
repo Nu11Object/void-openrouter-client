@@ -34,4 +34,14 @@
     <string name="features">Features</string>
     <string name="text">Text</string>
     <string name="image">Image</string>
+    <string name="check_price">Check price</string>
+    <string name="checking_price">Checking price...</string>
+    <string name="price_load_failed">Couldn't load the price</string>
+    <string name="price_not_available">Price isn't available for this model</string>
+    <string name="template_price_line">%1$s · $%2$s / %3$s</string>
+    <string name="price_unit_image">image</string>
+    <string name="price_unit_megapixel">megapixel</string>
+    <string name="price_unit_token">token</string>
+    <string name="price_unit_request">request</string>
+    <string name="price_unit_other">unit</string>
 </resources>

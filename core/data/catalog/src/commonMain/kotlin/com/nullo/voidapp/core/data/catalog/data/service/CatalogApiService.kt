@@ -32,10 +32,7 @@ interface CatalogApiService {
 
     /**
      * Fetches pricing for a specific image model from its endpoint records.
-     *
-     * A model may be served by multiple providers with different pricing; this
-     * returns the first available provider's pricing, or `null` if the model
-     * currently has no active providers.
+     * A model may be served by multiple providers with different pricing.
      *
      * @param endpointsUrl The relative endpoints URL reported for the model
      * (see [ImageModel.endpointsUrl]).
@@ -43,5 +40,5 @@ interface CatalogApiService {
      * @throws NetworkException If the request failed for any other reason
      * (connectivity, timeout, serialization, or an unhandled status code).
      */
-    suspend fun fetchImageModelPrice(endpointsUrl: String): ImagePricing?
+    suspend fun fetchImageModelPricing(endpointsUrl: String): List<ImagePricing>
 }

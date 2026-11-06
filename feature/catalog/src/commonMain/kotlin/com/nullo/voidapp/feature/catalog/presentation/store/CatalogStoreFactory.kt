@@ -7,6 +7,7 @@ import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineBootstrapper
 import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineExecutor
 import com.nullo.voidapp.core.data.catalog.data.service.exception.InternalServerException
 import com.nullo.voidapp.core.data.catalog.data.service.exception.NetworkException
+import com.nullo.voidapp.core.data.catalog.domain.GetImageModelPricingUseCase
 import com.nullo.voidapp.core.data.catalog.domain.ObserveChatModelsUseCase
 import com.nullo.voidapp.core.data.catalog.domain.ObserveImageModelsUseCase
 import com.nullo.voidapp.core.data.catalog.domain.RefreshCatalogUseCase
@@ -45,6 +46,7 @@ internal class CatalogStoreFactory(
     private val storeFactory: StoreFactory,
     private val observeChatModelsUseCase: ObserveChatModelsUseCase,
     private val observeImageModelsUseCase: ObserveImageModelsUseCase,
+    private val getImageModelPricingUseCase: GetImageModelPricingUseCase,
     private val refreshCatalogUseCase: RefreshCatalogUseCase,
     private val setPinStatusUseCase: SetPinStatusUseCase,
     private val useModelUseCase: UseModelUseCase,
@@ -86,6 +88,10 @@ internal class CatalogStoreFactory(
 
         data class ChatFiltersChanged(val filters: ChatModelFilters) : Message
         data class ImageFiltersChanged(val filters: ImageModelFilters) : Message
+        data class ImagePricingStateChanged(
+            val modelId: String,
+            val pricing: State.ImagePricingState,
+        ) : Message
 
         data class ErrorOccurred(val text: UiText) : Message
         data class MessageReceived(val text: UiText) : Message
@@ -217,6 +223,23 @@ internal class CatalogStoreFactory(
                     }
                 }
 
+                is CatalogStore.Intent.LoadImagePricing -> {
+                    val modelId = intent.model.id
+                    if (state().imagePricing[modelId] is State.ImagePricingState.Loading) return
+
+                    dispatch(Message.ImagePricingStateChanged(modelId, State.ImagePricingState.Loading))
+                    scope.launch {
+                        val result = try {
+                            State.ImagePricingState.Loaded(getImageModelPricingUseCase(intent.model))
+                        } catch (e: CancellationException) {
+                            throw e
+                        } catch (_: Exception) {
+                            State.ImagePricingState.Failed
+                        }
+                        dispatch(Message.ImagePricingStateChanged(modelId, result))
+                    }
+                }
+
                 is CatalogStore.Intent.ChangeChatFilters -> {
                     dispatch(Message.ChatFiltersChanged(intent.filters))
                     chatModelFilters.update { intent.filters }
@@ -292,7 +315,11 @@ internal class CatalogStoreFactory(
         override fun State.reduce(msg: Message): State = when (msg) {
             Message.CatalogRefreshStarted -> copy(isLoading = true)
 
-            Message.CatalogRefreshFinished -> copy(isLoading = false)
+            is Message.ImagePricingStateChanged -> copy(
+                imagePricing = imagePricing + (msg.modelId to msg.pricing)
+            )
+
+            Message.CatalogRefreshFinished -> copy(isLoading = false, imagePricing = emptyMap())
 
             is Message.CatalogTabChanged -> copy(selectedTab = msg.tab)
 

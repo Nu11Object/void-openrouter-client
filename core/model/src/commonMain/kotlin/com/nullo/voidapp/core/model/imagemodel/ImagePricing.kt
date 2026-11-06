@@ -1,7 +1,9 @@
 package com.nullo.voidapp.core.model.imagemodel
 
+import androidx.compose.runtime.Immutable
 import com.ionspin.kotlin.bignum.decimal.BigDecimal
 
+@Immutable
 data class ImagePricing(
     val providerName: String,
     val providerSlug: String,
@@ -20,4 +22,5 @@ enum class PricingUnit {
     IMAGE,
     MEGAPIXEL,
     TOKEN,
+    OTHER,
 }

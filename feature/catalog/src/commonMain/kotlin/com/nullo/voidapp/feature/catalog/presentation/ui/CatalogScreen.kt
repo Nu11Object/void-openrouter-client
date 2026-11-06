@@ -109,6 +109,9 @@ import com.nullo.voidapp.core.model.chatmodel.Modality
 import com.nullo.voidapp.core.model.chatmodel.ModelFeature
 import com.nullo.voidapp.core.model.chatmodel.ModelPricing
 import com.nullo.voidapp.core.model.imagemodel.ImageModel
+import com.nullo.voidapp.core.model.imagemodel.ImagePricing
+import com.nullo.voidapp.core.model.imagemodel.PricingLine
+import com.nullo.voidapp.core.model.imagemodel.PricingUnit
 import com.nullo.voidapp.core.utils.compose.DeviceConfiguration
 import com.nullo.voidapp.core.utils.compose.bottomFade
 import com.nullo.voidapp.core.utils.compose.rememberDeviceConfiguration
@@ -127,6 +130,8 @@ import voidapp.feature.catalog.generated.resources.Res
 import voidapp.feature.catalog.generated.resources.any
 import voidapp.feature.catalog.generated.resources.auto_sync_description
 import voidapp.feature.catalog.generated.resources.chat_models
+import voidapp.feature.catalog.generated.resources.check_price
+import voidapp.feature.catalog.generated.resources.checking_price
 import voidapp.feature.catalog.generated.resources.context_window
 import voidapp.feature.catalog.generated.resources.desc_open_filters
 import voidapp.feature.catalog.generated.resources.features
@@ -144,13 +149,21 @@ import voidapp.feature.catalog.generated.resources.pin
 import voidapp.feature.catalog.generated.resources.pinned_only
 import voidapp.feature.catalog.generated.resources.price_description
 import voidapp.feature.catalog.generated.resources.price_from
+import voidapp.feature.catalog.generated.resources.price_load_failed
+import voidapp.feature.catalog.generated.resources.price_not_available
 import voidapp.feature.catalog.generated.resources.price_to
+import voidapp.feature.catalog.generated.resources.price_unit_image
+import voidapp.feature.catalog.generated.resources.price_unit_megapixel
+import voidapp.feature.catalog.generated.resources.price_unit_other
+import voidapp.feature.catalog.generated.resources.price_unit_request
+import voidapp.feature.catalog.generated.resources.price_unit_token
 import voidapp.feature.catalog.generated.resources.reasoning
 import voidapp.feature.catalog.generated.resources.refresh
 import voidapp.feature.catalog.generated.resources.reset
 import voidapp.feature.catalog.generated.resources.search_models
 import voidapp.feature.catalog.generated.resources.syncing
 import voidapp.feature.catalog.generated.resources.template_context_length
+import voidapp.feature.catalog.generated.resources.template_price_line
 import voidapp.feature.catalog.generated.resources.text
 import voidapp.feature.catalog.generated.resources.unpin
 import voidapp.feature.catalog.generated.resources.use_now
@@ -182,6 +195,7 @@ fun CatalogScreen(
         onChatFiltersChange = catalogComponent::onChatFiltersChanged,
         onImageFiltersChange = catalogComponent::onImageFiltersChanged,
         onResetFiltersClick = catalogComponent::onFiltersReset,
+        onImagePriceRequest = catalogComponent::onImagePriceRequested,
         modifier = modifier
     )
 }
@@ -203,6 +217,7 @@ private fun CatalogScreenContent(
     onChatFiltersChange: (ChatModelFilters) -> Unit,
     onImageFiltersChange: (ImageModelFilters) -> Unit,
     onResetFiltersClick: () -> Unit,
+    onImagePriceRequest: (ImageModel) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val deviceConfiguration = rememberDeviceConfiguration()
@@ -310,7 +325,8 @@ private fun CatalogScreenContent(
                     ModelsListSection(
                         state = state,
                         onUseModelClick = onUseModelClick,
-                        onPinModelClick = onPinModelClick
+                        onPinModelClick = onPinModelClick,
+                        onImagePriceRequest = onImagePriceRequest
                     )
                 }
 
@@ -376,6 +392,7 @@ private fun CatalogScreenContent(
                     state = state,
                     onUseModelClick = onUseModelClick,
                     onPinModelClick = onPinModelClick,
+                    onImagePriceRequest = onImagePriceRequest,
                     bottomFadeFraction = 0.1f,
                     modifier = Modifier.weight(5f)
                 )
@@ -872,6 +889,7 @@ private fun ModelsListSection(
     state: CatalogStore.State,
     onUseModelClick: (ActiveModelRef) -> Unit,
     onPinModelClick: (modelId: String, ModelType, pin: Boolean) -> Unit,
+    onImagePriceRequest: (ImageModel) -> Unit,
     modifier: Modifier = Modifier,
     bottomFadeFraction: Float = 0.2f,
 ) {
@@ -933,10 +951,12 @@ private fun ModelsListSection(
                     items(
                         state.imageModels,
                         key = { it.id }
-                    ) {
+                    ) { model ->
                         ImageModelItem(
-                            imageModel = it,
+                            imageModel = model,
                             verbose = state.showVerboseInfo,
+                            pricing = state.imagePricing[model.id],
+                            onCheckPriceClick = { onImagePriceRequest(model) },
                             onUseModelClick = onUseModelClick,
                             onPinModelClick = onPinModelClick,
                             modifier = Modifier.animateItem()
@@ -1042,7 +1062,10 @@ private fun ChatModelItem(
         )
     }
     Spacer(Modifier.height(4.dp))
-    AnimatedVisibility(visible = verbose) {
+    AnimatedVisibility(
+        visible = verbose,
+        label = "ChatModelVerboseSection"
+    ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
@@ -1094,31 +1117,124 @@ private fun ChatModelItem(
 private fun ImageModelItem(
     imageModel: ImageModel,
     verbose: Boolean,
+    pricing: CatalogStore.State.ImagePricingState?,
+    onCheckPriceClick: () -> Unit,
     onUseModelClick: (ActiveModelRef) -> Unit,
     onPinModelClick: (modelId: String, ModelType, pin: Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) = ModelCard(modifier = modifier) {
     Text(text = imageModel.name)
-    AnimatedVisibility(visible = verbose && imageModel.description.isNotEmpty()) {
-        Column {
-            Spacer(Modifier.height(6.dp))
-            Text(
-                modifier = Modifier.padding(vertical = 6.dp),
-                text = imageModel.description,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-            )
-        }
+    AnimatedVisibility(
+        visible = verbose && imageModel.description.isNotEmpty(),
+        label = "ImageModelDescription"
+    ) {
+        Text(
+            text = imageModel.description,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+            modifier = Modifier.padding(vertical = 8.dp)
+        )
     }
-    Spacer(Modifier.height(6.dp))
+    AnimatedContent(
+        targetState = pricing,
+        label = "ImageModelPricing"
+    ) { pricingState ->
+        ImagePricingSection(pricingState)
+    }
+    Spacer(Modifier.height(8.dp))
     ModelInteractionButtons(
         onUseModelClick = { onUseModelClick(ActiveModelRef.Image(imageModel.id)) },
-        onPinModelClick = {
-            onPinModelClick(imageModel.id, ModelType.IMAGE, !imageModel.pinned)
-        },
+        onPinModelClick = { onPinModelClick(imageModel.id, ModelType.IMAGE, !imageModel.pinned) },
         isModelPinned = imageModel.pinned,
+        showCheckPriceButton = pricing == null || pricing is CatalogStore.State.ImagePricingState.Failed,
+        onCheckPriceClick = onCheckPriceClick,
         modifier = Modifier.fillMaxWidth()
     )
+}
+
+@Composable
+private fun ImagePricingSection(
+    pricing: CatalogStore.State.ImagePricingState?,
+    modifier: Modifier = Modifier,
+) {
+    Box(modifier = modifier.animateContentSize()) {
+        when (pricing) {
+            is CatalogStore.State.ImagePricingState.Loaded -> ImagePricingDetails(pricing.providers)
+
+            is CatalogStore.State.ImagePricingState.Failed -> Text(
+                text = stringResource(Res.string.price_load_failed),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface.copy(0.6f)
+            )
+
+            is CatalogStore.State.ImagePricingState.Loading -> {
+                Text(
+                    text = stringResource(Res.string.checking_price),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface.copy(0.6f)
+                )
+            }
+
+            else -> {}
+        }
+    }
+}
+
+@Composable
+private fun ImagePricingDetails(
+    providers: List<ImagePricing>,
+    modifier: Modifier = Modifier,
+) {
+    if (providers.isEmpty()) {
+        Text(
+            text = stringResource(Res.string.price_not_available),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+            modifier = modifier
+        )
+        return
+    }
+
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        providers.forEach { provider ->
+            Column {
+                Text(
+                    text = provider.providerName,
+                    style = MaterialTheme.typography.labelLarge
+                )
+                provider.lines.forEach { line ->
+                    Text(
+                        text = line.formatted(),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun PricingLine.formatted(): String {
+    val label = billable.replace('_', ' ').replaceFirstChar { it.uppercase() } +
+        variant?.let { " ($it)" }.orEmpty()
+    return stringResource(
+        Res.string.template_price_line,
+        label,
+        costUsd.toStringExpanded(),
+        stringResource(unit.labelRes())
+    )
+}
+
+private fun PricingUnit.labelRes() = when (this) {
+    PricingUnit.REQUEST -> Res.string.price_unit_request
+    PricingUnit.IMAGE -> Res.string.price_unit_image
+    PricingUnit.MEGAPIXEL -> Res.string.price_unit_megapixel
+    PricingUnit.TOKEN -> Res.string.price_unit_token
+    PricingUnit.OTHER -> Res.string.price_unit_other
 }
 
 @Composable
@@ -1144,63 +1260,85 @@ private fun ModelInteractionButtons(
     onPinModelClick: () -> Unit,
     isModelPinned: Boolean,
     modifier: Modifier = Modifier,
+    showCheckPriceButton: Boolean = false,
+    onCheckPriceClick: (() -> Unit)? = null,
 ) {
-    Row(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(6.dp)
-    ) {
-        Button(
-            onClick = onUseModelClick,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.surfaceDim,
-                contentColor = MaterialTheme.colorScheme.onSurface
-            ),
-            modifier = Modifier
-                .weight(1f)
-                .pointerHoverIcon(PointerIcon.Hand)
+    Column {
+        AnimatedContent(
+            targetState = showCheckPriceButton,
+            label = "CheckPriceButton"
         ) {
-            Text(text = stringResource(Res.string.use_now))
-        }
-        Button(
-            onClick = onPinModelClick,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = if (isModelPinned) {
-                    MaterialTheme.colorScheme.surfaceDim
-                } else {
-                    MaterialTheme.colorScheme.primary
-                },
-                contentColor = if (isModelPinned) {
-                    MaterialTheme.colorScheme.onSurface
-                } else {
-                    MaterialTheme.colorScheme.onPrimary
+            if (showCheckPriceButton) {
+                Button(
+                    onClick = { onCheckPriceClick?.invoke() },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceDim,
+                        contentColor = MaterialTheme.colorScheme.onSurface
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .pointerHoverIcon(PointerIcon.Hand)
+                ) {
+                    Text(text = stringResource(Res.string.check_price))
                 }
-            ),
-            contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
-            modifier = Modifier
-                .weight(1f)
-                .pointerHoverIcon(PointerIcon.Hand)
+            }
+        }
+        Row(
+            modifier = modifier,
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            Icon(
-                modifier = Modifier.size(ButtonDefaults.IconSize),
-                imageVector = Icons.Default.Keep,
-                contentDescription = null
-            )
-            Spacer(Modifier.width(6.dp))
-            Text(
-                text = stringResource(
-                    if (isModelPinned) {
-                        Res.string.unpin
+            Button(
+                onClick = onUseModelClick,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceDim,
+                    contentColor = MaterialTheme.colorScheme.onSurface
+                ),
+                modifier = Modifier
+                    .weight(1f)
+                    .pointerHoverIcon(PointerIcon.Hand)
+            ) {
+                Text(text = stringResource(Res.string.use_now))
+            }
+            Button(
+                onClick = onPinModelClick,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (isModelPinned) {
+                        MaterialTheme.colorScheme.surfaceDim
                     } else {
-                        Res.string.pin
+                        MaterialTheme.colorScheme.primary
+                    },
+                    contentColor = if (isModelPinned) {
+                        MaterialTheme.colorScheme.onSurface
+                    } else {
+                        MaterialTheme.colorScheme.onPrimary
                     }
                 ),
-                modifier = Modifier.animateContentSize()
-            )
+                contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
+                modifier = Modifier
+                    .weight(1f)
+                    .pointerHoverIcon(PointerIcon.Hand)
+            ) {
+                Icon(
+                    modifier = Modifier.size(ButtonDefaults.IconSize),
+                    imageVector = Icons.Default.Keep,
+                    contentDescription = null
+                )
+                Spacer(Modifier.width(6.dp))
+                Text(
+                    text = stringResource(
+                        if (isModelPinned) {
+                            Res.string.unpin
+                        } else {
+                            Res.string.pin
+                        }
+                    ),
+                    modifier = Modifier.animateContentSize()
+                )
+            }
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun CatalogFloatingToolbar(
     selectedTab: CatalogTab,
@@ -1486,7 +1624,8 @@ private fun CatalogScreenPreview() {
             onDismissError = {},
             onImageFiltersChange = {},
             onChatFiltersChange = {},
-            onResetFiltersClick = {}
+            onResetFiltersClick = {},
+            onImagePriceRequest = {}
         )
     }
 }

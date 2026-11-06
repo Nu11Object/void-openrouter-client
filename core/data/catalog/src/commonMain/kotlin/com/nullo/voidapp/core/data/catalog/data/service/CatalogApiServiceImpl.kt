@@ -12,6 +12,7 @@ import com.nullo.voidapp.core.model.imagemodel.ImagePricing
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.ResponseException
+import io.ktor.client.plugins.expectSuccess
 import io.ktor.client.request.get
 import io.ktor.http.HttpStatusCode
 import kotlin.coroutines.cancellation.CancellationException
@@ -54,16 +55,17 @@ internal class CatalogApiServiceImpl(private val httpClient: HttpClient) : Catal
         }
     }
 
-    override suspend fun fetchImageModelPrice(endpointsUrl: String): ImagePricing? {
+    override suspend fun fetchImageModelPricing(endpointsUrl: String): List<ImagePricing> {
         try {
-            return httpClient.get(endpointsUrl.cutApiVersionPrefix())
+            return httpClient.get(endpointsUrl.cutApiVersionPrefix()) { expectSuccess = true }
                 .body<ImagePricingResponseDto>()
                 .toDomain()
         } catch (e: CancellationException) {
             throw e
         } catch (e: ResponseException) {
-            when (e.response.status) {
-                HttpStatusCode.InternalServerError -> throw InternalServerException(e)
+            val statusCode = e.response.status.value
+            when {
+                statusCode in INTERNAL_ERROR_STATUSES -> throw InternalServerException(e)
                 else -> throw NetworkException(e)
             }
         } catch (e: Exception) {
@@ -77,5 +79,6 @@ internal class CatalogApiServiceImpl(private val httpClient: HttpClient) : Catal
 
         private const val LIST_AI_MODELS_ENDPOINT = "models"
         private const val LIST_IMAGE_MODELS_ENDPOINT = "images/models"
+        private val INTERNAL_ERROR_STATUSES = 500..599
     }
 }
