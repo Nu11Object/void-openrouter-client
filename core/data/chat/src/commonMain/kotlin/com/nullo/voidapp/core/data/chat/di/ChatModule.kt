@@ -31,7 +31,8 @@ val chatModule = module {
         ResponseGeneratorImpl(
             chatApiService = get(),
             sessionRepository = get(),
-            imageEncoder = get()
+            imageEncoder = get(),
+            attachmentStorage = get()
         )
     }
 

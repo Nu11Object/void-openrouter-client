@@ -22,6 +22,15 @@ class RateLimitedException(
     cause: Throwable? = null,
 ) : ChatApiException(rawMessage, cause)
 
+/**
+ * Indicates that OpenRouter rejected the request due to an invalid request
+ * or a condition that prevents it from being processed.
+ */
+class RequestRejectedException(
+    rawMessage: String?,
+    cause: Throwable?,
+) : ChatApiException(rawMessage, cause)
+
 /** Indicates that OpenRouter encountered an internal server error. */
 class InternalServerException(
     rawMessage: String?,

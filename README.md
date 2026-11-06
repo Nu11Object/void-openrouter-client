@@ -282,7 +282,6 @@ graph TD
 
 ![Todo Header](./assets/header_todo.png)
 
-- Image generation
 - Model tuning (parameters)
 - Tests, starting with unit tests
 - CI & Releases

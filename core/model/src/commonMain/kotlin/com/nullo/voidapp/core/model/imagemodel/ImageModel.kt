@@ -16,8 +16,14 @@ data class ImageModel(
     val endpointsUrl: String,
     val pinned: Boolean,
 ) {
+    val maxInputReferences: Int
+        get() = (capabilityOf(ImageParameter.INPUT_REFERENCES) as? ImageParameterCapability.Range)
+            ?.max
+            ?.toInt()
+            ?: 0
+
     val supportsInputReferences: Boolean
-        get() = supports(ImageParameter.INPUT_REFERENCES)
+        get() = maxInputReferences > 0
 
     fun capabilityOf(param: ImageParameter): ImageParameterCapability? = supportedParameters[param]
 

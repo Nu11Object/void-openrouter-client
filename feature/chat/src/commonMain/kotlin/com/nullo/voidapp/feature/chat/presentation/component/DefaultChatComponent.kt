@@ -87,6 +87,10 @@ internal class DefaultChatComponent(
         chatStore.accept(ChatStore.Intent.RemoveImageAttachment(image))
     }
 
+    override fun onImageSaved(image: ImageAttachment, destination: PlatformFile) {
+        chatStore.accept(ChatStore.Intent.SaveImage(image, destination))
+    }
+
     override fun onThinkingToggled() {
         chatStore.accept(ChatStore.Intent.ToggleThinking)
     }

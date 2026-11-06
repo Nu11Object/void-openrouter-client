@@ -13,6 +13,7 @@ import com.nullo.voidapp.core.model.ModelType
 import com.nullo.voidapp.core.utils.resources.UiText
 import com.nullo.voidapp.feature.chat.domain.DeleteAttachmentUseCase
 import com.nullo.voidapp.feature.chat.domain.DismissErrorMessageUseCase
+import com.nullo.voidapp.feature.chat.domain.ExportAttachmentUseCase
 import com.nullo.voidapp.feature.chat.domain.ImportAttachmentUseCase
 import com.nullo.voidapp.feature.chat.domain.ObserveActiveModelUseCase
 import com.nullo.voidapp.feature.chat.domain.ObserveChatModelByIdUseCase
@@ -42,11 +43,13 @@ import voidapp.core.utils.generated.resources.error_unknown
 import voidapp.feature.chat.generated.resources.Res
 import voidapp.feature.chat.generated.resources.error_empty_prompt_on_image
 import voidapp.feature.chat.generated.resources.error_empty_request
+import voidapp.feature.chat.generated.resources.error_image_save_failed
 import voidapp.feature.chat.generated.resources.error_model_no_image_input
 import voidapp.feature.chat.generated.resources.error_model_not_selected
 import voidapp.feature.chat.generated.resources.error_no_active_conversation
 import voidapp.feature.chat.generated.resources.error_some_attachments_import_failed
 import voidapp.feature.chat.generated.resources.template_error_max_attachments_reached
+import voidapp.feature.chat.generated.resources.template_error_model_max_images
 
 internal class ChatStoreFactory(
     private val storeFactory: StoreFactory,
@@ -65,6 +68,7 @@ internal class ChatStoreFactory(
     private val sendPromptUseCase: SendPromptUseCase,
     private val importAttachmentUseCase: ImportAttachmentUseCase,
     private val deleteAttachmentUseCase: DeleteAttachmentUseCase,
+    private val exportAttachmentUseCase: ExportAttachmentUseCase,
 ) : StoreFactory by storeFactory {
 
     fun create(activeConversation: ActiveConversationHolder): ChatStore = object :
@@ -82,7 +86,7 @@ internal class ChatStoreFactory(
         data class ActiveModelChanged(
             val modelType: ModelType,
             val modelName: String,
-            val supportsImageInput: Boolean,
+            val maxAttachments: Int,
         ) : Msg
 
         data class MessagesUpdated(val messages: List<Message>) : Msg
@@ -193,13 +197,17 @@ internal class ChatStoreFactory(
                     activeModelNameJob = when (modelRef) {
                         is ActiveModelRef.Chat -> observeChatModelByIdUseCase(modelRef.id)
                             .filterNotNull()
-                            .onEach { dispatch(Msg.ActiveModelChanged(ModelType.CHAT, it.name, it.supportsVision)) }
+                            .onEach {
+                                val attachmentsLimit = if (it.supportsVision) State.MAX_ATTACHMENTS else 0
+                                dispatch(Msg.ActiveModelChanged(ModelType.CHAT, it.name, attachmentsLimit))
+                            }
                             .launchIn(scope)
 
                         is ActiveModelRef.Image -> observeImageModelByIdUseCase(modelRef.id)
                             .filterNotNull()
                             .onEach {
-                                dispatch(Msg.ActiveModelChanged(ModelType.IMAGE, it.name, it.supportsInputReferences))
+                                val attachmentsLimit = it.maxInputReferences.coerceAtMost(State.MAX_ATTACHMENTS)
+                                dispatch(Msg.ActiveModelChanged(ModelType.IMAGE, it.name, attachmentsLimit))
                             }
                             .launchIn(scope)
 
@@ -292,6 +300,10 @@ internal class ChatStoreFactory(
                             UiText(Res.string.error_model_no_image_input)
                         }
 
+                        images.size > state.maxAttachments -> {
+                            UiText(Res.string.template_error_model_max_images, state.maxAttachments)
+                        }
+
                         else -> null
                     }
                     error?.let {
@@ -339,9 +351,12 @@ internal class ChatStoreFactory(
                 }
 
                 is Intent.AttachImages -> scope.launch {
-                    val remaining = State.MAX_ATTACHMENTS - state().promptImages.size
+                    val state = state()
+                    val attachmentsLimit = state.maxAttachments
+                    val remaining = attachmentsLimit - state.promptImages.size
+
                     if (intent.files.size > remaining) {
-                        dispatchError(UiText(Res.string.template_error_max_attachments_reached, State.MAX_ATTACHMENTS))
+                        dispatchError(UiText(Res.string.template_error_max_attachments_reached, attachmentsLimit))
                     }
                     if (remaining <= 0) return@launch
 
@@ -367,6 +382,16 @@ internal class ChatStoreFactory(
                     dispatch(Msg.AttachmentRemoved(intent.attachment))
                     deleteAttachmentUseCase(intent.attachment)
                 }
+
+                is Intent.SaveImage -> scope.launch {
+                    try {
+                        exportAttachmentUseCase(intent.image, intent.destination)
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (_: Exception) {
+                        dispatchError(UiText(Res.string.error_image_save_failed))
+                    }
+                }
             }
         }
 
@@ -385,7 +410,7 @@ internal class ChatStoreFactory(
             is Msg.ActiveModelChanged -> copy(
                 activeModelName = msg.modelName,
                 modelType = msg.modelType,
-                supportsImageInput = msg.supportsImageInput
+                maxAttachments = msg.maxAttachments
             )
 
             Msg.ErrorDialogDismissed -> copy(

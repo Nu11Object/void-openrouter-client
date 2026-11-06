@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.consumeWindowInsets
@@ -87,6 +88,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -100,6 +102,7 @@ import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.isSpecified
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -155,6 +158,7 @@ import com.nullo.voidapp.core.designsystem.icon.default.Chat
 import com.nullo.voidapp.core.designsystem.icon.default.Close
 import com.nullo.voidapp.core.designsystem.icon.default.ContentCopy
 import com.nullo.voidapp.core.designsystem.icon.default.DeleteForever
+import com.nullo.voidapp.core.designsystem.icon.default.Download
 import com.nullo.voidapp.core.designsystem.icon.default.Explore
 import com.nullo.voidapp.core.designsystem.icon.default.Image
 import com.nullo.voidapp.core.designsystem.icon.default.KeepOff
@@ -190,9 +194,11 @@ import com.nullo.voidapp.feature.chat.presentation.store.ModelSelectorStore.Stat
 import com.nullo.voidapp.feature.chat.presentation.store.SideMenuStore
 import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.PlatformFile
+import io.github.vinceglb.filekit.dialogs.FileKitDialogSettings
 import io.github.vinceglb.filekit.dialogs.FileKitMode
 import io.github.vinceglb.filekit.dialogs.FileKitType
 import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
+import io.github.vinceglb.filekit.dialogs.compose.rememberFileSaverLauncher
 import io.github.vinceglb.filekit.div
 import io.github.vinceglb.filekit.filesDir
 import kotlin.time.Instant
@@ -214,9 +220,11 @@ import voidapp.feature.chat.generated.resources.desc_attach_files
 import voidapp.feature.chat.generated.resources.desc_collapse_side_menu
 import voidapp.feature.chat.generated.resources.desc_copy_last_response
 import voidapp.feature.chat.generated.resources.desc_copy_prompt
+import voidapp.feature.chat.generated.resources.desc_generated_image
 import voidapp.feature.chat.generated.resources.desc_open_side_menu
 import voidapp.feature.chat.generated.resources.desc_regenerate_last_response
 import voidapp.feature.chat.generated.resources.desc_remove_attachment
+import voidapp.feature.chat.generated.resources.desc_save_image
 import voidapp.feature.chat.generated.resources.desc_send_message
 import voidapp.feature.chat.generated.resources.desc_stop_generation
 import voidapp.feature.chat.generated.resources.dismiss
@@ -225,6 +233,7 @@ import voidapp.feature.chat.generated.resources.error_details
 import voidapp.feature.chat.generated.resources.error_title_credits
 import voidapp.feature.chat.generated.resources.error_title_network
 import voidapp.feature.chat.generated.resources.error_title_rate_limit
+import voidapp.feature.chat.generated.resources.error_title_rejected
 import voidapp.feature.chat.generated.resources.error_title_server
 import voidapp.feature.chat.generated.resources.error_title_unauthorized
 import voidapp.feature.chat.generated.resources.error_title_unexpected
@@ -235,7 +244,7 @@ import voidapp.feature.chat.generated.resources.model_catalog
 import voidapp.feature.chat.generated.resources.new_chat
 import voidapp.feature.chat.generated.resources.no_models_found
 import voidapp.feature.chat.generated.resources.no_pinned_models
-import voidapp.feature.chat.generated.resources.no_text_was_generated
+import voidapp.feature.chat.generated.resources.nothing_was_generated
 import voidapp.feature.chat.generated.resources.open_model_catalog
 import voidapp.feature.chat.generated.resources.option_search
 import voidapp.feature.chat.generated.resources.option_think
@@ -266,6 +275,8 @@ import voidapp.feature.chat.generated.resources.void
 private const val PROMPT_MAX_LINES = 6
 private val SIDE_MENU_MAX_EXPANDED_WIDTH = 296.dp
 private const val CHAT_PLACEHOLDER_FADE_STEPS = 16
+private val GENERATED_IMAGE_MAX_WIDTH = 480.dp
+private val GENERATED_IMAGE_MAX_HEIGHT = 560.dp
 
 @Composable
 fun ChatScreen(
@@ -308,7 +319,8 @@ fun ChatScreen(
         onDismissModelSelector = component::onCloseModelSelectorRequested,
         onModelSelectorTabChange = component::onChangeModelSelectorTab,
         onUseModelClick = component::onModelSelected,
-        onUnpinModelClick = component::onModelUnpinned
+        onUnpinModelClick = component::onModelUnpinned,
+        onSaveImage = component::onImageSaved
     )
 }
 
@@ -345,6 +357,7 @@ private fun ChatScreenContent(
     onModelSelectorTabChange: (SelectorTab) -> Unit,
     onUseModelClick: (ActiveModelRef) -> Unit,
     onUnpinModelClick: (String, ModelType) -> Unit,
+    onSaveImage: (ImageAttachment, PlatformFile) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val density = LocalDensity.current
@@ -412,6 +425,7 @@ private fun ChatScreenContent(
                     messages = chatState.messages,
                     messagesTopPadding = innerPadding.calculateTopPadding(),
                     onRegenerateLastResponseClick = onRegenerateLastResponseClick,
+                    onSaveImage = onSaveImage,
                     onDismissChatError = onDismissChatError,
                     modifier = Modifier
                         .weight(1f)
@@ -845,12 +859,23 @@ private fun Chat(
     messages: List<Message>,
     messagesTopPadding: Dp,
     onRegenerateLastResponseClick: () -> Unit,
+    onSaveImage: (ImageAttachment, PlatformFile) -> Unit,
     onDismissChatError: (id: Long) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val listState = rememberLazyListState()
-    LaunchedEffect(messages.lastOrNull()?.id) {
+    val lastMessage = messages.lastOrNull()
+    LaunchedEffect(lastMessage?.id, lastMessage?.let { it::class }) {
         if (messages.isNotEmpty()) listState.animateScrollToItem(messages.lastIndex)
+    }
+
+    var imageToSave by remember { mutableStateOf<ImageAttachment?>(null) }
+    val imageSaver = rememberFileSaverLauncher(
+        dialogSettings = FileKitDialogSettings.createDefault()
+    ) { destination: PlatformFile? ->
+        val image = imageToSave
+        imageToSave = null
+        if (destination != null && image != null) onSaveImage(image, destination)
     }
 
     LazyColumn(
@@ -885,11 +910,23 @@ private fun Chat(
                     modifier = Modifier.animateItem(placementSpec = null)
                 )
 
-                is Message.ImageLoading,
-                is Message.Images,
-                -> {
-                    /* TODO: Images are not supported yet */
-                }
+                is Message.ImageLoading -> ImageLoadingMessageItem(
+                    modifier = Modifier.animateItem(placementSpec = null)
+                )
+
+                is Message.Images -> ImagesMessageItem(
+                    message = message,
+                    isLastMessage = index == messages.lastIndex,
+                    onRegenerateResponse = onRegenerateLastResponseClick,
+                    onSaveImageClick = { image ->
+                        imageToSave = image
+                        imageSaver.launch(
+                            suggestedName = "void-generated-image",
+                            defaultExtension = image.relativePath.substringAfterLast('.')
+                        )
+                    },
+                    modifier = Modifier.animateItem(placementSpec = null)
+                )
 
                 is Message.Interrupted -> InterruptedMessageItem(
                     message = message,
@@ -1339,7 +1376,7 @@ private fun InterruptedMessageItem(
     ) {
         SelectionContainer {
             Markdown(
-                content = message.text ?: stringResource(Res.string.no_text_was_generated),
+                content = message.text ?: stringResource(Res.string.nothing_was_generated),
                 typography = chatMarkdownTypography(),
                 imageTransformer = Coil3ImageTransformerImpl,
                 components = rememberMarkdownComponents()
@@ -1368,7 +1405,6 @@ private fun InterruptedMessageItem(
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun CompletionMessageItem(
     completion: Message.Completion,
@@ -1459,33 +1495,10 @@ private fun CompletionMessageItem(
             label = "CompletionMessageItemContent"
         ) { isStreaming ->
             if (isStreaming) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    LoadingIndicator(modifier = Modifier.size(24.dp))
-                    Text(
-                        text = stringResource(Res.string.loading_generation),
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                }
+                GeneratingIndicator()
             } else {
                 Column {
-                    completion.createdAt?.let { timestamp ->
-                        Text(
-                            text = timestamp.toFormattedDateTime(),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
-                        )
-                    }
-                    completion.modelId?.let { model ->
-                        Text(
-                            text = stringResource(Res.string.template_by_model, model),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
-                        )
-                    }
+                    ResponseInfo(completion.createdAt, completion.modelId)
                     Spacer(Modifier.height(8.dp))
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -1508,6 +1521,108 @@ private fun CompletionMessageItem(
                         )
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ImageLoadingMessageItem(modifier: Modifier = Modifier) {
+    GeneratingIndicator(modifier = modifier)
+}
+
+@Composable
+private fun ImagesMessageItem(
+    message: Message.Images,
+    isLastMessage: Boolean,
+    onRegenerateResponse: () -> Unit,
+    onSaveImageClick: (ImageAttachment) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            message.images.forEach { image ->
+                GeneratedImageItem(
+                    image = image,
+                    onSaveClick = { onSaveImageClick(image) }
+                )
+            }
+        }
+        ResponseInfo(createdAt = message.createdAt, modelId = message.modelId)
+        if (isLastMessage) {
+            MessageActionButton(
+                icon = Icons.AutoMirrored.Restart,
+                onClick = onRegenerateResponse,
+                contentDescription = stringResource(Res.string.desc_regenerate_last_response),
+                modifier = Modifier.offset(x = (-8).dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun GeneratedImageItem(
+    image: ImageAttachment,
+    onSaveClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val file = remember(image.relativePath) { FileKit.filesDir / image.relativePath }
+    var aspectRatio by remember(image.relativePath) { mutableFloatStateOf(1f) }
+    var failed by remember(image.relativePath) { mutableStateOf(false) }
+
+    Box(
+        modifier = modifier
+            .widthIn(max = GENERATED_IMAGE_MAX_WIDTH)
+            .heightIn(max = GENERATED_IMAGE_MAX_HEIGHT)
+            .aspectRatio(aspectRatio)
+            .clip(MaterialTheme.shapes.large)
+            .background(MaterialTheme.colorScheme.surface),
+        contentAlignment = Alignment.Center
+    ) {
+        AsyncImage(
+            model = file,
+            contentDescription = stringResource(Res.string.desc_generated_image),
+            contentScale = ContentScale.Fit,
+            onSuccess = { state ->
+                val size = state.painter.intrinsicSize
+                if (size.isSpecified && size.width > 0f && size.height > 0f) {
+                    aspectRatio = size.width / size.height
+                }
+            },
+            onError = { failed = true },
+            modifier = Modifier.fillMaxSize()
+        )
+        if (failed) {
+            Icon(
+                imageVector = Icons.Default.BrokenImage,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+            )
+        } else {
+            IconButton(
+                onClick = onSaveClick,
+                colors = IconButtonDefaults.iconButtonColors(
+                    containerColor = MaterialTheme.colorScheme.background,
+                    contentColor = MaterialTheme.colorScheme.onBackground
+                ),
+                shape = MaterialTheme.shapes.medium,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(8.dp)
+                    .size(36.dp)
+                    .pointerHoverIcon(PointerIcon.Hand)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Download,
+                    contentDescription = stringResource(Res.string.desc_save_image),
+                    modifier = Modifier.size(20.dp)
+                )
             }
         }
     }
@@ -1546,6 +1661,7 @@ private fun ErrorMessageItem(
         when (error.reason) {
             ErrorReason.NETWORK -> Res.string.error_title_network
             ErrorReason.SERVER_INTERNAL -> Res.string.error_title_server
+            ErrorReason.REQUEST_REJECTED -> Res.string.error_title_rejected
             ErrorReason.INSUFFICIENT_CREDITS -> Res.string.error_title_credits
             ErrorReason.RATE_LIMITED -> Res.string.error_title_rate_limit
             ErrorReason.UNAUTHORIZED -> Res.string.error_title_unauthorized
@@ -2014,6 +2130,47 @@ private fun SideMenuItem(
 }
 
 @Composable
+private fun ResponseInfo(
+    createdAt: Long?,
+    modelId: String?,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier) {
+        createdAt?.let { timestamp ->
+            Text(
+                text = timestamp.toFormattedDateTime(),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
+            )
+        }
+        modelId?.let { model ->
+            Text(
+                text = stringResource(Res.string.template_by_model, model),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+private fun GeneratingIndicator(modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        LoadingIndicator(modifier = Modifier.size(24.dp))
+        Text(
+            text = stringResource(Res.string.loading_generation),
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.primary
+        )
+    }
+}
+
+@Composable
 private fun rememberMarkdownComponents() = remember {
     markdownComponents(
         codeBlock = {
@@ -2223,7 +2380,8 @@ private fun ChatScreenPreview() {
             onModelSelectorTabChange = {},
             onUnpinModelClick = { _, _ -> },
             onUseModelClick = {},
-            onModelsSearchQueryChange = {}
+            onModelsSearchQueryChange = {},
+            onSaveImage = { _, _ -> }
         )
     }
 }

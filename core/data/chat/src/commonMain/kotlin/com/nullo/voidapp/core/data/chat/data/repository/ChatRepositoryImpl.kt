@@ -5,7 +5,9 @@ import com.nullo.voidapp.core.data.chat.data.service.InsufficientCreditsExceptio
 import com.nullo.voidapp.core.data.chat.data.service.InternalServerException
 import com.nullo.voidapp.core.data.chat.data.service.NetworkException
 import com.nullo.voidapp.core.data.chat.data.service.RateLimitedException
+import com.nullo.voidapp.core.data.chat.data.service.RequestRejectedException
 import com.nullo.voidapp.core.data.chat.data.service.UnauthorizedException
+import com.nullo.voidapp.core.data.chat.domain.AttachmentStorage
 import com.nullo.voidapp.core.data.chat.domain.ChatRepository
 import com.nullo.voidapp.core.data.chat.domain.ResponseGenerator
 import com.nullo.voidapp.core.database.dao.ConversationDao
@@ -34,6 +36,7 @@ internal class ChatRepositoryImpl(
     private val messageDao: MessageDao,
     private val conversationDao: ConversationDao,
     private val responseGenerator: ResponseGenerator,
+    private val attachmentStorage: AttachmentStorage,
     private val clock: Clock,
 ) : ChatRepository {
 
@@ -50,6 +53,7 @@ internal class ChatRepositoryImpl(
             conversationId = conversationId,
             query = query,
             images = images,
+            responseType = activeModel.responseType(),
             modelId = activeModel.id,
             now = now
         )
@@ -75,12 +79,15 @@ internal class ChatRepositoryImpl(
         touchConversation(conversationId)
         val prompt = messageDao.getLastPrompt(conversationId)?.toPrompt() ?: return
 
+        val staleImagePaths = messageDao.getImagePathsOfResponses(prompt.id)
         val responseId = messageDao.restartGeneration(
             conversationId = conversationId,
             promptId = prompt.id,
+            responseType = activeModel.responseType(),
             modelId = activeModel.id,
             now = clock.now().toEpochMilliseconds()
         )
+        deleteFiles(staleImagePaths)
 
         generateResponse(
             conversationId = conversationId,
@@ -134,11 +141,9 @@ internal class ChatRepositoryImpl(
                 when (msg) {
                     is Message.Completion -> persist(msg)
 
-                    is Message.ImageLoading -> {}
+                    is Message.Images -> messageDao.completeImageGeneration(msg.id, msg.images)
 
-                    // todo
-                    is Message.Images -> {}
-
+                    is Message.ImageLoading,
                     is Message.Interrupted,
                     is Message.Prompt,
                     is Message.Error,
@@ -165,6 +170,7 @@ internal class ChatRepositoryImpl(
     private fun Throwable.toErrorReason(): ErrorReason = when (this) {
         is NetworkException -> ErrorReason.NETWORK
         is InternalServerException -> ErrorReason.SERVER_INTERNAL
+        is RequestRejectedException -> ErrorReason.REQUEST_REJECTED
         is InsufficientCreditsException -> ErrorReason.INSUFFICIENT_CREDITS
         is RateLimitedException -> ErrorReason.RATE_LIMITED
         is UnauthorizedException -> ErrorReason.UNAUTHORIZED
@@ -193,6 +199,21 @@ internal class ChatRepositoryImpl(
             conversationId = conversationId,
             updatedAt = clock.now().toEpochMilliseconds()
         )
+    }
+
+    private fun ActiveModelRef.responseType(): MessageType = when (this) {
+        is ActiveModelRef.Chat -> MessageType.COMPLETION
+        is ActiveModelRef.Image -> MessageType.IMAGES
+    }
+
+    private suspend fun deleteFiles(paths: List<String>) {
+        paths.forEach { path ->
+            try {
+                attachmentStorage.delete(path)
+            } catch (e: Exception) {
+                if (e is CancellationException) throw e
+            }
+        }
     }
 
     companion object {

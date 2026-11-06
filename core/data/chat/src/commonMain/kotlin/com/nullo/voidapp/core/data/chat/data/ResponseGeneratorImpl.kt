@@ -5,6 +5,8 @@ import com.nullo.voidapp.core.data.chat.data.mapper.buildImageGenerationRequest
 import com.nullo.voidapp.core.data.chat.data.mapper.toCompletionMessageFlow
 import com.nullo.voidapp.core.data.chat.data.mapper.toDomain
 import com.nullo.voidapp.core.data.chat.data.service.ChatApiService
+import com.nullo.voidapp.core.data.chat.data.service.RequestRejectedException
+import com.nullo.voidapp.core.data.chat.domain.AttachmentStorage
 import com.nullo.voidapp.core.data.chat.domain.ImageEncoder
 import com.nullo.voidapp.core.data.chat.domain.ResponseGenerator
 import com.nullo.voidapp.core.data.session.domain.SessionRepository
@@ -19,6 +21,7 @@ internal class ResponseGeneratorImpl(
     private val chatApiService: ChatApiService,
     private val sessionRepository: SessionRepository,
     private val imageEncoder: ImageEncoder,
+    private val attachmentStorage: AttachmentStorage,
 ) : ResponseGenerator {
 
     override fun generateResponse(
@@ -47,25 +50,26 @@ internal class ResponseGeneratorImpl(
             }
 
             is ActiveModelRef.Image -> {
-                emit(Message.ImageLoading())
-
                 val referenceImages = prompt.images.map {
                     imageEncoder.encodeAsDataUrl(it.relativePath, it.mimeType)
                 }
                 val request = buildImageGenerationRequest(
                     modelId = activeModel.id,
                     prompt = prompt.query,
-                    referenceImages = referenceImages,
-                    parameters = sessionRepository.imageParameters.first()
+                    referenceImages = referenceImages
                 )
 
-                emit(
-                    chatApiService.generateImage(request).toDomain(
-                        messageId = responseMessageId,
-                        caption = prompt.query
-                    )
-                )
+                val response = chatApiService.generateImage(request)
+                if (response.data.isEmpty()) {
+                    throw RequestRejectedException(rawMessage = NO_IMAGES_MESSAGE, cause = null)
+                }
+                emit(response.toDomain(responseMessageId, attachmentStorage::saveGenerated))
             }
         }
+    }
+
+    private companion object {
+
+        const val NO_IMAGES_MESSAGE = "The model returned no images."
     }
 }

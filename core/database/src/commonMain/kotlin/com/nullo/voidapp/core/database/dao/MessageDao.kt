@@ -8,6 +8,7 @@ import com.nullo.voidapp.core.database.entity.MessageEntity
 import com.nullo.voidapp.core.database.entity.MessageImageEntity
 import com.nullo.voidapp.core.database.entity.MessageType
 import com.nullo.voidapp.core.database.entity.MessageWithImages
+import com.nullo.voidapp.core.database.mapper.toEntities
 import com.nullo.voidapp.core.model.ImageAttachment
 import kotlinx.coroutines.flow.Flow
 
@@ -155,6 +156,7 @@ interface MessageDao {
         conversationId: Long,
         query: String?,
         images: List<ImageAttachment>,
+        responseType: MessageType,
         modelId: String?,
         now: Long,
     ): StartedGeneration {
@@ -167,17 +169,10 @@ interface MessageDao {
                 createdAt = now
             )
         )
-        insertImages(
-            images.mapIndexed { index, image ->
-                MessageImageEntity(
-                    messageId = promptId,
-                    relativePath = image.relativePath,
-                    mimeType = image.mimeType,
-                    position = index
-                )
-            }
+        insertImages(images.toEntities(promptId))
+        val responseId = insert(
+            responsePlaceholder(conversationId, promptId, responseType, modelId, now)
         )
-        val responseId = insert(responsePlaceholder(conversationId, promptId, modelId, now))
         return StartedGeneration(promptId, responseId)
     }
 
@@ -190,22 +185,52 @@ interface MessageDao {
     suspend fun restartGeneration(
         conversationId: Long,
         promptId: Long,
+        responseType: MessageType,
         modelId: String?,
         now: Long,
     ): Long {
         deleteResponsesOf(promptId)
-        return insert(responsePlaceholder(conversationId, promptId, modelId, now))
+        return insert(responsePlaceholder(conversationId, promptId, responseType, modelId, now))
     }
+
+    /**
+     * Completes an image response: stops the generation and stores [images].
+     * Does nothing if the response is no longer generating.
+     */
+    @Transaction
+    suspend fun completeImageGeneration(messageId: Long, images: List<ImageAttachment>) {
+        if (finishGeneration(messageId) == 0) return
+        insertImages(images.toEntities(messageId))
+    }
+
+    @Query(
+        """
+        SELECT mi.relativePath FROM message_images mi
+        JOIN messages m ON m.id = mi.messageId
+        WHERE m.promptId = :promptId
+        """
+    )
+    suspend fun getImagePathsOfResponses(promptId: Long): List<String>
+
+    @Query(
+        """
+        UPDATE messages
+        SET isGenerating = 0
+        WHERE id = :messageId AND isGenerating = 1
+        """
+    )
+    suspend fun finishGeneration(messageId: Long): Int
 }
 
 private fun responsePlaceholder(
     conversationId: Long,
     promptId: Long,
+    messageType: MessageType,
     modelId: String?,
     now: Long,
 ) = MessageEntity(
     conversationId = conversationId,
-    messageType = MessageType.COMPLETION,
+    messageType = messageType,
     promptId = promptId,
     isGenerating = true,
     modelId = modelId,

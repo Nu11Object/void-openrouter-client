@@ -17,6 +17,7 @@
     <string name="error_title_rate_limit">Rate limit exceeded</string>
     <string name="error_title_unauthorized">Invalid or missing API key</string>
     <string name="error_title_unexpected">Unexpected error</string>
+    <string name="error_title_rejected">Request rejected</string>
 
     <string name="select_model">Select model</string>
     <string name="empty_chat_placeholder">From nothing to something</string>
@@ -47,7 +48,7 @@
     <string name="template_desc_active_model">Active model is %1$s. Tap to change.</string>
     <string name="template_desc_more_conv_actions">More actions for %1$s</string>
     <string name="tune_model">Tune</string>
-    <string name="no_text_was_generated">No text was generated.</string>
+    <string name="nothing_was_generated">Nothing was generated.</string>
     <string name="textbutton_retry_interupted_response">Response interrupted · Retry</string>
     <string name="hide_reasoning">Hide reasoning</string>
     <string name="show_reasoning">Show reasoning</string>
@@ -67,4 +68,8 @@
     <string name="template_delete">Delete conversation %1$s</string>
     <string name="desc_remove_attachment">Remove attachment</string>
     <string name="template_by_model">by %1$s</string>
+    <string name="desc_generated_image">Generated image</string>
+    <string name="template_error_model_max_images">This model accepts up to %1$d images. Remove the extra ones.</string>
+    <string name="desc_save_image">Save image</string>
+    <string name="error_image_save_failed">Couldn't save the image. Please try again.</string>
 </resources>

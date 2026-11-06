@@ -3,6 +3,7 @@ package com.nullo.voidapp.feature.chat.di
 import com.nullo.voidapp.feature.chat.domain.DeleteAttachmentUseCase
 import com.nullo.voidapp.feature.chat.domain.DeleteConversationUseCase
 import com.nullo.voidapp.feature.chat.domain.DismissErrorMessageUseCase
+import com.nullo.voidapp.feature.chat.domain.ExportAttachmentUseCase
 import com.nullo.voidapp.feature.chat.domain.FindConversationIdsByTextUseCase
 import com.nullo.voidapp.feature.chat.domain.ImportAttachmentUseCase
 import com.nullo.voidapp.feature.chat.domain.ObserveActiveModelUseCase
@@ -64,4 +65,5 @@ val chatFeatureModule = module {
     factoryOf(::RenameConversationUseCase)
     factoryOf(::DeleteAttachmentUseCase)
     factoryOf(::ImportAttachmentUseCase)
+    factoryOf(::ExportAttachmentUseCase)
 }

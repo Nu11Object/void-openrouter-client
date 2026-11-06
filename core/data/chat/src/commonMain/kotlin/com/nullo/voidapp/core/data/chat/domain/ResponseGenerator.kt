@@ -4,6 +4,7 @@ import com.nullo.voidapp.core.data.chat.data.service.InsufficientCreditsExceptio
 import com.nullo.voidapp.core.data.chat.data.service.InternalServerException
 import com.nullo.voidapp.core.data.chat.data.service.NetworkException
 import com.nullo.voidapp.core.data.chat.data.service.RateLimitedException
+import com.nullo.voidapp.core.data.chat.data.service.RequestRejectedException
 import com.nullo.voidapp.core.data.chat.data.service.UnauthorizedException
 import com.nullo.voidapp.core.model.ActiveModelRef
 import com.nullo.voidapp.core.model.Message
@@ -19,7 +20,8 @@ interface ResponseGenerator {
      * Generates a response to [prompt] using the active model and [history] as context.
      *
      * Emits cumulative [Message.Completion] snapshots for chat models,
-     * or a single [Message.Images] result for image models.
+     * or a single [Message.Images] result for image models, with the generated images
+     * already saved to the app storage.
      * Cancelling collection stops generation.
      *
      * @param history previous messages used as context
@@ -31,6 +33,7 @@ interface ResponseGenerator {
      * @throws InsufficientCreditsException if the account has insufficient credits
      * @throws RateLimitedException if the request was rate limited
      * @throws InternalServerException if the server or the upstream provider failed
+     * @throws RequestRejectedException if the request was rejected as invalid or blocked by the provider
      * @throws NetworkException if the request fails for another reason
      */
     fun generateResponse(

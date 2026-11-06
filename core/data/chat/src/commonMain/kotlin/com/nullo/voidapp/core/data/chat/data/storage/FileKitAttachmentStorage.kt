@@ -46,22 +46,43 @@ internal class FileKitAttachmentStorage : AttachmentStorage {
             bytes = compress(original, format)
         }
 
-        val (outputExtension, mimeType) = when (format) {
-            ImageFormat.PNG -> "png" to "image/png"
-            else -> "jpg" to "image/jpeg"
+        when (format) {
+            ImageFormat.PNG -> write(bytes, extension = "png", mimeType = "image/png")
+            else -> write(bytes, extension = "jpg", mimeType = "image/jpeg")
         }
-
-        (FileKit.filesDir / ATTACHMENTS_DIR).createDirectories()
-        val relativePath = "$ATTACHMENTS_DIR/${Uuid.random()}.$outputExtension"
-        (FileKit.filesDir / relativePath).write(bytes)
-
-        ImageAttachment(relativePath, mimeType)
     }
+
+    override suspend fun export(relativePath: String, destination: PlatformFile) {
+        withContext(Dispatchers.IO) {
+            destination.write((FileKit.filesDir / relativePath).readBytes())
+        }
+    }
+
+    override suspend fun saveGenerated(bytes: ByteArray, mimeType: String): ImageAttachment =
+        withContext(Dispatchers.IO) {
+            write(bytes, extension = extensionOf(mimeType), mimeType = mimeType)
+        }
 
     override suspend fun delete(relativePath: String) {
         withContext(Dispatchers.IO) {
             (FileKit.filesDir / relativePath).delete(mustExist = false)
         }
+    }
+
+    private suspend fun write(bytes: ByteArray, extension: String, mimeType: String): ImageAttachment {
+        (FileKit.filesDir / ATTACHMENTS_DIR).createDirectories()
+        val relativePath = "$ATTACHMENTS_DIR/${Uuid.random()}.$extension"
+        (FileKit.filesDir / relativePath).write(bytes)
+        return ImageAttachment(relativePath, mimeType)
+    }
+
+    private fun extensionOf(mimeType: String): String = when (mimeType.substringBefore(';').trim().lowercase()) {
+        "image/png" -> "png"
+        "image/jpeg", "image/jpg" -> "jpg"
+        "image/webp" -> "webp"
+        "image/gif" -> "gif"
+        "image/svg+xml" -> "svg"
+        else -> "bin"
     }
 
     private suspend fun compress(bytes: ByteArray, format: ImageFormat): ByteArray =

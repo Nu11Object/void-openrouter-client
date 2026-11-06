@@ -4,16 +4,17 @@ import com.nullo.voidapp.core.data.chat.data.dto.image.ImageGenerationRequestDto
 import com.nullo.voidapp.core.data.chat.data.dto.image.ImageGenerationResponseDto
 import com.nullo.voidapp.core.data.chat.data.dto.image.ImageReferenceDto
 import com.nullo.voidapp.core.data.chat.data.dto.image.ImageReferenceUrlDto
-import com.nullo.voidapp.core.model.GeneratedImage
+import com.nullo.voidapp.core.model.ImageAttachment
 import com.nullo.voidapp.core.model.Message
 import com.nullo.voidapp.core.model.imagemodel.ImageParameter
 import com.nullo.voidapp.core.model.imagemodel.ImageParameterValue
+import kotlin.io.encoding.Base64
 
 internal fun buildImageGenerationRequest(
     modelId: String,
     prompt: String,
     referenceImages: List<String>,
-    parameters: Map<ImageParameter, ImageParameterValue>,
+    parameters: Map<ImageParameter, ImageParameterValue> = emptyMap(),
 ): ImageGenerationRequestDto {
     fun text(param: ImageParameter) = (parameters[param] as? ImageParameterValue.Text)?.value
     fun number(param: ImageParameter) = (parameters[param] as? ImageParameterValue.Number)?.value
@@ -36,16 +37,14 @@ internal fun buildImageGenerationRequest(
     )
 }
 
-internal fun ImageGenerationResponseDto.toDomain(
+internal suspend fun ImageGenerationResponseDto.toDomain(
     messageId: Long,
-    caption: String?,
+    saveImage: suspend (bytes: ByteArray, mimeType: String) -> ImageAttachment,
 ): Message.Images = Message.Images(
     id = messageId,
-    caption = caption,
-    images = data.map { imageDto ->
-        GeneratedImage(
-            base64Data = imageDto.b64Json,
-            mimeType = imageDto.mediaType ?: "image/png"
-        )
+    images = data.map { image ->
+        saveImage(Base64.decode(image.b64Json), image.mediaType ?: DEFAULT_IMAGE_MIME_TYPE)
     }
 )
+
+private const val DEFAULT_IMAGE_MIME_TYPE = "image/png"

@@ -16,7 +16,7 @@ interface ChatStore : Store<ChatStore.Intent, ChatStore.State, Nothing> {
 
         val promptImages: List<ImageAttachment> = emptyList(),
         val isImportingAttachments: Boolean = false,
-        val supportsImageInput: Boolean = false,
+        val maxAttachments: Int = 0,
 
         val messages: List<Message> = emptyList(),
 
@@ -30,12 +30,17 @@ interface ChatStore : Store<ChatStore.Intent, ChatStore.State, Nothing> {
         val errorDialogText: UiText? = null,
     ) {
         val isGenerating: Boolean
-            get() = (messages.lastOrNull() as? Message.Completion)?.isStreaming ?: false
+            get() = when (val last = messages.lastOrNull()) {
+                is Message.Completion -> last.isStreaming
+                is Message.ImageLoading -> true
+                else -> false
+            }
+
+        val supportsImageInput: Boolean
+            get() = maxAttachments > 0
 
         val canAttachImages: Boolean
-            get() = supportsImageInput &&
-                !isImportingAttachments &&
-                promptImages.size < MAX_ATTACHMENTS
+            get() = !isImportingAttachments && promptImages.size < maxAttachments
 
         val canSendPrompt: Boolean
             get() = !isImportingAttachments && (
@@ -50,11 +55,16 @@ interface ChatStore : Store<ChatStore.Intent, ChatStore.State, Nothing> {
     }
 
     sealed interface Intent {
+
         data object OpenTuningPanel : Intent
         data object CloseTuningPanel : Intent
 
         data class AttachImages(val files: List<PlatformFile>) : Intent
         data class RemoveImageAttachment(val attachment: ImageAttachment) : Intent
+        data class SaveImage(
+            val image: ImageAttachment,
+            val destination: PlatformFile,
+        ) : Intent
 
         data object ToggleThinking : Intent
         data object ToggleWebSearch : Intent

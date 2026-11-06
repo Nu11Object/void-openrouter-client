@@ -36,6 +36,8 @@ interface ChatComponent {
 
     fun onImageAttachmentDeleted(image: ImageAttachment)
 
+    fun onImageSaved(image: ImageAttachment, destination: PlatformFile)
+
     fun onThinkingToggled()
 
     fun onWebSearchToggled()

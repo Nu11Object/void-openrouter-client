@@ -9,8 +9,10 @@ import com.nullo.voidapp.core.data.chat.data.dto.image.ImageGenerationResponseDt
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.ResponseException
+import io.ktor.client.plugins.expectSuccess
 import io.ktor.client.plugins.sse.SSEClientException
 import io.ktor.client.plugins.sse.sse
+import io.ktor.client.plugins.timeout
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
@@ -70,7 +72,14 @@ internal class ChatApiServiceImpl(
 
     override suspend fun generateImage(request: ImageGenerationRequestDto): ImageGenerationResponseDto {
         try {
-            return httpClient.post(IMAGES_ENDPOINT) { setBody(request) }.body()
+            return httpClient.post(IMAGES_ENDPOINT) {
+                expectSuccess = true
+                timeout {
+                    requestTimeoutMillis = IMAGE_GENERATION_TIMEOUT_MS
+                    socketTimeoutMillis = IMAGE_GENERATION_TIMEOUT_MS
+                }
+                setBody(request)
+            }.body()
         } catch (e: CancellationException) {
             throw e
         } catch (e: ResponseException) {
@@ -107,6 +116,7 @@ internal class ChatApiServiceImpl(
         private const val CHAT_COMPLETIONS_ENDPOINT = "chat/completions"
         private const val IMAGES_ENDPOINT = "images"
         private const val SSE_DONE = "[DONE]"
+        private const val IMAGE_GENERATION_TIMEOUT_MS = 300_000L
     }
 }
 
@@ -125,8 +135,13 @@ private fun apiException(
         status == 401 -> UnauthorizedException(rawMessage, cause)
         status == 402 -> InsufficientCreditsException(rawMessage, cause)
         status == 429 -> RateLimitedException(rawMessage, cause)
-        status != null && status in 500..599 -> InternalServerException(rawMessage, cause)
-        error?.code?.contentOrNull == "server_error" -> InternalServerException(rawMessage, cause)
+        status != null && status in REJECTED_STATUSES -> RequestRejectedException(rawMessage, cause)
+        status != null && status in INTERNAL_ERROR_STATUSES -> InternalServerException(rawMessage, cause)
+        error?.code?.contentOrNull == INTERNAL_ERROR_CONTENT -> InternalServerException(rawMessage, cause)
         else -> NetworkException(rawMessage, cause)
     }
 }
+
+private val REJECTED_STATUSES = setOf(400, 403, 404, 413, 422)
+private val INTERNAL_ERROR_STATUSES = 500..599
+private const val INTERNAL_ERROR_CONTENT = "server_error"
