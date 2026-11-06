@@ -27,6 +27,7 @@ kotlin {
             implementation(libs.decompose.core)
             implementation(libs.essenty.lifecycle)
             implementation(libs.file.kit.coil)
+            implementation(libs.coil.svg)
         }
     }
 }

@@ -3,6 +3,7 @@ package com.nullo.voidapp
 import androidx.compose.runtime.Composable
 import coil3.ImageLoader
 import coil3.compose.setSingletonImageLoaderFactory
+import coil3.svg.SvgDecoder
 import io.github.vinceglb.filekit.coil.addPlatformFileSupport
 
 /**
@@ -13,7 +14,10 @@ import io.github.vinceglb.filekit.coil.addPlatformFileSupport
 internal fun SetupImageLoader() {
     setSingletonImageLoaderFactory { context ->
         ImageLoader.Builder(context)
-            .components { addPlatformFileSupport() }
+            .components {
+                addPlatformFileSupport()
+                add(SvgDecoder.Factory())
+            }
             .build()
     }
 }
