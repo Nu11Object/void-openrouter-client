@@ -184,6 +184,7 @@ import com.nullo.voidapp.core.utils.compose.DeviceConfiguration
 import com.nullo.voidapp.core.utils.compose.EdgeFadeSpec
 import com.nullo.voidapp.core.utils.compose.FadeDirection
 import com.nullo.voidapp.core.utils.compose.SmoothStepEasing
+import com.nullo.voidapp.core.utils.compose.StickToBottomEffect
 import com.nullo.voidapp.core.utils.compose.edgeFades
 import com.nullo.voidapp.core.utils.compose.rememberDeviceConfiguration
 import com.nullo.voidapp.core.utils.resources.UiText
@@ -864,10 +865,7 @@ private fun Chat(
     modifier: Modifier = Modifier,
 ) {
     val listState = rememberLazyListState()
-    val lastMessage = messages.lastOrNull()
-    LaunchedEffect(lastMessage?.id, lastMessage?.let { it::class }) {
-        if (messages.isNotEmpty()) listState.animateScrollToItem(messages.lastIndex)
-    }
+    listState.StickToBottomEffect(resetKey = messages.lastOrNull()?.id)
 
     var imageToSave by remember { mutableStateOf<ImageAttachment?>(null) }
     val imageSaver = rememberFileSaverLauncher(
