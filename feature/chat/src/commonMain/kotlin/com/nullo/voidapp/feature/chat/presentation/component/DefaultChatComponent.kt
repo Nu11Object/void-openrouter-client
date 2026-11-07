@@ -2,12 +2,15 @@ package com.nullo.voidapp.feature.chat.presentation.component
 
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.value.Value
+import com.arkivanov.essenty.backhandler.BackCallback
 import com.arkivanov.essenty.instancekeeper.InstanceKeeper
 import com.arkivanov.essenty.instancekeeper.getOrCreate
 import com.arkivanov.mvikotlin.core.instancekeeper.getStore
 import com.nullo.voidapp.core.model.ActiveModelRef
 import com.nullo.voidapp.core.model.ImageAttachment
 import com.nullo.voidapp.core.model.ModelType
+import com.nullo.voidapp.core.model.chatmodel.TuningParameter
+import com.nullo.voidapp.core.model.imagemodel.ImageParameter
 import com.nullo.voidapp.core.utils.mvikotlin.asValue
 import com.nullo.voidapp.feature.chat.presentation.store.ActiveConversationHolder
 import com.nullo.voidapp.feature.chat.presentation.store.ChatStore
@@ -16,6 +19,8 @@ import com.nullo.voidapp.feature.chat.presentation.store.ModelSelectorStore
 import com.nullo.voidapp.feature.chat.presentation.store.ModelSelectorStoreFactory
 import com.nullo.voidapp.feature.chat.presentation.store.SideMenuStore
 import com.nullo.voidapp.feature.chat.presentation.store.SideMenuStoreFactory
+import com.nullo.voidapp.feature.chat.presentation.store.TuneStore
+import com.nullo.voidapp.feature.chat.presentation.store.TuneStoreFactory
 import io.github.vinceglb.filekit.PlatformFile
 
 internal class DefaultChatComponent(
@@ -24,6 +29,7 @@ internal class DefaultChatComponent(
     chatStoreFactory: ChatStoreFactory,
     sideMenuStoreFactory: SideMenuStoreFactory,
     modelSelectorStoreFactory: ModelSelectorStoreFactory,
+    tuneStoreFactory: TuneStoreFactory,
     private val componentContext: ComponentContext,
 ) : ChatComponent,
     ComponentContext by componentContext {
@@ -42,10 +48,23 @@ internal class DefaultChatComponent(
     private val modelSelectorStore = instanceKeeper.getStore {
         modelSelectorStoreFactory.create()
     }
+    private val tuneStore = instanceKeeper.getStore {
+        tuneStoreFactory.create()
+    }
+
+    private val tuningPanelBackCallback = BackCallback(
+        isEnabled = tuneStore.state.isPanelOpen,
+        onBack = { onTuningPanelClosed() }
+    )
+
+    init {
+        backHandler.register(tuningPanelBackCallback)
+    }
 
     override val model: Value<ChatStore.State> = chatStore.asValue()
     override val sideMenuModel: Value<SideMenuStore.State> = sideMenuStore.asValue()
     override val modelSelectorModel: Value<ModelSelectorStore.State> = modelSelectorStore.asValue()
+    override val tuneModel: Value<TuneStore.State> = tuneStore.asValue()
 
     override fun onOpenModelSelectorClicked() {
         modelSelectorStore.accept(ModelSelectorStore.Intent.OpenModelSelector)
@@ -72,11 +91,53 @@ internal class DefaultChatComponent(
     }
 
     override fun onTuningPanelOpened() {
-        chatStore.accept(ChatStore.Intent.OpenTuningPanel)
+        tuningPanelBackCallback.isEnabled = true
+        tuneStore.accept(TuneStore.Intent.OpenPanel)
     }
 
     override fun onTuningPanelClosed() {
-        chatStore.accept(ChatStore.Intent.CloseTuningPanel)
+        tuningPanelBackCallback.isEnabled = false
+        tuneStore.accept(TuneStore.Intent.ClosePanel)
+    }
+
+    override fun onTuningHintsVisibilityChanged(visible: Boolean) {
+        tuneStore.accept(TuneStore.Intent.ChangeHintsVisibility(visible))
+    }
+
+    override fun onTuningResetClicked() {
+        tuneStore.accept(TuneStore.Intent.ResetAll)
+    }
+
+    override fun onChatTuningValueChanged(parameter: TuningParameter, raw: String) {
+        tuneStore.accept(TuneStore.Intent.ChangeChatValue(parameter, raw))
+    }
+
+    override fun onChatTuningSliderChanged(parameter: TuningParameter, value: Double) {
+        tuneStore.accept(TuneStore.Intent.ChangeChatSlider(parameter, value))
+    }
+
+    override fun onMaxTokensSetToLimit() {
+        tuneStore.accept(TuneStore.Intent.SetMaxTokensToLimit)
+    }
+
+    override fun onChatSeedRandomized() {
+        tuneStore.accept(TuneStore.Intent.RandomizeChatSeed)
+    }
+
+    override fun onImageOptionSelected(parameter: ImageParameter, option: String) {
+        tuneStore.accept(TuneStore.Intent.SelectImageOption(parameter, option))
+    }
+
+    override fun onImageValueChanged(parameter: ImageParameter, raw: String) {
+        tuneStore.accept(TuneStore.Intent.ChangeImageValue(parameter, raw))
+    }
+
+    override fun onImageSliderChanged(parameter: ImageParameter, value: Double) {
+        tuneStore.accept(TuneStore.Intent.ChangeImageSlider(parameter, value))
+    }
+
+    override fun onImageSeedRandomized() {
+        tuneStore.accept(TuneStore.Intent.RandomizeImageSeed)
     }
 
     override fun onImagesAttached(files: List<PlatformFile>) {

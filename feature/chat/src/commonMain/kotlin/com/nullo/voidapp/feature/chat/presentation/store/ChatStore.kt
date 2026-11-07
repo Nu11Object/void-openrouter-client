@@ -26,7 +26,6 @@ interface ChatStore : Store<ChatStore.Intent, ChatStore.State, Nothing> {
         val thinkingEnabled: Boolean = false,
         val webSearchEnabled: Boolean = false,
 
-        val isTuningPanelOpen: Boolean = false,
         val errorDialogText: UiText? = null,
     ) {
         val isGenerating: Boolean
@@ -55,9 +54,6 @@ interface ChatStore : Store<ChatStore.Intent, ChatStore.State, Nothing> {
     }
 
     sealed interface Intent {
-
-        data object OpenTuningPanel : Intent
-        data object CloseTuningPanel : Intent
 
         data class AttachImages(val files: List<PlatformFile>) : Intent
         data class RemoveImageAttachment(val attachment: ImageAttachment) : Intent

@@ -5,9 +5,12 @@ import com.arkivanov.decompose.value.Value
 import com.nullo.voidapp.core.model.ActiveModelRef
 import com.nullo.voidapp.core.model.ImageAttachment
 import com.nullo.voidapp.core.model.ModelType
+import com.nullo.voidapp.core.model.chatmodel.TuningParameter
+import com.nullo.voidapp.core.model.imagemodel.ImageParameter
 import com.nullo.voidapp.feature.chat.presentation.store.ChatStore
 import com.nullo.voidapp.feature.chat.presentation.store.ModelSelectorStore
 import com.nullo.voidapp.feature.chat.presentation.store.SideMenuStore
+import com.nullo.voidapp.feature.chat.presentation.store.TuneStore
 import io.github.vinceglb.filekit.PlatformFile
 
 interface ChatComponent {
@@ -15,6 +18,7 @@ interface ChatComponent {
     val model: Value<ChatStore.State>
     val sideMenuModel: Value<SideMenuStore.State>
     val modelSelectorModel: Value<ModelSelectorStore.State>
+    val tuneModel: Value<TuneStore.State>
 
     fun onOpenModelSelectorClicked()
 
@@ -31,6 +35,26 @@ interface ChatComponent {
     fun onTuningPanelOpened()
 
     fun onTuningPanelClosed()
+
+    fun onTuningHintsVisibilityChanged(visible: Boolean)
+
+    fun onTuningResetClicked()
+
+    fun onChatTuningValueChanged(parameter: TuningParameter, raw: String)
+
+    fun onChatTuningSliderChanged(parameter: TuningParameter, value: Double)
+
+    fun onMaxTokensSetToLimit()
+
+    fun onChatSeedRandomized()
+
+    fun onImageOptionSelected(parameter: ImageParameter, option: String)
+
+    fun onImageValueChanged(parameter: ImageParameter, raw: String)
+
+    fun onImageSliderChanged(parameter: ImageParameter, value: Double)
+
+    fun onImageSeedRandomized()
 
     fun onImagesAttached(files: List<PlatformFile>)
 

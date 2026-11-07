@@ -77,6 +77,10 @@ internal class SessionRepositoryImpl(
 
     override suspend fun setActiveModel(activeModelRef: ActiveModelRef) {
         dataStore.edit { prefs ->
+            if (prefs[Keys.ACTIVE_MODEL_ID] != activeModelRef.id) {
+                prefs.remove(Keys.CHAT_TUNING_PARAMETERS_JSON)
+                prefs.remove(Keys.IMAGE_PARAMETERS_JSON)
+            }
             prefs[Keys.ACTIVE_MODEL_ID] = activeModelRef.id
             prefs[Keys.ACTIVE_MODEL_TYPE] = when (activeModelRef) {
                 is ActiveModelRef.Chat -> MODEL_TYPE_CHAT
@@ -86,14 +90,14 @@ internal class SessionRepositoryImpl(
     }
 
     override suspend fun setChatTuningParameters(parameters: Map<TuningParameter, Double>) {
-        val serializable = parameters.mapKeys { (param, _) -> param.name }
+        val serializable = parameters.mapKeys { (param, _) -> param.key }
         dataStore.edit { prefs ->
             prefs[Keys.CHAT_TUNING_PARAMETERS_JSON] = json.encodeToString(serializable)
         }
     }
 
     override suspend fun setImageParameters(parameters: Map<ImageParameter, ImageParameterValue>) {
-        val serializable = parameters.mapKeys { (param, _) -> param.name }
+        val serializable = parameters.mapKeys { (param, _) -> param.key }
         dataStore.edit { prefs ->
             prefs[Keys.IMAGE_PARAMETERS_JSON] =
                 json.encodeToString(imageParametersSerializer, serializable)

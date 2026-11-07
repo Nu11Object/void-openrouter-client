@@ -1,32 +1,20 @@
 package com.nullo.voidapp.core.model.imagemodel
 
-enum class ImageParameter {
-    RESOLUTION,
-    ASPECT_RATIO,
-    SIZE,
-    QUALITY,
-    OUTPUT_FORMAT,
-    BACKGROUND,
-    OUTPUT_COMPRESSION,
-    SEED,
-    N,
-    INPUT_REFERENCES,
+enum class ImageParameter(val key: String) {
+    RESOLUTION("resolution"),
+    ASPECT_RATIO("aspect_ratio"),
+    SIZE("size"),
+    QUALITY("quality"),
+    OUTPUT_FORMAT("output_format"),
+    BACKGROUND("background"),
+    OUTPUT_COMPRESSION("output_compression"),
+    SEED("seed"),
+    N("n"),
+    INPUT_REFERENCES("input_references"),
     ;
 
     companion object {
 
-        fun fromKey(key: String): ImageParameter? = when (key.lowercase()) {
-            "resolution" -> RESOLUTION
-            "aspect_ratio" -> ASPECT_RATIO
-            "size" -> SIZE
-            "quality" -> QUALITY
-            "output_format" -> OUTPUT_FORMAT
-            "background" -> BACKGROUND
-            "output_compression" -> OUTPUT_COMPRESSION
-            "seed" -> SEED
-            "n" -> N
-            "input_references" -> INPUT_REFERENCES
-            else -> null
-        }
+        fun fromKey(key: String): ImageParameter? = entries.firstOrNull { it.key == key.lowercase() }
     }
 }

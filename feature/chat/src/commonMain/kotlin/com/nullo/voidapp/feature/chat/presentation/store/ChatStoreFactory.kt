@@ -91,9 +91,6 @@ internal class ChatStoreFactory(
 
         data class MessagesUpdated(val messages: List<Message>) : Msg
 
-        data object TuningPanelOpened : Msg
-        data object TuningPanelClosed : Msg
-
         data class ThinkingStateChanged(val enabled: Boolean) : Msg
         data class WebSearchStateChanged(val enabled: Boolean) : Msg
 
@@ -245,8 +242,6 @@ internal class ChatStoreFactory(
 
         override fun executeIntent(intent: Intent) {
             when (intent) {
-                Intent.CloseTuningPanel -> dispatch(Msg.TuningPanelClosed)
-
                 Intent.DismissErrorDialog -> dispatch(Msg.ErrorDialogDismissed)
 
                 is Intent.DismissChatError -> scope.launch {
@@ -342,10 +337,6 @@ internal class ChatStoreFactory(
 
                 is Intent.ChangePrompt -> dispatch(Msg.PromptChanged(intent.prompt))
 
-                Intent.OpenTuningPanel -> {
-                    dispatch(Msg.ErrorOccurred(UiText.Static("Not implemented yet")))
-                }
-
                 Intent.StopGeneration -> {
                     completionGenerationJob?.cancel()
                 }
@@ -431,14 +422,6 @@ internal class ChatStoreFactory(
 
             is Msg.ThinkingStateChanged -> copy(
                 thinkingEnabled = msg.enabled
-            )
-
-            Msg.TuningPanelClosed -> copy(
-                isTuningPanelOpen = false
-            )
-
-            Msg.TuningPanelOpened -> copy(
-                isTuningPanelOpen = true
             )
 
             is Msg.WebSearchStateChanged -> copy(

@@ -8,15 +8,19 @@ import com.nullo.voidapp.feature.chat.domain.FindConversationIdsByTextUseCase
 import com.nullo.voidapp.feature.chat.domain.ImportAttachmentUseCase
 import com.nullo.voidapp.feature.chat.domain.ObserveActiveModelUseCase
 import com.nullo.voidapp.feature.chat.domain.ObserveChatModelByIdUseCase
+import com.nullo.voidapp.feature.chat.domain.ObserveChatTuningParametersUseCase
 import com.nullo.voidapp.feature.chat.domain.ObserveConversationByIdUseCase
 import com.nullo.voidapp.feature.chat.domain.ObserveConversationsUseCase
 import com.nullo.voidapp.feature.chat.domain.ObserveImageModelByIdUseCase
+import com.nullo.voidapp.feature.chat.domain.ObserveImageParametersUseCase
 import com.nullo.voidapp.feature.chat.domain.ObserveMessagesUseCase
 import com.nullo.voidapp.feature.chat.domain.ObserveThinkingEnabledUseCase
 import com.nullo.voidapp.feature.chat.domain.ObserveWebSearchEnabledUseCase
 import com.nullo.voidapp.feature.chat.domain.RegenerateLastResponseUseCase
 import com.nullo.voidapp.feature.chat.domain.RenameConversationUseCase
 import com.nullo.voidapp.feature.chat.domain.SendPromptUseCase
+import com.nullo.voidapp.feature.chat.domain.SetChatTuningParametersUseCase
+import com.nullo.voidapp.feature.chat.domain.SetImageParametersUseCase
 import com.nullo.voidapp.feature.chat.domain.SetThinkingEnabledUseCase
 import com.nullo.voidapp.feature.chat.domain.SetWebSearchEnabledUseCase
 import com.nullo.voidapp.feature.chat.domain.StartNewConversationUseCase
@@ -25,6 +29,7 @@ import com.nullo.voidapp.feature.chat.presentation.component.DefaultChatComponen
 import com.nullo.voidapp.feature.chat.presentation.store.ChatStoreFactory
 import com.nullo.voidapp.feature.chat.presentation.store.ModelSelectorStoreFactory
 import com.nullo.voidapp.feature.chat.presentation.store.SideMenuStoreFactory
+import com.nullo.voidapp.feature.chat.presentation.store.TuneStoreFactory
 import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.module
 
@@ -32,6 +37,7 @@ val chatFeatureModule = module {
     factoryOf(::ChatStoreFactory)
     factoryOf(::SideMenuStoreFactory)
     factoryOf(::ModelSelectorStoreFactory)
+    factoryOf(::TuneStoreFactory)
 
     factory {
         ChatComponent.Factory { onNavigateToModelCatalog, onNavigateToAppSettings, componentContext ->
@@ -41,6 +47,7 @@ val chatFeatureModule = module {
                 chatStoreFactory = get(),
                 sideMenuStoreFactory = get(),
                 modelSelectorStoreFactory = get(),
+                tuneStoreFactory = get(),
                 componentContext = componentContext
             )
         }
@@ -66,4 +73,8 @@ val chatFeatureModule = module {
     factoryOf(::DeleteAttachmentUseCase)
     factoryOf(::ImportAttachmentUseCase)
     factoryOf(::ExportAttachmentUseCase)
+    factoryOf(::ObserveChatTuningParametersUseCase)
+    factoryOf(::ObserveImageParametersUseCase)
+    factoryOf(::SetChatTuningParametersUseCase)
+    factoryOf(::SetImageParametersUseCase)
 }

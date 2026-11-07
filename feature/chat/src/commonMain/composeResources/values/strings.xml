@@ -19,6 +19,69 @@
     <string name="error_title_unexpected">Unexpected error</string>
     <string name="error_title_rejected">Request rejected</string>
 
+    <string name="tune_hints">Hints</string>
+    <string name="tune_reset_all">Reset all</string>
+    <string name="tune_no_model">Select a model to tune it.</string>
+    <string name="tune_unsupported">This model doesn't support tuning.</string>
+
+    <string name="tune_placeholder_default">Default</string>
+    <string name="tune_action_random">Random</string>
+    <string name="tune_action_set_max">Set max</string>
+    <string name="desc_clear_value">Clear value</string>
+    <string name="template_tune_range">From %1$s to %2$s</string>
+    <string name="tune_error_not_a_number">Enter a number</string>
+    <string name="tune_error_not_an_integer">Enter a whole number</string>
+    <string name="template_tune_error_below_min">Minimum is %1$s</string>
+    <string name="template_tune_error_above_max">Maximum is %1$s</string>
+
+    <string name="tune_temperature_title">Temperature</string>
+    <string name="tune_temperature_desc">Controls randomness. Lower values make answers focused and repeatable, higher values make them more varied and creative.</string>
+    <string name="tune_top_p_title">Top P</string>
+    <string name="tune_top_p_desc">Limits choices to the smallest group of tokens whose combined probability reaches this value. Lower values keep the model on the most likely words.</string>
+    <string name="tune_top_k_title">Top K</string>
+    <string name="tune_top_k_desc">Limits choices to the K most likely tokens at each step. 0 turns the limit off.</string>
+    <string name="tune_frequency_penalty_title">Frequency penalty</string>
+    <string name="tune_frequency_penalty_desc">Discourages tokens in proportion to how often they have already appeared. Positive values reduce repetition, negative values encourage it.</string>
+    <string name="tune_presence_penalty_title">Presence penalty</string>
+    <string name="tune_presence_penalty_desc">Discourages tokens that have appeared at least once, no matter how often. Positive values push the model toward new topics.</string>
+    <string name="tune_repetition_penalty_title">Repetition penalty</string>
+    <string name="tune_repetition_penalty_desc">Reduces repetition of tokens from the input. 1 means no effect, values above 1 penalize repeats, values below 1 encourage them.</string>
+    <string name="tune_max_tokens_title">Max tokens</string>
+    <string name="tune_max_tokens_desc">Upper limit on the response length. With thinking enabled, the limit also covers reasoning tokens, so a small value can leave the answer empty.</string>
+    <string name="tune_seed_title">Seed</string>
+    <string name="tune_seed_desc">Makes generation repeatable: the same seed and settings should give the same result. Not guaranteed for every model.</string>
+
+    <string name="tune_support_temperature_precise">Strict &amp; Precise</string>
+    <string name="tune_support_temperature_balanced">Balanced &amp; Creative</string>
+    <string name="tune_support_temperature_wild">Wild &amp; Unpredictable</string>
+    <string name="tune_support_top_p_narrow">Narrow &amp; Focused</string>
+    <string name="tune_support_top_p_balanced">Balanced</string>
+    <string name="tune_support_top_p_full">Full range</string>
+    <string name="tune_support_top_k_off">Disabled</string>
+    <string name="tune_support_top_k_focused">Focused</string>
+    <string name="tune_support_top_k_diverse">Diverse</string>
+    <string name="tune_support_penalty_encourages_repeats">Encourages repetition</string>
+    <string name="tune_support_penalty_neutral">No effect</string>
+    <string name="tune_support_penalty_mild">Mild</string>
+    <string name="tune_support_penalty_strong">Strong</string>
+
+    <string name="tune_resolution_title">Resolution</string>
+    <string name="tune_resolution_desc">Resolution tier of the generated image.</string>
+    <string name="tune_aspect_ratio_title">Aspect ratio</string>
+    <string name="tune_aspect_ratio_desc">Width-to-height ratio of the image.</string>
+    <string name="tune_size_title">Size</string>
+    <string name="tune_size_desc">Exact dimensions of the image.</string>
+    <string name="tune_quality_title">Quality</string>
+    <string name="tune_quality_desc">Rendering quality. Higher quality is usually slower and may cost more.</string>
+    <string name="tune_output_format_title">Output format</string>
+    <string name="tune_output_format_desc">File format of the generated image.</string>
+    <string name="tune_background_title">Background</string>
+    <string name="tune_background_desc">How the image background is handled, for example transparent.</string>
+    <string name="tune_output_compression_title">Output compression</string>
+    <string name="tune_output_compression_desc">Compression level for lossy formats such as JPEG and WebP.</string>
+    <string name="tune_n_title">Number of images</string>
+    <string name="tune_n_desc">How many images to generate per request.</string>
+
     <string name="select_model">Select model</string>
     <string name="empty_chat_placeholder">From nothing to something</string>
     <string name="search_models">Search models</string>

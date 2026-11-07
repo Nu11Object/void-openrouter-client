@@ -21,6 +21,7 @@ welcome to **fork or clone** the repository and take it in your own direction.
 - Streaming responses
 - Attach images to your prompts
 - Thinking (reasoning) and web search support
+- Tune panel: adjust generation parameters of the active model
 - Regenerate the last response
 - Graceful error handling: failed generations are kept in the conversation and can be retried
 - Pin your favorite models and switch between them quickly
@@ -252,13 +253,13 @@ graph TD
 
 #### Feature modules
 
-| Module             | Description                                                                                                    |
-|--------------------|----------------------------------------------------------------------------------------------------------------|
-| `feature:root`     | Application shell that owns the Decompose root, navigation stack, theme and startup routing between screens.   |
-| `feature:auth`     | Sign-in screen with browser-based OAuth 2.0 + PKCE and manual API key entry, plus platform-specific launchers. |
-| `feature:chat`     | Conversation screen with streaming chat, model selection, thinking/web search toggles and history management.  |
-| `feature:catalog`  | Model catalog with search, filtering, refresh, pinning and selection of chat or image models.                  |
-| `feature:settings` | Settings screen for theme, API key updates and sign-out with local data cleanup.                               |
+| Module             | Description                                                                                                                           |
+|--------------------|---------------------------------------------------------------------------------------------------------------------------------------|
+| `feature:root`     | Application shell that owns the Decompose root, navigation stack, theme and startup routing between screens.                          |
+| `feature:auth`     | Sign-in screen with browser-based OAuth 2.0 + PKCE and manual API key entry, plus platform-specific launchers.                        |
+| `feature:chat`     | Conversation screen with streaming chat, model selection, per-model tuning panel, thinking/web search toggles and history management. |
+| `feature:catalog`  | Model catalog with search, filtering, refresh, pinning and selection of chat or image models.                                         |
+| `feature:settings` | Settings screen for theme, API key updates and sign-out with local data cleanup.                                                      |
 
 #### Core modules
 
@@ -282,6 +283,6 @@ graph TD
 
 ![Todo Header](./assets/header_todo.png)
 
-- Model tuning (parameters)
+- Split large screen files into smaller composable files
 - Tests, starting with unit tests
 - CI & Releases

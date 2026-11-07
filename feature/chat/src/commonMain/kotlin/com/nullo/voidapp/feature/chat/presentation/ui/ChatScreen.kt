@@ -193,6 +193,9 @@ import com.nullo.voidapp.feature.chat.presentation.store.ChatStore
 import com.nullo.voidapp.feature.chat.presentation.store.ModelSelectorStore
 import com.nullo.voidapp.feature.chat.presentation.store.ModelSelectorStore.State.SelectorTab
 import com.nullo.voidapp.feature.chat.presentation.store.SideMenuStore
+import com.nullo.voidapp.feature.chat.presentation.store.TuneStore
+import com.nullo.voidapp.feature.chat.presentation.ui.tune.TuneActions
+import com.nullo.voidapp.feature.chat.presentation.ui.tune.TuneDrawerHost
 import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.dialogs.FileKitDialogSettings
@@ -288,11 +291,30 @@ fun ChatScreen(
     val sideMenuState by component.sideMenuModel.subscribeAsState()
     val modelSelectorState by component.modelSelectorModel.subscribeAsState()
 
+    val tuneState by component.tuneModel.subscribeAsState()
+    val tuneActions = remember(component) {
+        TuneActions(
+            onClose = component::onTuningPanelClosed,
+            onHintsVisibilityChange = component::onTuningHintsVisibilityChanged,
+            onReset = component::onTuningResetClicked,
+            onChatValueChange = component::onChatTuningValueChanged,
+            onChatSliderChange = component::onChatTuningSliderChanged,
+            onMaxTokensSetToLimit = component::onMaxTokensSetToLimit,
+            onChatSeedRandomize = component::onChatSeedRandomized,
+            onImageOptionSelect = component::onImageOptionSelected,
+            onImageValueChange = component::onImageValueChanged,
+            onImageSliderChange = component::onImageSliderChanged,
+            onImageSeedRandomize = component::onImageSeedRandomized
+        )
+    }
+
     ChatScreenContent(
         modifier = modifier,
         chatState = chatState,
         sideMenuState = sideMenuState,
         modelSelectorState = modelSelectorState,
+        tuneState = tuneState,
+        tuneActions = tuneActions,
         onConversationQueryChange = component::onSearchConversationQueryChanged,
         onModelsSearchQueryChange = component::onModelSearchQueryChanged,
         onStartNewConversation = component::onNewConversationStarted,
@@ -330,6 +352,8 @@ private fun ChatScreenContent(
     chatState: ChatStore.State,
     sideMenuState: SideMenuStore.State,
     modelSelectorState: ModelSelectorStore.State,
+    tuneState: TuneStore.State,
+    tuneActions: TuneActions,
     onConversationQueryChange: (String) -> Unit,
     onModelsSearchQueryChange: (String) -> Unit,
     onStartNewConversation: () -> Unit,
@@ -373,121 +397,127 @@ private fun ChatScreenContent(
     val sideMenuIsAlwaysExpanded = (deviceConfiguration == DeviceConfiguration.TABLET_LANDSCAPE) ||
         (deviceConfiguration == DeviceConfiguration.DESKTOP)
 
-    Row(modifier = modifier.fillMaxSize()) {
-        SideMenu(
-            railState = sideMenuRailState,
-            alwaysExpanded = sideMenuIsAlwaysExpanded,
-            conversations = sideMenuState.conversations,
-            activeConversationId = sideMenuState.activeConversationId,
-            conversationQuery = sideMenuState.conversationSearchQuery,
-            onStartNewConversation = onStartNewConversation,
-            onConversationQueryChange = onConversationQueryChange,
-            onClearConversationQuery = { onConversationQueryChange("") },
-            onSelectConversation = onSelectConversation,
-            onNavigateToModelCatalog = onNavigateToModelCatalog,
-            onNavigateToAppSettings = onNavigateToAppSettings,
-            onEditConversationTitleClick = onEditConversationTitleClick,
-            onDeleteConversationClick = onDeleteConversationClick,
-            modifier = Modifier.fillMaxHeight()
-        )
+    TuneDrawerHost(
+        state = tuneState,
+        actions = tuneActions,
+        modifier = modifier.fillMaxSize()
+    ) {
+        Row(modifier = Modifier.fillMaxSize()) {
+            SideMenu(
+                railState = sideMenuRailState,
+                alwaysExpanded = sideMenuIsAlwaysExpanded,
+                conversations = sideMenuState.conversations,
+                activeConversationId = sideMenuState.activeConversationId,
+                conversationQuery = sideMenuState.conversationSearchQuery,
+                onStartNewConversation = onStartNewConversation,
+                onConversationQueryChange = onConversationQueryChange,
+                onClearConversationQuery = { onConversationQueryChange("") },
+                onSelectConversation = onSelectConversation,
+                onNavigateToModelCatalog = onNavigateToModelCatalog,
+                onNavigateToAppSettings = onNavigateToAppSettings,
+                onEditConversationTitleClick = onEditConversationTitleClick,
+                onDeleteConversationClick = onDeleteConversationClick,
+                modifier = Modifier.fillMaxHeight()
+            )
 
-        Scaffold(
-            modifier = Modifier.weight(1f),
-            topBar = {
-                AnimatedVisibility(
-                    visible = !shouldHideAppBar,
-                    label = "TopAppBarAnimation",
-                    enter = fadeIn(),
-                    exit = fadeOut()
+            Scaffold(
+                modifier = Modifier.weight(1f),
+                topBar = {
+                    AnimatedVisibility(
+                        visible = !shouldHideAppBar,
+                        label = "TopAppBarAnimation",
+                        enter = fadeIn(),
+                        exit = fadeOut()
+                    ) {
+                        ChatTopAppBar(
+                            isSideMenuAlwaysExpanded = sideMenuIsAlwaysExpanded,
+                            activeModelName = chatState.activeModelName ?: stringResource(Res.string.select_model),
+                            onNavigationIconClick = { scope.launch { sideMenuRailState.expand() } },
+                            onOpenModelSelectorClick = onOpenModelSelectorClick,
+                            onOpenTuningPanelClick = onOpenTuningPanelClick
+                        )
+                    }
+                }
+            ) { innerPadding ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(
+                            start = innerPadding.calculateStartPadding(LocalLayoutDirection.current),
+                            end = innerPadding.calculateEndPadding(LocalLayoutDirection.current),
+                            bottom = innerPadding.calculateBottomPadding()
+                        )
+                        .consumeWindowInsets(innerPadding)
+                        .imePadding()
+                        .chatPlaceholderGlow(visible = chatState.messages.isEmpty())
                 ) {
-                    ChatTopAppBar(
-                        isSideMenuAlwaysExpanded = sideMenuIsAlwaysExpanded,
-                        activeModelName = chatState.activeModelName ?: stringResource(Res.string.select_model),
-                        onNavigationIconClick = { scope.launch { sideMenuRailState.expand() } },
-                        onOpenModelSelectorClick = onOpenModelSelectorClick,
-                        onOpenTuningPanelClick = onOpenTuningPanelClick
+                    Chat(
+                        messages = chatState.messages,
+                        messagesTopPadding = innerPadding.calculateTopPadding(),
+                        onRegenerateLastResponseClick = onRegenerateLastResponseClick,
+                        onSaveImage = onSaveImage,
+                        onDismissChatError = onDismissChatError,
+                        modifier = Modifier
+                            .weight(1f)
+                            .edgeFades(
+                                EdgeFadeSpec(
+                                    direction = FadeDirection.Top,
+                                    fadeSize = innerPadding.calculateTopPadding(),
+                                    holdFraction = 0.5f,
+                                    easing = SmoothStepEasing
+                                ),
+                                EdgeFadeSpec(
+                                    direction = FadeDirection.Bottom,
+                                    sizeFraction = 0.05f
+                                )
+                            )
+                    )
+
+                    PromptComposer(
+                        prompt = chatState.prompt,
+                        promptImages = chatState.promptImages,
+                        isGenerating = chatState.isGenerating,
+                        isImportingAttachments = chatState.isImportingAttachments,
+                        canAttachImages = chatState.canAttachImages,
+                        canSendPrompt = chatState.canSendPrompt,
+                        thinkingEnabled = chatState.thinkingEnabled,
+                        webSearchEnabled = chatState.webSearchEnabled,
+                        onPromptChange = onPromptChange,
+                        onSendPrompt = onSendPrompt,
+                        onStopGeneration = onStopGeneration,
+                        onToggleThinkingClick = onToggleThinkingClick,
+                        onToggleWebSearchClick = onToggleWebSearchClick,
+                        onAttachImages = onAttachImages,
+                        onRemoveAttachment = onRemoveAttachment,
+                        modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
                     )
                 }
-            }
-        ) { innerPadding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(
-                        start = innerPadding.calculateStartPadding(LocalLayoutDirection.current),
-                        end = innerPadding.calculateEndPadding(LocalLayoutDirection.current),
-                        bottom = innerPadding.calculateBottomPadding()
-                    )
-                    .consumeWindowInsets(innerPadding)
-                    .imePadding()
-                    .chatPlaceholderGlow(visible = chatState.messages.isEmpty())
-            ) {
-                Chat(
-                    messages = chatState.messages,
-                    messagesTopPadding = innerPadding.calculateTopPadding(),
-                    onRegenerateLastResponseClick = onRegenerateLastResponseClick,
-                    onSaveImage = onSaveImage,
-                    onDismissChatError = onDismissChatError,
+
+                AnimatedVisibility(
+                    visible = chatState.messages.isEmpty(),
+                    enter = fadeIn(animationSpec = tween(durationMillis = 700)),
+                    exit = fadeOut(),
                     modifier = Modifier
-                        .weight(1f)
-                        .edgeFades(
-                            EdgeFadeSpec(
-                                direction = FadeDirection.Top,
-                                fadeSize = innerPadding.calculateTopPadding(),
-                                holdFraction = 0.5f,
-                                easing = SmoothStepEasing
-                            ),
-                            EdgeFadeSpec(
-                                direction = FadeDirection.Bottom,
-                                sizeFraction = 0.05f
-                            )
-                        )
-                )
-
-                PromptComposer(
-                    prompt = chatState.prompt,
-                    promptImages = chatState.promptImages,
-                    isGenerating = chatState.isGenerating,
-                    isImportingAttachments = chatState.isImportingAttachments,
-                    canAttachImages = chatState.canAttachImages,
-                    canSendPrompt = chatState.canSendPrompt,
-                    thinkingEnabled = chatState.thinkingEnabled,
-                    webSearchEnabled = chatState.webSearchEnabled,
-                    onPromptChange = onPromptChange,
-                    onSendPrompt = onSendPrompt,
-                    onStopGeneration = onStopGeneration,
-                    onToggleThinkingClick = onToggleThinkingClick,
-                    onToggleWebSearchClick = onToggleWebSearchClick,
-                    onAttachImages = onAttachImages,
-                    onRemoveAttachment = onRemoveAttachment,
-                    modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
-                )
-            }
-
-            AnimatedVisibility(
-                visible = chatState.messages.isEmpty(),
-                enter = fadeIn(animationSpec = tween(durationMillis = 700)),
-                exit = fadeOut(),
-                modifier = Modifier
-                    .imePadding()
-                    .semantics { hideFromAccessibility() },
-                label = "EmptyChatPlaceholder"
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxSize(),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
+                        .imePadding()
+                        .semantics { hideFromAccessibility() },
+                    label = "EmptyChatPlaceholder"
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Logo,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.background
-                    )
-                    Spacer(Modifier.width(8.dp))
-                    Text(
-                        text = stringResource(Res.string.empty_chat_placeholder),
-                        color = MaterialTheme.colorScheme.background
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Logo,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.background
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            text = stringResource(Res.string.empty_chat_placeholder),
+                            color = MaterialTheme.colorScheme.background
+                        )
+                    }
                 }
             }
         }
@@ -2351,6 +2381,8 @@ private fun ChatScreenPreview() {
                 activeConversationId = 2
             ),
             modelSelectorState = ModelSelectorStore.State(),
+            tuneActions = TuneActions(),
+            tuneState = TuneStore.State(),
             onConversationQueryChange = {},
             onSelectConversation = {},
             onNavigateToAppSettings = {},

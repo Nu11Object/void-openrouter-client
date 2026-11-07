@@ -56,7 +56,8 @@ internal class ResponseGeneratorImpl(
                 val request = buildImageGenerationRequest(
                     modelId = activeModel.id,
                     prompt = prompt.query,
-                    referenceImages = referenceImages
+                    referenceImages = referenceImages,
+                    parameters = sessionRepository.imageParameters.first()
                 )
 
                 val response = chatApiService.generateImage(request)
