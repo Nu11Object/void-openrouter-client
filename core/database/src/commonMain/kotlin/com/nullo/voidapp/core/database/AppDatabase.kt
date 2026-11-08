@@ -18,7 +18,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 
 internal const val DATABASE_NAME = "void_app.db"
-private const val DATABASE_VERSION = 5
+private const val DATABASE_VERSION = 1
 
 @Database(
     entities = [
@@ -50,5 +50,4 @@ internal fun getRoomDatabase(
 ): AppDatabase = builder
     .setDriver(BundledSQLiteDriver())
     .setQueryCoroutineContext(Dispatchers.IO)
-    .fallbackToDestructiveMigration(dropAllTables = true) // todo: remove before release
     .build()
