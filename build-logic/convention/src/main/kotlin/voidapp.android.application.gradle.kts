@@ -10,6 +10,13 @@ plugins {
     id("voidapp.quality")
 }
 
+val signingEnv = listOf(
+    "ANDROID_KEYSTORE_PATH",
+    "ANDROID_KEYSTORE_PASSWORD",
+    "ANDROID_KEY_ALIAS",
+    "ANDROID_KEY_PASSWORD",
+).associateWith { providers.environmentVariable(it) }
+
 extensions.configure<ApplicationExtension> {
     namespace = "com.nullo.voidapp"
     compileSdk = requiredVersion("android-compileSdk").toInt()
@@ -20,8 +27,20 @@ extensions.configure<ApplicationExtension> {
         targetSdk = requiredVersion("android-targetSdk").toInt()
     }
 
+    signingConfigs {
+        if (signingEnv.values.all { it.isPresent }) {
+            create("release") {
+                storeFile = file(signingEnv.getValue("ANDROID_KEYSTORE_PATH").get())
+                storePassword = signingEnv.getValue("ANDROID_KEYSTORE_PASSWORD").get()
+                keyAlias = signingEnv.getValue("ANDROID_KEY_ALIAS").get()
+                keyPassword = signingEnv.getValue("ANDROID_KEY_PASSWORD").get()
+            }
+        }
+    }
+
     buildTypes {
         release {
+            signingConfig = signingConfigs.findByName("release")
             optimization {
                 enable = true
             }
