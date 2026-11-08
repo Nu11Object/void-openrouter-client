@@ -11,3 +11,8 @@ plugins {
     alias(libs.plugins.ksp) apply false
     alias(libs.plugins.androidx.room3) apply false
 }
+
+val appVersion = providers.gradleProperty("app.version").orNull
+require(appVersion != null && appVersion.matches(Regex("""\d+\.\d+\.\d+"""))) {
+    "app.version must be set to MAJOR.MINOR.PATCH (digits only) in gradle.properties"
+}

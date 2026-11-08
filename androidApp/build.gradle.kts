@@ -23,10 +23,13 @@ dependencies {
     implementation(libs.androidx.splashScreen)
 }
 
+val appVersion = providers.gradleProperty("app.version").get()
+val (major, minor, patch) = appVersion.split('.')
+
 android {
     defaultConfig {
         applicationId = "com.nullo.voidapp"
-        versionCode = 1
-        versionName = "1.0"
+        versionName = appVersion
+        versionCode = major.toInt() * 10_000 + minor.toInt() * 100 + patch.toInt()
     }
 }

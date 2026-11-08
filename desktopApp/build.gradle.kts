@@ -29,7 +29,7 @@ compose.desktop {
             )
 
             packageName = "Void"
-            packageVersion = "1.0.0"
+            packageVersion = providers.gradleProperty("app.version").get()
             description = "OpenRouter client for Android, iOS and Desktop (Kotlin Multiplatform)"
             vendor = "nullo"
             copyright = "© 2026 nullo"
