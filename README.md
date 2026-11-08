@@ -104,6 +104,8 @@ git clone https://github.com/Nu11Object/void-openrouter-client.git
 Open it in Android Studio (or another IDE with Kotlin Multiplatform support) and pick the run
 configuration for the platform you want.
 
+Release builds and CI artifacts are documented in [RELEASING.md](RELEASING.md).
+
 #### Build conventions
 
 Shared Gradle configuration lives in `build-logic`.
