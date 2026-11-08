@@ -283,6 +283,5 @@ graph TD
 
 ![Todo Header](./assets/header_todo.png)
 
-- Split large screen files into smaller composable files
 - Tests, starting with unit tests
 - CI & Releases
