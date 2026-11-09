@@ -2,8 +2,10 @@
 ![About Header](./assets/header_about.png)
 
 Void is a chat client for the [OpenRouter](https://openrouter.ai) API: browse the full model
-catalog, pin your favorites, and talk to any of them: all from a single app that runs on
+catalog, pin your favorites, and talk to any of them, all from a single app that runs on
 **Android**, **iOS** and **Desktop** (Windows, macOS, Linux) from one shared codebase.
+
+**[Download the latest release](https://github.com/Nu11Object/void-openrouter-client/releases/latest)** · [Build from source](#build-from-source)
 
 <br>
 
@@ -95,35 +97,63 @@ storage:
 
 ![Build & Run Header](./assets/header_build_run.png)
 
-Clone the repository and build the project:
+#### Download
+
+Prebuilt packages are attached to
+every [GitHub release](https://github.com/Nu11Object/void-openrouter-client/releases/latest):
+
+| Platform | File           | Notes                                                        |
+|----------|----------------|--------------------------------------------------------------|
+| Android  | `.apk`         | Allow installing apps from unknown sources                   |
+| Windows  | `.msi`         | Unsigned: SmartScreen warns (More info → Run anyway)         |
+| macOS    | `.dmg`         | Apple Silicon only. Unsigned: allow it in Privacy & Security |
+| Linux    | `.deb`, `.rpm` | x64                                                          |
+| iOS      | `.ipa`         | Unsigned: sideload with a tool like AltStore or Sideloadly   |
+
+#### Build from source
+
+Requirements: JDK 21, Android Studio (or another IDE with Kotlin Multiplatform support), and Xcode
+for the iOS app (macOS only).
 
 ```
 git clone https://github.com/Nu11Object/void-openrouter-client.git
 ```
 
-Open it in Android Studio (or another IDE with Kotlin Multiplatform support) and pick the run
-configuration for the platform you want.
+Open the project in the IDE and pick the run configuration for the platform you want, or use Gradle:
 
-Release builds and CI artifacts are documented in [RELEASING.md](RELEASING.md).
+| Target  | Debug                                | Release                                                                          |
+|---------|--------------------------------------|----------------------------------------------------------------------------------|
+| Android | `./gradlew :androidApp:installDebug` | `./gradlew :androidApp:assembleRelease`                                          |
+| Desktop | `./gradlew :desktopApp:run`          | `./gradlew :desktopApp:packageMsi` (or `packageDmg`, `packageDeb`, `packageRpm`) |
+| iOS     | Run the `iosApp` scheme in Xcode     | Archive the `iosApp` scheme in Xcode                                             |
 
-#### Build conventions
+Desktop installers can only be built on the OS they target; they end up in
+`desktopApp/build/compose/binaries`. `assembleRelease` produces an unsigned APK unless the signing
+variables described in [RELEASING.md](RELEASING.md#android-signing) are set. Versioning, CI and the
+release process are covered in [RELEASING.md](RELEASING.md).
+
+<details>
+<summary><b>Build conventions</b></summary>
+
+<br>
 
 Shared Gradle configuration lives in `build-logic`.
 
-| Plugin                        | Purpose                                                              |
-|-------------------------------|----------------------------------------------------------------------|
-| `voidapp.kmp.library`         | KMP targets for Android, iOS and JVM; SDK versions                   |
-| `voidapp.kmp.compose`         | Compose Multiplatform and resources                                  |
-| `voidapp.kmp.serialization`   | kotlinx.serialization compiler plugin                                |
-| `voidapp.mvi`                 | MVIKotlin dependencies                                               |
-| `voidapp.decompose`           | Decompose dependencies                                               |
-| `voidapp.feature`             | Feature stack: Compose, MVI, Decompose, Koin and shared core modules |
-| `voidapp.room`                | Room and KSP for every target                                        |
-| `voidapp.android.application` | Android app configuration and release R8/resource shrinking          |
-| `voidapp.desktop.application` | Compose Desktop application                                          |
-| `voidapp.ios.framework`       | Static iOS framework                                                 |
-| `voidapp.quality`             | ktlint checks for KMP libraries and applications                     |
+| Plugin                        | Purpose                                                                                                  |
+|-------------------------------|----------------------------------------------------------------------------------------------------------|
+| `voidapp.kmp.library`         | KMP targets for Android, iOS and JVM; SDK versions                                                       |
+| `voidapp.kmp.compose`         | Compose Multiplatform and resources                                                                      |
+| `voidapp.kmp.serialization`   | kotlinx.serialization compiler plugin                                                                    |
+| `voidapp.mvi`                 | MVIKotlin dependencies                                                                                   |
+| `voidapp.decompose`           | Decompose dependencies                                                                                   |
+| `voidapp.feature`             | Feature stack: Compose, MVI, Decompose, Koin and shared core modules                                     |
+| `voidapp.room`                | Room and KSP for every target                                                                            |
+| `voidapp.android.application` | Android app configuration, release R8/resource shrinking and optional signing from environment variables |
+| `voidapp.desktop.application` | Compose Desktop application                                                                              |
+| `voidapp.ios.framework`       | Static iOS framework                                                                                     |
+| `voidapp.quality`             | ktlint checks for KMP libraries and applications                                                         |
 
+</details>
 <br>
 
 ![Tech Stack Header](./assets/header_tech_stack.png)
@@ -253,6 +283,11 @@ graph TD
     designsystem --> utils
 ```
 
+<details>
+<summary><b>Module reference</b></summary>
+
+<br>
+
 #### Feature modules
 
 | Module             | Description                                                                                                                           |
@@ -281,9 +316,11 @@ graph TD
 | `core:data:catalog`  | Syncs the OpenRouter catalog into Room and exposes use cases to observe, refresh and pin models.              |
 | `core:data:chat`     | Chat and conversation repositories, streaming response generation, attachment storage and image encoding.     |
 
+</details>
+
 <br>
 
 ![Todo Header](./assets/header_todo.png)
 
 - Tests, starting with unit tests
-- CI & Releases
+- ktlint check in CI
