@@ -73,7 +73,7 @@ enum class ErrorReason {
     companion object {
 
         fun fromKey(key: String?) = entries
-            .firstOrNull { it.name == key }
+            .firstOrNull { it.name.equals(key, ignoreCase = true) }
             ?: UNEXPECTED
     }
 }
