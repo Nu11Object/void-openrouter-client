@@ -11,5 +11,8 @@ kotlin {
             api(libs.kotlinx.serialization.core)
             implementation(libs.compose.runtime)
         }
+        commonTest.dependencies {
+            implementation(libs.kotlinx.serialization.json)
+        }
     }
 }
