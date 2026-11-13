@@ -26,6 +26,7 @@ dependencies {
     implementation(libs.ksp.gradle.plugin)
     implementation(libs.room.gradle.plugin)
     implementation(libs.ktlint.gradle.plugin)
+    implementation(libs.testBalloon.gradle.plugin)
 }
 
 tasks {

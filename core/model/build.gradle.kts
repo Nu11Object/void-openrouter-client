@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.voidappKmpLibrary)
     alias(libs.plugins.voidappKmpSerialization)
+    alias(libs.plugins.voidappTestBalloon)
 }
 
 kotlin {

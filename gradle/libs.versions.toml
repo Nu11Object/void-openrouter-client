@@ -15,6 +15,7 @@ kotlinx-coroutines = "1.11.0"
 kotlinx-serialization = "1.12.0"
 material3 = "1.13.0-beta02"
 kotlinxDatetime = "0.8.0"
+testBalloon = "1.2.0"
 
 decompose = "3.5.0"
 essenty = "2.7.1"
@@ -57,6 +58,7 @@ kotlin-serialization-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-ser
 ksp-gradle-plugin = { module = "com.google.devtools.ksp:symbol-processing-gradle-plugin", version.ref = "ksp" }
 room-gradle-plugin = { module = "androidx.room3:room3-gradle-plugin", version.ref = "room" }
 ktlint-gradle-plugin = { module = "org.jlleitschuh.gradle:ktlint-gradle", version.ref = "ktlint" }
+testBalloon-gradle-plugin = { module = "de.infix.testBalloon:testBalloon-gradle-plugin", version.ref = "testBalloon" }
 
 decompose-core = { module = "com.arkivanov.decompose:decompose", version.ref = "decompose" }
 decompose-compose = { module = "com.arkivanov.decompose:extensions-compose", version.ref = "decompose" }
@@ -100,6 +102,9 @@ markdown-core = { module = "com.mikepenz:multiplatform-markdown-renderer", versi
 markdown-m3 = { module = "com.mikepenz:multiplatform-markdown-renderer-m3", version.ref = "markdown" }
 markdown-code = { module = "com.mikepenz:multiplatform-markdown-renderer-code", version.ref = "markdown" }
 markdown-coil = { module = "com.mikepenz:multiplatform-markdown-renderer-coil3", version.ref = "markdown" }
+
+testBalloon-core = { module = "de.infix.testBalloon:testBalloon-framework-core", version.ref = "testBalloon" }
+testBalloon-kotest = { module = "de.infix.testBalloon:testBalloon-integration-kotest-assertions", version.ref = "testBalloon" }
 
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutinesSwing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "kotlinx-coroutines" }
@@ -166,3 +171,4 @@ voidappRoom = { id = "voidapp.room" }
 voidappIosFramework = { id = "voidapp.ios.framework" }
 voidappAndroidApplication = { id = "voidapp.android.application" }
 voidappDesktopApplication = { id = "voidapp.desktop.application" }
+voidappTestBalloon = { id = "voidapp.test.balloon" }
