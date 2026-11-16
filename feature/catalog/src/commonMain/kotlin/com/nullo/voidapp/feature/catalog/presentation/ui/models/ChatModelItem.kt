@@ -147,7 +147,7 @@ internal fun ChatModelItem(
     )
 }
 
-private fun BigDecimal.toPriceString(): String {
+internal fun BigDecimal.toPriceString(): String {
     val plain = this.toPlainString()
     if (!plain.contains('.')) return "$$plain"
 

@@ -180,6 +180,6 @@ internal fun <T> TagSelector(
     }
 }
 
-private fun String.toPriceOrNull(): BigDecimal? = runCatching {
+internal fun String.toPriceOrNull(): BigDecimal? = runCatching {
     trimEnd('.').let { if (it.startsWith('.')) "0$it" else it }.toBigDecimal()
 }.getOrNull()
