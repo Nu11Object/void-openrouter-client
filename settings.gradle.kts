@@ -40,6 +40,7 @@ include(":desktopApp")
 include(":shared")
 
 include(":core:model")
+include(":core:testing")
 include(":core:database")
 include(":core:network")
 include(":core:auth")
