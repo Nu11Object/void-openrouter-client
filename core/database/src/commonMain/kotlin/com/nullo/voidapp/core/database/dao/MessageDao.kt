@@ -93,7 +93,7 @@ interface MessageDao {
         SET
             messageType = 'INTERRUPTED',
             isGenerating = 0
-        WHERE id = :messageId
+        WHERE id = :messageId AND isGenerating = 1
         """
     )
     suspend fun markInterrupted(messageId: Long)
