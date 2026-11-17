@@ -21,6 +21,10 @@ kotlin {
         commonTest.dependencies {
             implementation(projects.core.testing)
         }
+        jvmTest.dependencies {
+            implementation(libs.androidx.room3.runtime)
+            implementation(libs.androidx.sqlite.bundled)
+        }
     }
 }
 
