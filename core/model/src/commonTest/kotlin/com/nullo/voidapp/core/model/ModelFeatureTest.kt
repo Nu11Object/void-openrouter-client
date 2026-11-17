@@ -18,4 +18,10 @@ val ModelFeatureTest by testSuite {
     test("unknown key maps to null") {
         ModelFeature.fromKey("unknown-key") shouldBe null
     }
+
+    test("lowercase names map back to their features") {
+        ModelFeature.entries.forEach { feature ->
+            ModelFeature.fromKey(feature.name.lowercase()) shouldBe feature
+        }
+    }
 }

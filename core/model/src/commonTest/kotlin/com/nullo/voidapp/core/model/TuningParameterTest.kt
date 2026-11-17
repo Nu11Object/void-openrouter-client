@@ -33,9 +33,9 @@ val TuningParameterTest by testSuite {
         TuningParameter.entries.map { it.key }.toSet().size shouldBe TuningParameter.entries.size
     }
 
-    test("keys are lowercase") {
+    test("keys match lowercase names") {
         TuningParameter.entries.forEach { parameter ->
-            parameter.key shouldBe parameter.key.lowercase()
+            parameter.key shouldBe parameter.name.lowercase()
         }
     }
 }

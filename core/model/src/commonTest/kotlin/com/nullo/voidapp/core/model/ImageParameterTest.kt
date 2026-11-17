@@ -33,9 +33,9 @@ val ImageParameterTest by testSuite {
         ImageParameter.entries.map { it.key }.toSet().size shouldBe ImageParameter.entries.size
     }
 
-    test("keys are lowercase") {
+    test("keys match lowercase names") {
         ImageParameter.entries.forEach { parameter ->
-            parameter.key shouldBe parameter.key.lowercase()
+            parameter.key shouldBe parameter.name.lowercase()
         }
     }
 }
