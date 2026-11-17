@@ -26,6 +26,7 @@ fun ImageModel.toEntity(): ImageModelEntity = ImageModelEntity(
     name = name,
     description = description,
     createdAtTimestamp = createdAtTimestamp,
+    pinned = pinned,
     inputModalities = inputModalities.map { it.name.lowercase() },
     outputModalities = outputModalities.map { it.name.lowercase() },
     supportsStreaming = supportsStreaming,

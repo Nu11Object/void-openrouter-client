@@ -46,6 +46,7 @@ fun ChatModel.toEntity(): ChatModelEntity = ChatModelEntity(
     createdAtTimestamp = createdAtTimestamp,
     contextLength = contextLength,
     maxCompletionTokens = maxCompletionTokens,
+    pinned = pinned,
     inputModalities = inputModalities.map { it.name.lowercase() },
     outputModalities = outputModalities.map { it.name.lowercase() },
     supportedTuningParameters = supportedTuningParameters.map { it.name.lowercase() },
