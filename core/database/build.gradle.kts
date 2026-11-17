@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.voidappKmpLibrary)
     alias(libs.plugins.voidappRoom)
+    alias(libs.plugins.voidappTestBalloon)
 }
 
 kotlin {
@@ -16,6 +17,9 @@ kotlin {
         }
         jvmMain.dependencies {
             implementation(projects.core.desktop)
+        }
+        commonTest.dependencies {
+            implementation(projects.core.testing)
         }
     }
 }
