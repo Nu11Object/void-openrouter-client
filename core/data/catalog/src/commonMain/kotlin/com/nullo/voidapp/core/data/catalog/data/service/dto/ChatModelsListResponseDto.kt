@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 internal data class ChatModelsListResponseDto(
     @SerialName("data")
-    val data: List<ModelDto> = emptyList(),
+    val data: List<ModelDto>,
 )
 
 @Serializable
