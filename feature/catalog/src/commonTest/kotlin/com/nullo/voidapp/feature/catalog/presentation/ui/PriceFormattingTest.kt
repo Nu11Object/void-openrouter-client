@@ -2,6 +2,7 @@ package com.nullo.voidapp.feature.catalog.presentation.ui
 
 import com.ionspin.kotlin.bignum.decimal.toBigDecimal
 import com.nullo.voidapp.feature.catalog.presentation.ui.filters.toPriceOrNull
+import com.nullo.voidapp.feature.catalog.presentation.ui.models.isVariablePrice
 import com.nullo.voidapp.feature.catalog.presentation.ui.models.toPriceString
 import de.infix.testBalloon.framework.core.testSuite
 import io.kotest.matchers.shouldBe
@@ -20,11 +21,24 @@ val PriceFormattingTest by testSuite {
             "10.50" to "$10.5",
             "0.0000001" to "$0.0000001",
             "10000000" to "$10000000",
-            "123456789.123456" to "$123456789.123456",
-            "-3.5" to "$-3.5"
+            "123456789.123456" to "$123456789.123456"
         ).forEach { (input, expected) ->
             test("$input is formatted as $expected") {
                 input.toBigDecimal().toPriceString() shouldBe expected
+            }
+        }
+    }
+
+    testSuite("isVariablePrice") {
+        listOf("-1", "-1000000", "-0.000001").forEach { input ->
+            test("$input is a variable price") {
+                input.toBigDecimal().isVariablePrice() shouldBe true
+            }
+        }
+
+        listOf("0", "0.000001", "3.5", "1000000").forEach { input ->
+            test("$input is not a variable price") {
+                input.toBigDecimal().isVariablePrice() shouldBe false
             }
         }
     }

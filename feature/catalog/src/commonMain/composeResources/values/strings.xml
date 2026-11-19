@@ -25,6 +25,7 @@
     <string name="input_price">Input price</string>
     <string name="output_price">Output price</string>
     <string name="price_description">$ per 1M tokens</string>
+    <string name="price_variable">variable</string>
     <string name="context_window">Context window</string>
     <string name="any">Any</string>
     <string name="input_modalities">Input modalities</string>

@@ -31,6 +31,7 @@ import com.nullo.voidapp.feature.catalog.presentation.ui.toCompactString
 import org.jetbrains.compose.resources.stringResource
 import voidapp.feature.catalog.generated.resources.Res
 import voidapp.feature.catalog.generated.resources.per_1m_tokens
+import voidapp.feature.catalog.generated.resources.price_variable
 import voidapp.feature.catalog.generated.resources.reasoning
 import voidapp.feature.catalog.generated.resources.template_context_length
 import voidapp.feature.catalog.generated.resources.vision
@@ -80,7 +81,7 @@ internal fun ChatModelItem(
             contentDescription = null
         )
         Text(
-            text = chatModel.pricing.promptPerMillion.toPriceString(),
+            text = priceText(chatModel.pricing.promptPerMillion),
             style = MaterialTheme.typography.bodySmall,
             color = secondaryTextColor
         )
@@ -90,7 +91,7 @@ internal fun ChatModelItem(
             contentDescription = null
         )
         Text(
-            text = chatModel.pricing.completionPerMillion.toPriceString(),
+            text = priceText(chatModel.pricing.completionPerMillion),
             style = MaterialTheme.typography.bodySmall,
             color = secondaryTextColor
         )
@@ -146,6 +147,17 @@ internal fun ChatModelItem(
         modifier = Modifier.fillMaxWidth()
     )
 }
+
+@Composable
+private fun priceText(price: BigDecimal): String =
+    if (price.isVariablePrice()) {
+        stringResource(Res.string.price_variable)
+    } else {
+        price.toPriceString()
+    }
+
+// OpenRouter marks dynamic pricing with negative values.
+internal fun BigDecimal.isVariablePrice(): Boolean = this < BigDecimal.ZERO
 
 internal fun BigDecimal.toPriceString(): String {
     val plain = this.toPlainString()
