@@ -32,12 +32,12 @@ private val SERVER_ERROR_STATUSES = listOf(
     HttpStatusCode.GatewayTimeout
 )
 
-private val SAMPLE_CLIENT_ERRORS = listOf(
+private val SAMPLE_CLIENT_ERROR_STATUSES = listOf(
     HttpStatusCode.Unauthorized,
     HttpStatusCode.TooManyRequests
 )
 
-private val SAMPLE_SERVER_ERRORS = listOf(
+private val SAMPLE_SERVER_ERROR_STATUSES = listOf(
     HttpStatusCode.InternalServerError,
     HttpStatusCode.ServiceUnavailable
 )
@@ -146,7 +146,7 @@ val CatalogApiServiceImplTest by testSuite {
             "{}",
             """{"error":{"message":"x","code":200}}"""
         ).forEach { body ->
-            test("a 200 body \"$body\" without data fails with NetworkException") {
+            test("a 200 body $body fails with NetworkException") {
                 val api = catalogApi { respondJson(body) }
 
                 shouldThrow<NetworkException> { api.fetchChatModels() }
@@ -223,7 +223,7 @@ val CatalogApiServiceImplTest by testSuite {
             shouldThrow<NetworkException> { api.fetchImageModels() }
         }
 
-        SAMPLE_CLIENT_ERRORS.forEach { status ->
+        SAMPLE_CLIENT_ERROR_STATUSES.forEach { status ->
             test("status ${status.value} fails with NetworkException") {
                 val api = catalogApi { respondJson(errorJson(status.value), status) }
 
@@ -231,7 +231,7 @@ val CatalogApiServiceImplTest by testSuite {
             }
         }
 
-        SAMPLE_SERVER_ERRORS.forEach { status ->
+        SAMPLE_SERVER_ERROR_STATUSES.forEach { status ->
             test("status ${status.value} fails with InternalServerException") {
                 val api = catalogApi { respondJson(errorJson(status.value), status) }
 
@@ -302,7 +302,7 @@ val CatalogApiServiceImplTest by testSuite {
             pricing.single().lines[1].variant shouldBe "standard"
         }
 
-        SAMPLE_CLIENT_ERRORS.forEach { status ->
+        SAMPLE_CLIENT_ERROR_STATUSES.forEach { status ->
             test("status ${status.value} fails with NetworkException") {
                 val api = catalogApi { respondJson(errorJson(status.value), status) }
 
@@ -312,7 +312,7 @@ val CatalogApiServiceImplTest by testSuite {
             }
         }
 
-        SAMPLE_SERVER_ERRORS.forEach { status ->
+        SAMPLE_SERVER_ERROR_STATUSES.forEach { status ->
             test("status ${status.value} fails with InternalServerException") {
                 val api = catalogApi { respondJson(errorJson(status.value), status) }
 
