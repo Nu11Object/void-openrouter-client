@@ -25,8 +25,8 @@ val ImageModelDaoTest by testSuite {
         test("insertAll replaces a model with the same id") { database ->
             val dao = database.imageModelDao()
 
-            dao.insertAll(listOf(imageModel(id = "model/a").copy(name = "First").toEntity()))
-            dao.insertAll(listOf(imageModel(id = "model/a").copy(name = "Second").toEntity()))
+            dao.insertAll(listOf(imageModel(id = "model/a", name = "First").toEntity()))
+            dao.insertAll(listOf(imageModel(id = "model/a", name = "Second").toEntity()))
 
             dao.observeById("model/a").first()?.name shouldBe "Second"
             dao.count() shouldBe 1
@@ -48,7 +48,7 @@ val ImageModelDaoTest by testSuite {
 
             dao.observeById("missing").first() shouldBe null
 
-            dao.insertAll(listOf(imageModel(id = "model/a").copy(name = "Known").toEntity()))
+            dao.insertAll(listOf(imageModel(id = "model/a", name = "Known").toEntity()))
             val stored = dao.observeById("model/a").first()
 
             stored?.id shouldBe "model/a"
@@ -108,9 +108,9 @@ val ImageModelDaoTest by testSuite {
 
         test("replaceAll takes other fields from the incoming pinned model") { database ->
             val dao = database.imageModelDao()
-            dao.insertAll(listOf(imageModel(id = "model/a", pinned = true).copy(name = "Old").toEntity()))
+            dao.insertAll(listOf(imageModel(id = "model/a", name = "Old", pinned = true).toEntity()))
 
-            dao.replaceAll(listOf(imageModel(id = "model/a", pinned = false).copy(name = "New").toEntity()))
+            dao.replaceAll(listOf(imageModel(id = "model/a", name = "New", pinned = false).toEntity()))
             val stored = dao.observeById("model/a").first()
 
             stored?.name shouldBe "New"

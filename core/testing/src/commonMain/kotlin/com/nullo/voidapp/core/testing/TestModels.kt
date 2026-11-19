@@ -43,19 +43,21 @@ fun chatModel(
 
 fun imageModel(
     id: String = "test/image-model",
+    name: String = "Test Model",
     supportedParameters: Map<ImageParameter, ImageParameterCapability> = emptyMap(),
     inputModalities: Set<Modality> = emptySet(),
     outputModalities: Set<Modality> = emptySet(),
+    endpointsUrl: String = "",
     pinned: Boolean = false,
 ) = ImageModel(
     id = id,
     supportedParameters = supportedParameters,
-    name = "Test Model",
+    name = name,
     description = "",
     createdAtTimestamp = 0L,
     inputModalities = inputModalities,
     outputModalities = outputModalities,
     supportsStreaming = false,
-    endpointsUrl = "",
+    endpointsUrl = endpointsUrl,
     pinned = pinned
 )
