@@ -27,8 +27,17 @@ internal class CatalogRepositoryImpl(
     override suspend fun refreshCatalog() = withContext(Dispatchers.IO) {
         val chatModels = async { catalogApiService.fetchChatModels() }
         val imageModels = async { catalogApiService.fetchImageModels() }
-        chatModelDao.replaceAll(chatModels.await().map { it.toEntity() })
-        imageModelDao.replaceAll(imageModels.await().map { it.toEntity() })
+
+        val fetchedChatModels = chatModels.await()
+        val fetchedImageModels = imageModels.await()
+
+        if (fetchedChatModels.isNotEmpty()) {
+            chatModelDao.replaceAll(fetchedChatModels.map { it.toEntity() })
+        }
+
+        if (fetchedImageModels.isNotEmpty()) {
+            imageModelDao.replaceAll(fetchedImageModels.map { it.toEntity() })
+        }
     }
 
     override fun observeChatModels(): Flow<List<ChatModel>> = chatModelDao
