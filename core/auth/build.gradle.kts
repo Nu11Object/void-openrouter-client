@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.voidappKmpLibrary)
     alias(libs.plugins.voidappKmpSerialization)
+    alias(libs.plugins.voidappTestBalloon)
 }
 
 kotlin {
@@ -13,6 +14,13 @@ kotlin {
             api(libs.kotlinx.coroutines.core)
 
             implementation(libs.ktor.client.core)
+        }
+        commonTest.dependencies {
+            implementation(projects.core.testing)
+            implementation(libs.ktor.client.mock)
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.serialization.kotlinx.json)
+            implementation(libs.kotlinx.serialization.json)
         }
     }
 }
