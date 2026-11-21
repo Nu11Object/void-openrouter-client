@@ -3,6 +3,8 @@ package com.nullo.voidapp.core.network
 import com.nullo.voidapp.core.security.ApiKeyStorage
 import com.nullo.voidapp.core.utils.kotlin.withBearerPrefix
 import io.ktor.client.HttpClient
+import io.ktor.client.HttpClientConfig
+import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.plugins.DefaultRequest
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.api.createClientPlugin
@@ -24,7 +26,11 @@ internal class HttpClientFactory(
     private val json: Json,
 ) {
 
-    fun create(): HttpClient = HttpClient {
+    fun create(): HttpClient = HttpClient(configuration)
+
+    internal fun create(engine: HttpClientEngine): HttpClient = HttpClient(engine, configuration)
+
+    private val configuration: HttpClientConfig<*>.() -> Unit = {
         install(ContentNegotiation) {
             json(json = json)
         }
