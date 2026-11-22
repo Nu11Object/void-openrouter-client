@@ -41,6 +41,7 @@ include(":shared")
 
 include(":core:model")
 include(":core:testing")
+include(":core:fakes")
 include(":core:database")
 include(":core:network")
 include(":core:auth")
