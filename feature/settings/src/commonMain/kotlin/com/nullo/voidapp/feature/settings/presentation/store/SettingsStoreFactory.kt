@@ -83,6 +83,7 @@ internal class SettingsStoreFactory(
     private inner class ExecutorImpl :
         CoroutineExecutor<SettingsStore.Intent, Action, SettingsStore.State, Message, SettingsStore.Label>() {
 
+        private var submitJob: Job? = null
         private var apiKeySuccessJob: Job? = null
 
         override fun executeAction(action: Action) {
@@ -99,11 +100,13 @@ internal class SettingsStoreFactory(
                 }
 
                 SettingsStore.Intent.SubmitApiKey -> {
+                    val apiKey = state().apiKey
+                    submitJob?.cancel()
                     apiKeySuccessJob?.cancel()
                     dispatch(Message.SubmittingApiKey)
-                    scope.launch {
+                    submitJob = scope.launch {
                         try {
-                            validateAndSaveApiKeyUseCase(state().apiKey)
+                            validateAndSaveApiKeyUseCase(apiKey)
                             dispatch(Message.ApiKeySubmitted)
 
                             apiKeySuccessJob = scope.launch {
