@@ -21,10 +21,10 @@ internal class SignOutUseCase(
 ) {
 
     suspend operator fun invoke() {
-        authRepository.clearApiKey()
         conversationRepository.deleteAll()
         catalogRepository.deleteAll()
         sessionRepository.clear()
         settingsRepository.clear()
+        authRepository.clearApiKey()
     }
 }
