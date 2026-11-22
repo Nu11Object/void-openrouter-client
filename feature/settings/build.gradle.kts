@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.voidappFeature)
+    alias(libs.plugins.voidappTestBalloon)
 }
 
 kotlin {
@@ -13,6 +14,14 @@ kotlin {
             implementation(projects.core.data.catalog)
             implementation(projects.core.data.session)
             implementation(projects.core.data.chat)
+        }
+        commonTest.dependencies {
+            implementation(projects.core.fakes)
+            implementation(projects.core.testing)
+
+            implementation(libs.kotlinx.coroutines.test)
+            implementation(libs.mvikotlin.main)
+            implementation(libs.mvikotlin.coroutines)
         }
     }
 }

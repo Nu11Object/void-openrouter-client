@@ -7,6 +7,9 @@ kotlin {
         commonMain.dependencies {
             api(projects.core.model)
             api(projects.core.security)
+
+            api(libs.kotlinx.coroutines.test)
+            api(libs.testBalloon.core)
         }
     }
 }
