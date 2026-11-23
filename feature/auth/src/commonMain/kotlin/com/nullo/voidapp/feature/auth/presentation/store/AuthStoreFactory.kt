@@ -167,11 +167,12 @@ internal class AuthStoreFactory(
                 }
 
                 AuthStore.Intent.SubmitApiKey -> {
+                    val apiKey = state().apiKey
                     dispatch(Message.SubmittingApiKey)
                     apiKeyAuthJob?.cancel()
                     apiKeyAuthJob = scope.launch {
                         try {
-                            validateAndSaveApiKeyUseCase(state().apiKey)
+                            validateAndSaveApiKeyUseCase(apiKey)
                         } catch (e: CancellationException) {
                             throw e
                         } catch (e: Exception) {
@@ -188,7 +189,7 @@ internal class AuthStoreFactory(
         override fun AuthStore.State.reduce(msg: Message): AuthStore.State = when (msg) {
             is Message.ApiKeyChanged -> copy(apiKey = msg.input)
             Message.ErrorDismissed -> copy(error = null, isLoading = false)
-            is Message.ErrorOccurred -> copy(error = msg.uiText, isLoading = false)
+            is Message.ErrorOccurred -> copy(error = msg.uiText, isLoading = false, isOAuthInProgress = false)
             Message.LaunchingOAuthFlow -> copy(isLoading = true, isOAuthInProgress = true)
             Message.OAuthCancelled -> copy(isLoading = false, isOAuthInProgress = false)
             Message.SubmittingApiKey -> copy(isLoading = true)
