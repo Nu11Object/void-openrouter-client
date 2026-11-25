@@ -5,6 +5,8 @@ import com.nullo.voidapp.core.model.ModelType
 import com.nullo.voidapp.core.model.chatmodel.ChatModel
 import com.nullo.voidapp.core.model.imagemodel.ImageModel
 import com.nullo.voidapp.core.model.imagemodel.ImagePricing
+import kotlin.time.Duration
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
@@ -33,8 +35,24 @@ class FakeCatalogRepository(
     var fetchImageModelPricingFailure: Throwable? = null
     var deleteAllFailure: Throwable? = null
 
+    var refreshDelay: Duration = Duration.ZERO
+    var fetchImageModelPricingDelay: Duration = Duration.ZERO
+
+    fun changeChatModelsExternally(models: List<ChatModel>) {
+        chatModels.update { models }
+    }
+
+    fun changeImageModelsExternally(models: List<ImageModel>) {
+        imageModels.update { models }
+    }
+
+    fun changeImagePricing(pricing: List<ImagePricing>) {
+        imagePricing.update { pricing }
+    }
+
     override suspend fun refreshCatalog() {
         calls += "refreshCatalog"
+        delay(refreshDelay)
         refreshCatalogFailure?.let { throw it }
     }
 
@@ -74,6 +92,7 @@ class FakeCatalogRepository(
 
     override suspend fun fetchImageModelPricing(model: ImageModel): List<ImagePricing> {
         calls += "fetchImageModelPricing:${model.id}"
+        delay(fetchImageModelPricingDelay)
         fetchImageModelPricingFailure?.let { throw it }
         return imagePricing.value
     }
