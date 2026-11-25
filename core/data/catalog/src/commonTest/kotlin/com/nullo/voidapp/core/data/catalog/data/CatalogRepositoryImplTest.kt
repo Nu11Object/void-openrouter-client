@@ -1,7 +1,7 @@
 package com.nullo.voidapp.core.data.catalog.data
 
 import com.ionspin.kotlin.bignum.decimal.toBigDecimal
-import com.nullo.voidapp.core.data.catalog.data.service.exception.NetworkException
+import com.nullo.voidapp.core.data.catalog.domain.exception.NetworkException
 import com.nullo.voidapp.core.database.mapper.toEntity
 import com.nullo.voidapp.core.model.ModelType
 import com.nullo.voidapp.core.model.imagemodel.ImagePricing

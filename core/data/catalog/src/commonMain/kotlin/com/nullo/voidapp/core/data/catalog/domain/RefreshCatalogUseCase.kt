@@ -1,7 +1,7 @@
 package com.nullo.voidapp.core.data.catalog.domain
 
-import com.nullo.voidapp.core.data.catalog.data.service.exception.InternalServerException
-import com.nullo.voidapp.core.data.catalog.data.service.exception.NetworkException
+import com.nullo.voidapp.core.data.catalog.domain.exception.InternalServerException
+import com.nullo.voidapp.core.data.catalog.domain.exception.NetworkException
 
 /**
  * Use case responsible for refreshing the local models catalog from OpenRouter.

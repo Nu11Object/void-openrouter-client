@@ -1,7 +1,7 @@
 package com.nullo.voidapp.core.data.catalog.data.service
 
-import com.nullo.voidapp.core.data.catalog.data.service.exception.InternalServerException
-import com.nullo.voidapp.core.data.catalog.data.service.exception.NetworkException
+import com.nullo.voidapp.core.data.catalog.domain.exception.InternalServerException
+import com.nullo.voidapp.core.data.catalog.domain.exception.NetworkException
 import com.nullo.voidapp.core.model.chatmodel.ChatModel
 import com.nullo.voidapp.core.model.imagemodel.ImageModel
 import com.nullo.voidapp.core.model.imagemodel.ImagePricing

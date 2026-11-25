@@ -4,8 +4,8 @@ import com.nullo.voidapp.core.data.catalog.data.mapper.toDomain
 import com.nullo.voidapp.core.data.catalog.data.service.dto.ChatModelsListResponseDto
 import com.nullo.voidapp.core.data.catalog.data.service.dto.ImageModelsListResponseDto
 import com.nullo.voidapp.core.data.catalog.data.service.dto.ImagePricingResponseDto
-import com.nullo.voidapp.core.data.catalog.data.service.exception.InternalServerException
-import com.nullo.voidapp.core.data.catalog.data.service.exception.NetworkException
+import com.nullo.voidapp.core.data.catalog.domain.exception.InternalServerException
+import com.nullo.voidapp.core.data.catalog.domain.exception.NetworkException
 import com.nullo.voidapp.core.model.chatmodel.ChatModel
 import com.nullo.voidapp.core.model.imagemodel.ImageModel
 import com.nullo.voidapp.core.model.imagemodel.ImagePricing

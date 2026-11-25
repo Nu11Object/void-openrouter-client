@@ -1,8 +1,8 @@
 package com.nullo.voidapp.core.data.catalog.data.service
 
 import com.ionspin.kotlin.bignum.decimal.toBigDecimal
-import com.nullo.voidapp.core.data.catalog.data.service.exception.InternalServerException
-import com.nullo.voidapp.core.data.catalog.data.service.exception.NetworkException
+import com.nullo.voidapp.core.data.catalog.domain.exception.InternalServerException
+import com.nullo.voidapp.core.data.catalog.domain.exception.NetworkException
 import com.nullo.voidapp.core.model.imagemodel.PricingUnit
 import de.infix.testBalloon.framework.core.testSuite
 import io.kotest.assertions.throwables.shouldThrow
