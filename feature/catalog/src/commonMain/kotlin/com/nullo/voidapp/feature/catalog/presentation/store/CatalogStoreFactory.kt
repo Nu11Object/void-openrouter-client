@@ -207,19 +207,27 @@ internal class CatalogStoreFactory(
                 }
 
                 is CatalogStore.Intent.SetPinState -> scope.launch {
-                    setPinStatusUseCase(
-                        modelId = intent.modelId,
-                        modelType = intent.modelType,
-                        pinned = intent.pinned
-                    )
+                    try {
+                        setPinStatusUseCase(
+                            modelId = intent.modelId,
+                            modelType = intent.modelType,
+                            pinned = intent.pinned
+                        )
+                    } catch (e: Exception) {
+                        handleException(e)
+                    }
                 }
 
                 is CatalogStore.Intent.UseModel -> {
                     useModelJob?.cancel()
                     useModelJob = scope.launch {
                         val model = intent.modelRef
-                        useModelUseCase(model)
-                        showMessage(UiText(Res.string.message_using_model, model.id))
+                        try {
+                            useModelUseCase(model)
+                            showMessage(UiText(Res.string.message_using_model, model.id))
+                        } catch (e: Exception) {
+                            handleException(e)
+                        }
                     }
                 }
 
