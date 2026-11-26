@@ -258,6 +258,7 @@ internal class TuneStoreFactory(
                 is State.Content.Chat -> {
                     val parameters = content.items.toSessionMap()
                     if (parameters == lastSyncedChat) return
+                    val previous = lastSyncedChat
                     lastSyncedChat = parameters
                     scope.launch {
                         try {
@@ -265,6 +266,7 @@ internal class TuneStoreFactory(
                         } catch (e: CancellationException) {
                             throw e
                         } catch (_: Exception) {
+                            lastSyncedChat = previous
                         }
                     }
                 }
@@ -272,6 +274,7 @@ internal class TuneStoreFactory(
                 is State.Content.Image -> {
                     val parameters = content.items.toSessionMap()
                     if (parameters == lastSyncedImage) return
+                    val previous = lastSyncedImage
                     lastSyncedImage = parameters
                     scope.launch {
                         try {
@@ -279,6 +282,7 @@ internal class TuneStoreFactory(
                         } catch (e: CancellationException) {
                             throw e
                         } catch (_: Exception) {
+                            lastSyncedImage = previous
                         }
                     }
                 }
