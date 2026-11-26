@@ -29,6 +29,14 @@ class FakeConversationRepository(
     var deleteAllFailure: Throwable? = null
     var cleanUpAfterPreviousSessionFailure: Throwable? = null
 
+    fun changeConversationsExternally(conversations: List<Conversation>) {
+        this.conversations.update { conversations }
+    }
+
+    fun changeMessagesExternally(conversationId: Long, messages: List<Message>) {
+        this.messages.update { it + (conversationId to messages) }
+    }
+
     override fun observeConversations(): Flow<List<Conversation>> = conversations
 
     override fun observeConversationById(conversationId: Long): Flow<Conversation?> =

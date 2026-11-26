@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.voidappFeature)
+    alias(libs.plugins.voidappTestBalloon)
 }
 
 kotlin {
@@ -20,6 +21,14 @@ kotlin {
             implementation(libs.markdown.coil)
             implementation(libs.coil.ktor3)
             implementation(libs.kotlinx.datetime)
+        }
+        commonTest.dependencies {
+            implementation(projects.core.fakes)
+            implementation(projects.core.testing)
+
+            implementation(libs.kotlinx.coroutines.test)
+            implementation(libs.mvikotlin.main)
+            implementation(libs.mvikotlin.coroutines)
         }
     }
 }
