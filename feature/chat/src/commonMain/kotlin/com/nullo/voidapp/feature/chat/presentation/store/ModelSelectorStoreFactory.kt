@@ -16,6 +16,7 @@ import com.nullo.voidapp.core.utils.kotlin.filterWithQuery
 import com.nullo.voidapp.feature.chat.presentation.store.ModelSelectorStore.Intent
 import com.nullo.voidapp.feature.chat.presentation.store.ModelSelectorStore.State
 import kotlin.time.Duration.Companion.milliseconds
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
@@ -126,11 +127,21 @@ internal class ModelSelectorStoreFactory(
                 }
 
                 is Intent.SelectModel -> scope.launch {
-                    useModelUseCase(intent.activeModelRef)
+                    try {
+                        useModelUseCase(intent.activeModelRef)
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (_: Exception) {
+                    }
                 }
 
                 is Intent.UnpinModel -> scope.launch {
-                    setPinStatusUseCase(intent.modelId, intent.modelType, pinned = false)
+                    try {
+                        setPinStatusUseCase(intent.modelId, intent.modelType, pinned = false)
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (_: Exception) {
+                    }
                 }
             }
         }
