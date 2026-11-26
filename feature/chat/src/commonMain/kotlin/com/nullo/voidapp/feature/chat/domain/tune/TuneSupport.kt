@@ -1,6 +1,7 @@
 package com.nullo.voidapp.feature.chat.domain.tune
 
 import com.nullo.voidapp.core.model.chatmodel.TuningParameter
+import kotlin.math.round
 
 internal enum class TuneSupport {
     TEMPERATURE_PRECISE,
@@ -41,7 +42,10 @@ internal fun TuningParameter.supportFor(value: Double): TuneSupport? = when (thi
     TuningParameter.PRESENCE_PENALTY,
     -> penaltySupport(offset = value, strongFrom = 1.0)
 
-    TuningParameter.REPETITION_PENALTY -> penaltySupport(offset = value - 1.0, strongFrom = 0.3)
+    TuningParameter.REPETITION_PENALTY -> {
+        val offset = round((value - 1.0) * 1000.0) / 1000.0
+        penaltySupport(offset = offset, strongFrom = 0.3)
+    }
 
     TuningParameter.MAX_TOKENS,
     TuningParameter.SEED,
