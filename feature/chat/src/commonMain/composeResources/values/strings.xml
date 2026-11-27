@@ -7,7 +7,7 @@
     <string name="error_conversation_not_created">Failed to create a conversation. Please try again.</string>
     <string name="error_cannot_rename_conversation">Failed to rename a conversation. Please try again.</string>
     <string name="error_blank_conversation_name">Enter a new name for the conversation.</string>
-    <string name="template_error_max_attachments_reached">Only the first %1$d images will be attached.</string>
+    <string name="template_error_max_attachments_reached">Up to %1$d images can be attached. Extra files were skipped.</string>
     <string name="error_some_attachments_import_failed">Some images couldn't be attached. Please try again.</string>
     <string name="error_model_no_image_input">This model doesn't support image attachments.</string>
 
