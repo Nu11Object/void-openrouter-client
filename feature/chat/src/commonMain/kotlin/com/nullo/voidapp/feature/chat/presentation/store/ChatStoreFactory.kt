@@ -245,7 +245,13 @@ internal class ChatStoreFactory(
                 Intent.DismissErrorDialog -> dispatch(Msg.ErrorDialogDismissed)
 
                 is Intent.DismissChatError -> scope.launch {
-                    dismissErrorMessageUseCase(intent.messageId)
+                    try {
+                        dismissErrorMessageUseCase(intent.messageId)
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (_: Exception) {
+                        dispatchError(UiText(CoreRes.string.error_unknown))
+                    }
                 }
 
                 Intent.RegenerateLastResponse -> {
@@ -326,13 +332,25 @@ internal class ChatStoreFactory(
                 }
 
                 Intent.ToggleThinking -> scope.launch {
-                    val enabled = !state().thinkingEnabled
-                    setThinkingEnabledUseCase(enabled)
+                    try {
+                        val enabled = !state().thinkingEnabled
+                        setThinkingEnabledUseCase(enabled)
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (_: Exception) {
+                        dispatchError(UiText(CoreRes.string.error_unknown))
+                    }
                 }
 
                 Intent.ToggleWebSearch -> scope.launch {
-                    val enabled = !state().webSearchEnabled
-                    setWebSearchEnabledUseCase(enabled)
+                    try {
+                        val enabled = !state().webSearchEnabled
+                        setWebSearchEnabledUseCase(enabled)
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (_: Exception) {
+                        dispatchError(UiText(CoreRes.string.error_unknown))
+                    }
                 }
 
                 is Intent.ChangePrompt -> dispatch(Msg.PromptChanged(intent.prompt))
@@ -371,7 +389,13 @@ internal class ChatStoreFactory(
 
                 is Intent.RemoveImageAttachment -> scope.launch {
                     dispatch(Msg.AttachmentRemoved(intent.attachment))
-                    deleteAttachmentUseCase(intent.attachment)
+                    try {
+                        deleteAttachmentUseCase(intent.attachment)
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (_: Exception) {
+                        // The file is orphaned and removed by the next startup cleanup.
+                    }
                 }
 
                 is Intent.SaveImage -> scope.launch {
