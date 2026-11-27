@@ -27,6 +27,7 @@ kotlin {
             implementation(projects.core.testing)
 
             implementation(libs.kotlinx.coroutines.test)
+            implementation(libs.kotlinx.serialization.json)
             implementation(libs.mvikotlin.main)
             implementation(libs.mvikotlin.coroutines)
         }

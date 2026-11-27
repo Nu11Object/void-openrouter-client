@@ -13,6 +13,7 @@ kotlin {
             api(projects.core.data.settings)
             api(projects.core.data.chat)
             api(libs.kotlinx.coroutines.core)
+            api(libs.file.kit.core)
         }
     }
 }
